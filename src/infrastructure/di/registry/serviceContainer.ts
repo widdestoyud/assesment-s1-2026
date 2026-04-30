@@ -1,27 +1,7 @@
-import { AwilixContainer, asFunction } from 'awilix';
-import {
-  ConfigService,
-  ConfigServiceInterface,
-} from '@core/services/config.service';
-import {
-  MsisdnService,
-  MsisdnServiceInterface,
-} from '@core/services/msisdn.service';
-import {
-  RegistrationService,
-  RegistrationServiceInterface,
-} from '@core/services/registration.service';
+import { AwilixContainer } from 'awilix';
 
-export function registerServiceModules(container: AwilixContainer) {
-  container.register({
-    configService: asFunction(ConfigService).singleton(),
-    msisdnService: asFunction(MsisdnService).singleton(),
-    registrationService: asFunction(RegistrationService).singleton(),
-  });
+export function registerServiceModules(_container: AwilixContainer) {
+  // MBC services will be registered in mbcServiceContainer.ts
 }
 
-export interface ServiceContainerInterface {
-  configService: ConfigServiceInterface;
-  msisdnService: MsisdnServiceInterface;
-  registrationService: RegistrationServiceInterface;
-}
+export interface ServiceContainerInterface {}

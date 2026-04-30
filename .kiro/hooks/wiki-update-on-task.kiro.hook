@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Wiki: Update Docs After Task",
+  "description": "After a spec task is completed, remind the agent to update wiki documentation for any affected pages. Ensures docs stay in sync with implementation.",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A spec task was just completed. As the Wiki Documenter (read .kiro/agents/wiki-documenter.prompt.md), check if any documentation in docs/wiki/ needs to be updated based on the completed task. If docs/wiki/ doesn't exist yet, note that documentation generation is pending. Do NOT generate the full wiki now — just note which pages would need updating. Keep it brief (3-5 lines max)."
+  }
+}

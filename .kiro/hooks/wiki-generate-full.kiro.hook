@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Wiki: Generate Full Documentation",
+  "description": "Manual trigger to generate or regenerate the full wiki documentation from specs and source code. Creates all pages in docs/wiki/ following the documentation structure.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "As the Wiki Documenter (read .kiro/agents/wiki-documenter.prompt.md), generate the complete wiki documentation in docs/wiki/. Read all spec files (.kiro/specs/membership-benefit-card/requirements.md, design.md, tasks.md) and existing source code to produce comprehensive documentation following the structure defined in your prompt. Create all pages with Mermaid diagrams, cross-links, and requirement traceability. Ensure zero redundancy between pages."
+  }
+}

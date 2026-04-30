@@ -10,20 +10,20 @@ import {
 
 export function registerReactModules(container: AwilixContainer) {
   container.register({
-    useEffect: asValue(useEffect),
     useState: asValue(useState),
-    useRef: asValue(useRef),
-    useContext: asValue(useContext),
+    useEffect: asValue(useEffect),
     useCallback: asValue(useCallback),
     useMemo: asValue(useMemo),
+    useContext: asValue(useContext),
+    useRef: asValue(useRef),
   });
 }
 
 export interface ReactContainerInterface {
-  useEffect: typeof useEffect;
   useState: typeof useState;
-  useRef: typeof useRef;
-  useContext: typeof useContext;
+  useEffect: typeof useEffect;
   useCallback: typeof useCallback;
   useMemo: typeof useMemo;
+  useContext: typeof useContext;
+  useRef: typeof useRef;
 }

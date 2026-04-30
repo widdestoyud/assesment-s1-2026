@@ -6,10 +6,7 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { z } from 'zod';
-import GlobalContextProvider from '@src/contexts/global.provider';
 import config from '@src/infrastructure/config';
-import LoadingMask from '@src/presentation/pages/LoadingMask';
-import PopupError from '@src/presentation/pages/PopupError';
 
 const globalSearchSchema = z.object({
   isMobile: z.boolean().optional(),
@@ -23,11 +20,11 @@ export const Route = createRootRouteWithContext<{
   head: () => ({
     meta: [
       {
-        name: 'Welcome to MyTelkomsel Prepaid Registration',
-        content: 'MyTelkomsel Prepaid Registration',
+        name: 'Welcome to MyTelkomsel',
+        content: 'MyTelkomsel Membership Benefit Card',
       },
       {
-        title: 'MyTelkomsel Prepaid Registration',
+        title: 'MyTelkomsel Membership Benefit Card',
       },
     ],
     links: [
@@ -41,7 +38,7 @@ export const Route = createRootRouteWithContext<{
     const activeQueryDevTool = config.tanStack.queryDevTool;
     const activeRouteDevTool = config.tanStack.routeDevTool;
     return (
-      <GlobalContextProvider>
+      <>
         <HeadContent />
         <Outlet />
         <>
@@ -52,9 +49,7 @@ export const Route = createRootRouteWithContext<{
             <TanStackRouterDevtools position="bottom-right" />
           )}
         </>
-        <LoadingMask />
-        <PopupError />
-      </GlobalContextProvider>
+      </>
     );
   },
 });
