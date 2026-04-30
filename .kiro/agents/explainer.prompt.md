@@ -73,7 +73,7 @@ Selalu ikuti struktur ini:
 - "Jelaskan arsitektur MBC secara keseluruhan"
 - "Kenapa data disimpan di kartu bukan server?"
 - "Bagaimana cara mencegah double deduction?"
-- "Jelaskan strategi penyimpanan dual-layer"
+- "Jelaskan strategi penyimpanan localStorage"
 
 ### Code Pattern
 - "Jelaskan controller pattern di proyek ini"

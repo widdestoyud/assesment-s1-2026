@@ -5,7 +5,7 @@
 
 ## Overview
 
-A `ServiceType` defines a business scenario (parking, bike rental, gym, etc.) with its own pricing rules. Service types are stored in the [Service Registry](../04-Technical-Flows/Resilient-Storage) on the device and referenced by ID on the NFC card.
+A `ServiceType` defines a business scenario (parking, bike rental, gym, etc.) with its own pricing rules. Service types are stored in the [Service Registry](../04-Technical-Flows/Storage-Architecture) on the device and referenced by ID on the NFC card.
 
 ## Class Diagram
 

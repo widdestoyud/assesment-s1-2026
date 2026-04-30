@@ -21,7 +21,7 @@ flowchart TD
     C -->|Submit| F[Validate via<br/>ServiceTypeFormSchema]
     D -->|Submit| F
     F -->|Valid| G[Save to Service Registry]
-    G --> H[Persist to dual-layer storage]
+    G --> H[Persist to localStorage]
     E -->|Confirmed| I[Remove from registry]
     I --> H
 
@@ -78,7 +78,7 @@ See [Service Type Model](../02-Data-Models/Service-Type-Model) for the full mode
 
 ## Persistence
 
-The Service Registry is persisted via [Resilient Storage](../04-Technical-Flows/Resilient-Storage) — dual-layer IndexedDB + localStorage. Data integrity is validated on each app launch using Zod (Req 20.5).
+The Service Registry is persisted via [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — localStorage with Zod validation. Data integrity is validated on each app launch (Req 20.5).
 
 ## Form Validation
 
@@ -98,5 +98,5 @@ Service type forms are validated by `ServiceTypeFormSchema` — see [Zod Validat
 - [Service Type Model](../02-Data-Models/Service-Type-Model) — Data model and examples
 - [Pricing Engine](../04-Technical-Flows/Pricing-Engine) — How pricing strategies are used
 - [Check-In Flow](Check-In-Flow) — Service type selection at The Gate (Req 17)
-- [Resilient Storage](../04-Technical-Flows/Resilient-Storage) — Persistence mechanism
+- [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — Persistence mechanism
 - [Station Interface](../05-UI-Components/Station-Interface) — UI layout

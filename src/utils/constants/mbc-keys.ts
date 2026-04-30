@@ -3,9 +3,7 @@ export const MBC_KEYS = {
   MBC_DEVICE_ID: 'mbc-device-id',
   MBC_SERVICE_REGISTRY: 'mbc-service-registry',
 
-  // IndexedDB config
-  MBC_DB_NAME: 'mbc-app',
-  MBC_DB_VERSION: 1,
+  // Storage config
   MBC_STORE_NAME: 'mbc-config',
 
   // Silent Shield config

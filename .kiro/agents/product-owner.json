@@ -1,6 +1,6 @@
 {
   "name": "product-owner",
-  "description": "Product Owner agent — defines requirements, writes user stories, prioritizes backlog, and validates features from the user perspective",
+  "description": "Product Owner agent — defines requirements, writes user stories, prioritizes backlog, and validates features from the user perspective. Always cross-references decisions against the KDX#1 MBC specification document.",
   "prompt": "file://product-owner.prompt.md",
   "tools": [
     "fs_read",
@@ -20,8 +20,9 @@
   ],
   "resources": [
     "file://.kiro/specs/**/*",
-    "file://.kiro/steering/**/*.md"
+    "file://.kiro/steering/**/*.md",
+    "file://referensi/KDX#1 - Membership Benefit Card (MBC).pdf"
   ],
   "keyboardShortcut": "ctrl+shift+p",
-  "welcomeMessage": "Product Owner mode aktif. Saya siap membantu mendefinisikan requirements, menulis user stories, atau mereview fitur dari perspektif pengguna. Ada yang ingin dibahas?"
+  "welcomeMessage": "Product Owner mode aktif. Saya siap membantu mendefinisikan requirements, menulis user stories, atau mereview fitur dari perspektif pengguna. Setiap keputusan akan saya cross-reference dengan dokumen KDX#1 MBC. Ada yang ingin dibahas?"
 }

@@ -24,11 +24,11 @@ graph TB
     end
 
     subgraph L3["Layer 3 — Stateful Services"]
-        SS["Compose Layer 1 + Layer 2 via DI<br/>nfc, device, resilient-storage, service-registry"]
+        SS["Compose Layer 1 + Layer 2 via DI<br/>nfc, device, storage-health, service-registry"]
     end
 
     subgraph L2["Layer 2 — I/O Adapters"]
-        IO["Protocol implementations<br/>webNfcAdapter, indexedDbAdapter"]
+        IO["Protocol implementations<br/>webNfcAdapter, webStorageAdapter"]
     end
 
     subgraph L1["Layer 1 — Pure Logic Services"]
@@ -66,8 +66,8 @@ The implementation follows strict bottom-up construction — **Start with Bricks
 |-------|----------|-------------|-------------|
 | **0** | Data models, types, Zod schemas | None | Pure type checks |
 | **1** | pricing, card-data, silent-shield services | Layer 0 types only | Pure unit tests, property-based tests |
-| **2** | webNfcAdapter, indexedDbAdapter | Browser APIs | Integration tests with mocks |
-| **3** | nfc, device, resilient-storage, service-registry | Layer 1 + Layer 2 via DI | Unit tests with mocked protocols |
+| **2** | webNfcAdapter, webStorageAdapter | Browser APIs | Integration tests with mocks |
+| **3** | nfc, device, storage-health, service-registry | Layer 1 + Layer 2 via DI | Unit tests with mocked protocols |
 | **4** | RegisterMember, TopUpBalance, CheckIn, CheckOut, etc. | Layer 3 services | Unit tests with mocked services |
 | **5** | station, gate, terminal, scout controllers | Layer 4 use cases | Unit tests with mocked use cases |
 | **6** | Pages + Components | Layer 5 controllers via DI | RTL component tests |
@@ -107,14 +107,13 @@ graph LR
 
     subgraph IOBoundary["I/O Boundary"]
         NfcProto[NfcProtocol]
-        IdbProto[IndexedDbProtocol]
-        LsProto[LocalStorageProtocol]
+        KvProto[KeyValueStoreProtocol]
     end
 
     subgraph Stateful["Stateful Services"]
         NfcSvc[nfc.service]
         DevSvc[device.service]
-        ResSvc[resilient-storage.service]
+        HealthSvc[storage-health.service]
         RegSvc[service-registry.service]
     end
 
@@ -129,10 +128,9 @@ graph LR
     NfcSvc --> NfcProto
     NfcSvc --> CardData
     NfcSvc --> Shield
-    ResSvc --> IdbProto
-    ResSvc --> LsProto
-    DevSvc --> ResSvc
-    RegSvc --> ResSvc
+    DevSvc --> KvProto
+    HealthSvc --> KvProto
+    RegSvc --> KvProto
     UseCases --> NfcSvc
     UseCases --> Pricing
     UseCases --> DevSvc
@@ -146,8 +144,8 @@ All modules are wired via Awilix with typed `AwilixRegistry`:
 
 | Registry File | Registers | Pattern |
 |---------------|-----------|---------|
-| `mbcProtocolContainer.ts` | `nfcProtocol`, `indexedDbProtocol` | `asFunction` |
-| `mbcServiceContainer.ts` | All 7 MBC services | `asFunction().singleton()` for stateful |
+| `mbcProtocolContainer.ts` | `nfcProtocol` | `asFunction` |
+| `mbcServiceContainer.ts` | All MBC services (pricing, card-data, silent-shield, nfc, device, storage-health, service-registry) | `asFunction().singleton()` for stateful |
 | `mbcUseCaseContainer.ts` | All 7 use cases | `asFunction` |
 | `mbcControllerContainer.ts` | All 5 controllers | `asFunction` |
 

@@ -28,7 +28,7 @@ pie title Implementation Progress
 | 1.2 | ✅ Done | Data model interfaces and Zod schemas |
 | 1.3 | ✅ Done | MBC helper utilities (formatIDR, formatDuration) |
 | 2.1 | ✅ Done | NfcProtocol interface |
-| 2.2 | ✅ Done | IndexedDbProtocol interface |
+| 2.2 | ✅ Done | ~~IndexedDbProtocol interface~~ (Removed — simplified to localStorage-only) |
 
 **Files created:**
 - `src/utils/constants/mbc-keys.ts`
@@ -39,7 +39,6 @@ pie title Implementation Progress
 - `src/@core/services/mbc/models/index.ts`
 - `src/utils/helpers/mbc.helper.ts`
 - `src/@core/protocols/nfc/index.ts`
-- `src/@core/protocols/indexed-db/index.ts`
 
 ### Phase 2: Layer 1 — Pure Logic Services 🔄 In Progress
 
@@ -65,9 +64,8 @@ pie title Implementation Progress
 | Task | Status | Description |
 |------|--------|-------------|
 | 5.1 | 📋 Planned | webNfcAdapter (NDEFReader wrapper) |
-| 5.2 | 📋 Planned | indexedDbAdapter |
 | 6.1 | 📋 Planned | nfc.service |
-| 6.2 | 📋 Planned | resilient-storage.service |
+| 6.2 | 📋 Planned | storage-health.service |
 | 6.3 | 📋 Planned | device.service |
 | 6.4 | 📋 Planned | service-registry.service |
 | 6.5* | 📋 Planned | Unit tests for stateful services |
@@ -120,11 +118,11 @@ pie title Implementation Progress
 |-------|---------------|----------------|------|----------|
 | Phase 1 | 5 | 0 | 5 | ✅ 100% |
 | Phase 2 | 3 | 9 | 0 | 🔄 ~25% |
-| Phase 3 | 8 | 1 | 0 | 📋 0% |
+| Phase 3 | 7 | 1 | 0 | 📋 0% |
 | Phase 4 | 8 | 2 | 0 | 📋 0% |
 | Phase 5 | 6 | 1 | 0 | 📋 0% |
 | Phase 6 | 18 | 2 | 0 | 📋 0% |
-| **Total** | **48** | **15** | **5** | **~10%** |
+| **Total** | **47** | **15** | **5** | **~10%** |
 
 ## Related Pages
 

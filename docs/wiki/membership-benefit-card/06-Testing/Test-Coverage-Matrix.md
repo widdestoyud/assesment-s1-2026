@@ -29,7 +29,7 @@ This matrix maps each requirement to its corresponding test files and correctnes
 | 17 | Service Selection | `gate.controller.test.ts`, `ServiceTypeSelector.test.tsx` | — | 📋 Planned |
 | 18 | Atomic Integrity | `CheckOut.test.ts`, `nfc.service.test.ts` | P4, P5 | 📋 Planned |
 | 19 | Device Binding | `CheckOut.test.ts`, `device.service.test.ts` | P10 | 📋 Planned |
-| 20 | Data Resilience | `resilient-storage.service.test.ts` | — | 📋 Planned |
+| 20 | Data Persistence | `storage-health.service.test.ts`, `service-registry.service.test.ts` | — | 📋 Planned |
 | 21 | Manual Fallback | `ManualCalculation.test.ts`, `terminal.controller.test.ts` | — | 📋 Planned |
 | 22 | NFC Capability Detection | `role-picker.controller.test.ts` | — | 📋 Planned |
 

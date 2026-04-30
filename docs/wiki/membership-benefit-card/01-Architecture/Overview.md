@@ -43,7 +43,6 @@ graph TB
             INFRA[Infrastructure Layer]
         end
         SW[Service Worker]
-        IDB[(IndexedDB)]
         LS[(localStorage)]
     end
 
@@ -53,7 +52,6 @@ graph TB
     CTRL --> CORE
     CORE --> INFRA
     INFRA -->|Web NFC API| CARD
-    INFRA --> IDB
     INFRA --> LS
     SW -->|Cache-first| App
 
@@ -75,7 +73,7 @@ graph TB
 ```
 src/
 ├── @core/                    # Core business logic (framework-agnostic)
-│   ├── protocols/            # Interface contracts (NFC, IndexedDB)
+│   ├── protocols/            # Interface contracts (NFC, KeyValueStore)
 │   ├── services/mbc/         # MBC services + data models
 │   └── use_case/mbc/         # Application use cases
 ├── infrastructure/           # External adapters & DI container

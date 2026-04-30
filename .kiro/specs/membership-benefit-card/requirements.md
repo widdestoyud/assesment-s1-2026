@@ -275,22 +275,23 @@ The application provides four role modes within a single app: The Station (admin
 3. WHEN a check-out operation is initiated at The Terminal, THE MBC_App SHALL compare the Device_ID stored on the card with the current device's Device_ID
 4. IF the Device_ID on the card does not match the current device's Device_ID during check-out, THEN THE MBC_App SHALL reject the check-out and display a message identifying that the member must return to the original check-in device
 5. THE MBC_App SHALL clear the stored Device_ID from the card when a check-out operation completes successfully
-6. THE MBC_App SHALL persist the Device_ID using a stable storage mechanism (IndexedDB primary, localStorage fallback) so the identifier survives application restarts
-7. IF the Device_ID is missing from local storage on application launch, THEN THE MBC_App SHALL generate a new Device_ID and display a warning that previous check-in sessions bound to the old Device_ID cannot be checked out on this device
+6. THE MBC_App SHALL persist the Device_ID in localStorage so the identifier survives application restarts
+7. IF the Device_ID is missing from localStorage on application launch, THEN THE MBC_App SHALL generate a new Device_ID and display a warning that previous check-in sessions bound to the old Device_ID cannot be checked out on this device
 
-### Requirement 20: Device Data Resilience
+### Requirement 20: Device Data Persistence and Error Handling
 
-**User Story:** As a cooperative administrator, I want the device's local data storage to be robust and redundant, so that critical configuration and device identity survive application restarts and storage disruptions.
+**User Story:** As a cooperative administrator, I want the device's local data storage to handle errors gracefully, so that the application remains functional even when storage is unavailable or full.
 
 #### Acceptance Criteria
 
-1. THE MBC_App SHALL persist the Service_Registry, Device_ID, and application state using IndexedDB as the primary storage mechanism
-2. THE MBC_App SHALL maintain a redundant copy of the Device_ID and Service_Registry in localStorage as a fallback
-3. WHEN the MBC_App detects that IndexedDB data is missing or corrupted on launch, THE MBC_App SHALL attempt to restore from the localStorage fallback copy
-4. IF the device storage quota is approaching its limit, THEN THE MBC_App SHALL display a warning to the operator indicating storage capacity is low
-5. THE MBC_App SHALL validate the integrity of the Service_Registry data on each application launch by checking for required fields and valid structure
-6. IF both IndexedDB and localStorage data are missing for the Service_Registry, THEN THE MBC_App SHALL re-initialize with the default parking Service_Type configuration
-7. THE MBC_App SHALL display a prominent warning when critical data (Device_ID or Service_Registry) has been reset due to storage loss, informing the operator of potential impact on active check-in sessions
+1. THE MBC_App SHALL persist the Service_Registry, Device_ID, and application state using localStorage as the storage mechanism
+2. WHEN the MBC_App launches, THE MBC_App SHALL check whether localStorage is available and accessible on the device
+3. IF localStorage is unavailable (e.g. private browsing mode, browser restriction), THEN THE MBC_App SHALL display an informative message explaining that the browser does not support local storage and the application cannot persist data between sessions
+4. IF a localStorage write operation fails due to quota exceeded, THEN THE MBC_App SHALL display a warning to the operator indicating storage capacity is full and suggest clearing browser data
+5. THE MBC_App SHALL validate the integrity of the Service_Registry data on each application launch by checking for required fields and valid structure using Zod schema validation
+6. IF the Service_Registry data is missing or corrupted in localStorage, THEN THE MBC_App SHALL re-initialize with the default parking Service_Type configuration
+7. THE MBC_App SHALL display a prominent warning when critical data (Device_ID or Service_Registry) has been reset due to storage loss or corruption, informing the operator of potential impact on active check-in sessions
+8. THE MBC_App SHALL handle all storage errors gracefully without crashing, ensuring the application remains operational and business errors are communicated clearly to the user
 
 ### Requirement 21: Manual Fee Calculation Fallback
 

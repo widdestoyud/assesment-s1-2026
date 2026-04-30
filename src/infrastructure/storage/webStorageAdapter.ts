@@ -2,10 +2,15 @@ import type { KeyValueStoreProtocol } from '@core/protocols/key-value-store';
 
 /**
  * KeyValueStoreProtocol implementation backed by window.localStorage.
- * Used as the FALLBACK store in the dual-layer resilience strategy.
+ * Primary storage adapter for Device_ID and Service Registry persistence.
  *
  * Internally uses JSON.stringify/parse to support typed values.
  * The `storeName` parameter is prefixed to the key for namespace isolation.
+ *
+ * Error handling strategy:
+ * - `isAvailable()` detects whether localStorage is accessible (e.g. private mode, quota exceeded).
+ * - Read operations return `undefined` on parse errors instead of throwing.
+ * - Write operations may throw `QuotaExceededError` — callers should handle gracefully.
  */
 export const webStorageAdapter: KeyValueStoreProtocol = {
   get: async <T>(storeName: string, key: string): Promise<T | undefined> => {
