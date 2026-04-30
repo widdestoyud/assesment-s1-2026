@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "QA: Run Edited Test File",
+  "description": "After a test file is created or edited, automatically run that specific test file to verify it passes.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.test.ts",
+      "**/*.test.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A test file was just edited. Read .kiro/agents/qa-tester.prompt.md for your persona. Run the edited test file using `npx vitest --run <file-path>` and report the results. If any tests fail, analyze the failure and suggest a fix."
+  }
+}

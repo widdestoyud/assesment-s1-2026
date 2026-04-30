@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "QA: Run Tests After Task",
+  "description": "Automatically runs unit tests after a spec task is completed to verify the implementation doesn't break existing tests.",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npx vitest --run 2>&1 | tail -20",
+    "timeout": 120
+  }
+}

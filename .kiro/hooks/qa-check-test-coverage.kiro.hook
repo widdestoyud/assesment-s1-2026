@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "QA: Check Test Coverage on Source Change",
+  "description": "When a source file in @core/services, controllers, or use_case is edited, remind the agent to check if corresponding tests need updating.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/@core/services/**/*.ts",
+      "src/controllers/**/*.ts",
+      "src/@core/use_case/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A source file was just modified. As the QA Tester (read .kiro/agents/qa-tester.prompt.md), check if there is a corresponding test file for this source file. If a test file exists, run it with `npx vitest --run <test-file>` and report results. If no test file exists, note that this file lacks test coverage and suggest what tests should be written based on the file's exports and logic."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "qa-tester",
+  "description": "QA/Software Tester agent — finds bugs, writes tests, reviews test coverage, and audits code for architecture, security, and accessibility compliance",
+  "prompt": "file://qa-tester.prompt.md",
+  "tools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "shell",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "shell",
+    "knowledge"
+  ],
+  "resources": [
+    "file://src/**/*.ts",
+    "file://src/**/*.tsx",
+    "file://src/**/*.test.ts",
+    "file://src/**/*.test.tsx",
+    "file://.kiro/steering/**/*.md"
+  ],
+  "keyboardShortcut": "ctrl+shift+q",
+  "welcomeMessage": "QA Tester mode aktif. Saya siap membantu mencari bug, menulis test, review coverage, atau audit kode. Mau mulai dari mana?"
+}
