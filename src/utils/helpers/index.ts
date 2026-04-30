@@ -1,6 +1,11 @@
 import { decryptAuthHeader, encryptAuthHeader } from './encrypt.helper.ts';
 import { generateParallelHeader } from './header.helper.ts';
 import {
+  formatDuration,
+  formatIDR,
+  getCurrentTimestamp,
+} from './mbc.helper.ts';
+import {
   getCountryCodePrefixedNumber,
   maskMsisdn,
   stripPhoneNumber,
@@ -29,4 +34,7 @@ export default {
   generateTypeMsisdn,
   maskMsisdn,
   maskNik,
+  formatIDR,
+  formatDuration,
+  getCurrentTimestamp,
 };

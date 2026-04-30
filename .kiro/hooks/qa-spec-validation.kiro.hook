@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "QA: Validate Specs vs Tests",
+  "description": "Manual trigger to validate all MBC spec requirements against existing test coverage. Maps each acceptance criterion to tests.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "As the QA Tester (read .kiro/agents/qa-tester.prompt.md), perform a spec-to-test traceability analysis. Read .kiro/specs/membership-benefit-card/requirements.md and scan all test files in the project. For each requirement (Req 1 through Req 22), check if there are tests that validate its acceptance criteria. Produce a table with columns: Requirement | Acceptance Criteria Count | Tests Found | Coverage Status (✅ covered, ⚠️ partial, ❌ missing). Then list the top 5 highest-priority gaps that need tests written."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "QA: Full Coverage Report",
+  "description": "Manual trigger to run full test suite with coverage report. User clicks this when they want a comprehensive QA check.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "As the QA Tester (read .kiro/agents/qa-tester.prompt.md), run the full test suite with coverage: `npx vitest --run --coverage`. Then analyze the results and provide a structured report with: 1) Total tests passed/failed/skipped, 2) Overall coverage percentage, 3) MBC-specific files with low coverage (below 80%), 4) List of MBC source files that have NO test file at all, 5) Recommendations for which tests to write next prioritized by risk."
+  }
+}

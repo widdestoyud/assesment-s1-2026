@@ -1,0 +1,27 @@
+{
+  "name": "product-owner",
+  "description": "Product Owner agent — defines requirements, writes user stories, prioritizes backlog, and validates features from the user perspective",
+  "prompt": "file://product-owner.prompt.md",
+  "tools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "knowledge"
+  ],
+  "resources": [
+    "file://.kiro/specs/**/*",
+    "file://.kiro/steering/**/*.md"
+  ],
+  "keyboardShortcut": "ctrl+shift+p",
+  "welcomeMessage": "Product Owner mode aktif. Saya siap membantu mendefinisikan requirements, menulis user stories, atau mereview fitur dari perspektif pengguna. Ada yang ingin dibahas?"
+}

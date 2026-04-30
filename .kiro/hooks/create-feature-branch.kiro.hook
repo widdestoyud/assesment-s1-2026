@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Create Feature Branch",
+  "description": "Setiap kali di-trigger, buat branch baru dengan format [feat]:<nama-fitur>. Agent akan menanyakan nama fitur lalu membuat branch-nya.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Tanyakan kepada user nama fitur yang ingin dibuat. Setelah user memberikan nama fitur, jalankan perintah git berikut:\n1. `git checkout -b [feat]:<nama-fitur>` — buat dan pindah ke branch baru dengan format [feat]:<nama-fitur>.\nPastikan nama fitur menggunakan kebab-case (huruf kecil, spasi diganti dengan tanda hubung). Contoh: jika user bilang \"Membership Benefit Card\", maka branch-nya adalah `[feat]:membership-benefit-card`."
+  }
+}

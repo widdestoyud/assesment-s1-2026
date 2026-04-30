@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "QA: Test Reminder for New Files",
+  "description": "When a new TypeScript source file is created in core services, controllers, or use cases, remind the agent to create a corresponding test file.",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "src/@core/services/mbc/*.ts",
+      "src/controllers/mbc/*.ts",
+      "src/@core/use_case/mbc/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new source file was just created. As the QA Tester (read .kiro/agents/qa-tester.prompt.md), note that this new file needs a corresponding test file. Based on the file location, determine the correct test file path following the project convention (__tests__/ co-located folders). List the key functions/interfaces exported from this file that should be tested. Do NOT create the test file yet — just report what needs to be tested."
+  }
+}
