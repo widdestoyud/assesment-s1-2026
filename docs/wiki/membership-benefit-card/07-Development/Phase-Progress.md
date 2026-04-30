@@ -15,7 +15,7 @@ pie title Implementation Progress
     "Phase 2 — Layer 1 (Done)" : 3
     "Phase 3 — Layer 2-3 (Done)" : 9
     "Phase 4 — Layer 4 (Done)" : 9
-    "Phase 5 — Layer 5 (Planned)" : 6
+    "Phase 5 — Layer 5 (Done)" : 8
     "Phase 6 — Layer 6 (Planned)" : 20
 ```
 
@@ -346,17 +346,19 @@ graph TB
 | 9.9* | ✅ Done | Unit tests (36 tests) |
 | 11.1 | ✅ Done | Use case DI container |
 
-## Phase 5: Layer 5 — Controllers 📋 Planned
+## Phase 5: Layer 5 — Controllers ✅ Done
+
+**Milestone:** [Phase 5](https://github.com/widdestoyud/assesment-s1-2026/milestone/5) (Closed) | **PR:** [#39](https://github.com/widdestoyud/assesment-s1-2026/pull/39) | **Detail:** [Laporan Fase 5](../09-Phase-Reports/Phase-5-Report)
 
 | Task | Status | Description |
 |------|--------|-------------|
-| 12.1 | 📋 Planned | role-picker.controller |
-| 12.2 | 📋 Planned | station.controller |
-| 12.3 | 📋 Planned | gate.controller |
-| 12.4 | 📋 Planned | terminal.controller |
-| 12.5 | 📋 Planned | scout.controller |
-| 12.6 | 📋 Planned | Controller DI container |
-| 12.7* | 📋 Planned | Controller unit tests |
+| 12.1 | ✅ Done | role-picker.controller |
+| 12.2 | ✅ Done | station.controller |
+| 12.3 | ✅ Done | gate.controller |
+| 12.4 | ✅ Done | terminal.controller |
+| 12.5 | ✅ Done | scout.controller |
+| 12.6 | ✅ Done | Controller DI container |
+| 12.7* | ✅ Done | Controller unit tests (22 tests) |
 
 ## Phase 6: Layer 6 — Presentation & PWA 📋 Planned
 
@@ -380,9 +382,9 @@ graph TB
 | Phase 2 | Layer 1 | 3 | 9 | 12 | ✅ 100% |
 | Phase 3 | Layer 2-3 | 8 | 1 | 9 | ✅ 100% |
 | Phase 4 | Layer 4 | 8 | 1 | 9 | ✅ 100% |
-| Phase 5 | Layer 5 | 6 | 1 | 0 | 📋 0% |
+| Phase 5 | Layer 5 | 6 | 1 | 7 | ✅ 100% |
 | Phase 6 | Layer 6 | 18 | 2 | 0 | 📋 0% |
-| **Total** | | **48** | **14** | **35** | **~56%** |
+| **Total** | | **48** | **14** | **42** | **~67%** |
 
 ### Test Progression
 
@@ -392,6 +394,7 @@ graph TB
 | Phase 2 | 16 | 16 | 3 |
 | Phase 3 | 45 | 61 | 7 |
 | Phase 4 | 36 | 97 | 14 |
+| Phase 5 | 22 | 119 | 18 |
 
 ## Related Pages
 
