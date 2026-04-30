@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MbcIndexRouteImport } from './routes/mbc/index'
+import { Route as MbcTerminalRouteImport } from './routes/mbc/terminal'
+import { Route as MbcStationRouteImport } from './routes/mbc/station'
+import { Route as MbcScoutRouteImport } from './routes/mbc/scout'
+import { Route as MbcGateRouteImport } from './routes/mbc/gate'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MbcIndexRoute = MbcIndexRouteImport.update({
+  id: '/mbc/',
+  path: '/mbc/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MbcTerminalRoute = MbcTerminalRouteImport.update({
+  id: '/mbc/terminal',
+  path: '/mbc/terminal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MbcStationRoute = MbcStationRouteImport.update({
+  id: '/mbc/station',
+  path: '/mbc/station',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MbcScoutRoute = MbcScoutRouteImport.update({
+  id: '/mbc/scout',
+  path: '/mbc/scout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MbcGateRoute = MbcGateRouteImport.update({
+  id: '/mbc/gate',
+  path: '/mbc/gate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mbc/gate': typeof MbcGateRoute
+  '/mbc/scout': typeof MbcScoutRoute
+  '/mbc/station': typeof MbcStationRoute
+  '/mbc/terminal': typeof MbcTerminalRoute
+  '/mbc/': typeof MbcIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mbc/gate': typeof MbcGateRoute
+  '/mbc/scout': typeof MbcScoutRoute
+  '/mbc/station': typeof MbcStationRoute
+  '/mbc/terminal': typeof MbcTerminalRoute
+  '/mbc': typeof MbcIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mbc/gate': typeof MbcGateRoute
+  '/mbc/scout': typeof MbcScoutRoute
+  '/mbc/station': typeof MbcStationRoute
+  '/mbc/terminal': typeof MbcTerminalRoute
+  '/mbc/': typeof MbcIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/mbc/gate'
+    | '/mbc/scout'
+    | '/mbc/station'
+    | '/mbc/terminal'
+    | '/mbc/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/mbc/gate'
+    | '/mbc/scout'
+    | '/mbc/station'
+    | '/mbc/terminal'
+    | '/mbc'
+  id:
+    | '__root__'
+    | '/'
+    | '/mbc/gate'
+    | '/mbc/scout'
+    | '/mbc/station'
+    | '/mbc/terminal'
+    | '/mbc/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MbcGateRoute: typeof MbcGateRoute
+  MbcScoutRoute: typeof MbcScoutRoute
+  MbcStationRoute: typeof MbcStationRoute
+  MbcTerminalRoute: typeof MbcTerminalRoute
+  MbcIndexRoute: typeof MbcIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mbc/': {
+      id: '/mbc/'
+      path: '/mbc'
+      fullPath: '/mbc/'
+      preLoaderRoute: typeof MbcIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mbc/terminal': {
+      id: '/mbc/terminal'
+      path: '/mbc/terminal'
+      fullPath: '/mbc/terminal'
+      preLoaderRoute: typeof MbcTerminalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mbc/station': {
+      id: '/mbc/station'
+      path: '/mbc/station'
+      fullPath: '/mbc/station'
+      preLoaderRoute: typeof MbcStationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mbc/scout': {
+      id: '/mbc/scout'
+      path: '/mbc/scout'
+      fullPath: '/mbc/scout'
+      preLoaderRoute: typeof MbcScoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mbc/gate': {
+      id: '/mbc/gate'
+      path: '/mbc/gate'
+      fullPath: '/mbc/gate'
+      preLoaderRoute: typeof MbcGateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MbcGateRoute: MbcGateRoute,
+  MbcScoutRoute: MbcScoutRoute,
+  MbcStationRoute: MbcStationRoute,
+  MbcTerminalRoute: MbcTerminalRoute,
+  MbcIndexRoute: MbcIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

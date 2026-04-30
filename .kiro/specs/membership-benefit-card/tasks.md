@@ -339,8 +339,8 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 - [x] 13. Checkpoint — Verify controllers and DI wiring
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Layer 6 — Reusable presentation components
-  - [ ] 14.1 Create NfcTapPrompt component
+- [x] 14. Layer 6 — Reusable presentation components
+  - [x] 14.1 Create NfcTapPrompt component
     - Create `src/presentation/components/mbc/NfcTapPrompt/index.tsx` and `nfc-tap-prompt.module.scss`
     - Props: `nfcStatus: NfcStatus`, `isProcessing: boolean`, `label?: string`
     - Render animated tap prompt, status feedback (scanning, reading, writing, verifying, success, error)
@@ -348,66 +348,66 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Use SCSS Modules + Tailwind for styling
     - _Requirements: 2.1, 6.1, 8.1, 9.1_
 
-  - [ ] 14.2 Create FeeBreakdown component
+  - [x] 14.2 Create FeeBreakdown component
     - Create `src/presentation/components/mbc/FeeBreakdown/index.tsx` and `fee-breakdown.module.scss`
     - Props: `feeResult: FeeResult`, `serviceTypeName: string`
     - Display service type, usage units, rate per unit, rounding applied, total fee
     - Format amounts in IDR using `formatIDR` helper
     - _Requirements: 8.9, 12.8_
 
-  - [ ] 14.3 Create BalanceDisplay component
+  - [x] 14.3 Create BalanceDisplay component
     - Create `src/presentation/components/mbc/BalanceDisplay/index.tsx` and `balance-display.module.scss`
     - Props: `balance: number`, `previousBalance?: number`, `changeAmount?: number`
     - Display formatted IDR balance with optional before/after states
     - _Requirements: 5.3, 8.9_
 
-  - [ ] 14.4 Create TransactionLogList component
+  - [x] 14.4 Create TransactionLogList component
     - Create `src/presentation/components/mbc/TransactionLogList/index.tsx` and `transaction-log-list.module.scss`
     - Props: `transactions: TransactionLogEntry[]`, `serviceTypes: ServiceType[]`
     - Render list of up to 5 transaction entries with amount, timestamp, activity type, service type name
     - Resolve service type display names from the provided `serviceTypes` array
     - _Requirements: 9.2, 9.3, 10.3_
 
-  - [ ] 14.5 Create ServiceTypeSelector component
+  - [x] 14.5 Create ServiceTypeSelector component
     - Create `src/presentation/components/mbc/ServiceTypeSelector/index.tsx` and `service-type-selector.module.scss`
     - Props: `serviceTypes: ServiceType[]`, `selectedId: string | null`, `onSelect: (id: string) => void`, `disabled?: boolean`
     - Render dropdown/list of service types from props
     - _Requirements: 6.6, 17.1_
 
-  - [ ] 14.6 Create ServiceTypeForm component
+  - [x] 14.6 Create ServiceTypeForm component
     - Create `src/presentation/components/mbc/ServiceTypeForm/index.tsx` and `service-type-form.module.scss`
     - Props: `onSubmit: (data: ServiceTypeFormData) => void`, `initialValues?: Partial<ServiceType>`, `isEditing?: boolean`
     - Form fields: id, displayName, activityType, pricing (ratePerUnit, unitType, roundingStrategy)
     - Validate with `ServiceTypeFormSchema`
     - _Requirements: 15.2, 15.3_
 
-  - [ ] 14.7 Create CardInfoDisplay component
+  - [x] 14.7 Create CardInfoDisplay component
     - Create `src/presentation/components/mbc/CardInfoDisplay/index.tsx` and `card-info-display.module.scss`
     - Props: `cardData: CardData`, `serviceTypes: ServiceType[]`
     - Display member identity, balance, active check-in status with service type name, transaction log
     - Compose `BalanceDisplay` and `TransactionLogList` internally
     - _Requirements: 9.2_
 
-  - [ ] 14.8 Create SimulationBanner component
+  - [x] 14.8 Create SimulationBanner component
     - Create `src/presentation/components/mbc/SimulationBanner/index.tsx` and `simulation-banner.module.scss`
     - Props: `isActive: boolean`, `timestamp: string | null`
     - Render prominent visual indicator when simulation mode is active
     - _Requirements: 7.4_
 
-  - [ ] 14.9 Create ManualCalcForm component
+  - [x] 14.9 Create ManualCalcForm component
     - Create `src/presentation/components/mbc/ManualCalcForm/index.tsx` and `manual-calc-form.module.scss`
     - Props: `onSubmit: (data: ManualCalcFormData) => void`, `serviceTypes: ServiceType[]`, `isActive: boolean`
     - Form fields: check-in timestamp (datetime picker), service type selector
     - Label as "Manual / Offline Calculation"
     - _Requirements: 21.1, 21.2, 21.6_
 
-  - [ ] 14.10 Create RoleCard component
+  - [x] 14.10 Create RoleCard component
     - Create `src/presentation/components/mbc/RoleCard/index.tsx` and `role-card.module.scss`
     - Props: `role: RoleOption`, `isActive: boolean`, `onSelect: () => void`
     - Render role icon, name, description with active state styling
     - _Requirements: 1.1_
 
-  - [ ]* 14.11 Write unit tests for presentation components
+  - [x]* 14.11 Write unit tests for presentation components
     - Create test files in `src/presentation/components/__tests__/mbc/`
     - Test `NfcTapPrompt` status rendering and disabled state
     - Test `FeeBreakdown` IDR formatting and breakdown display
@@ -419,15 +419,15 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Use React Testing Library with `getByRole`/`getByText`
     - _Requirements: 1.1, 8.9, 9.2, 9.3, 12.8_
 
-- [ ] 15. Layer 6 — Pages
-  - [ ] 15.1 Create MbcRolePicker page
+- [x] 15. Layer 6 — Pages
+  - [x] 15.1 Create MbcRolePicker page
     - Create `src/presentation/pages/(mbc)/MbcRolePicker/index.tsx` and `mbc-role-picker.module.scss`
     - Resolve `rolePickerController` from DI container
     - Render role selection grid using `RoleCard` components
     - Display clear visual indicator of active role
     - _Requirements: 1.1, 1.2, 1.3_
 
-  - [ ] 15.2 Create MbcStation page
+  - [x] 15.2 Create MbcStation page
     - Create `src/presentation/pages/(mbc)/MbcStation/index.tsx` and `mbc-station.module.scss`
     - Resolve `stationController` from DI container
     - Render tabbed interface: Registration tab, Top-Up tab, Service Config tab
@@ -437,7 +437,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Display storage health warnings from controller
     - _Requirements: 4.1, 4.4, 5.1, 5.3, 15.1, 20.4, 20.7_
 
-  - [ ] 15.3 Create MbcGate page
+  - [x] 15.3 Create MbcGate page
     - Create `src/presentation/pages/(mbc)/MbcGate/index.tsx` and `mbc-gate.module.scss`
     - Resolve `gateController` from DI container
     - Render `ServiceTypeSelector` + `NfcTapPrompt` + check-in result display
@@ -445,7 +445,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Show empty registry message when no service types configured
     - _Requirements: 6.1, 6.4, 6.6, 7.1, 7.2, 7.4, 17.1, 17.5_
 
-  - [ ] 15.4 Create MbcTerminal page
+  - [x] 15.4 Create MbcTerminal page
     - Create `src/presentation/pages/(mbc)/MbcTerminal/index.tsx` and `mbc-terminal.module.scss`
     - Resolve `terminalController` from DI container
     - Render `NfcTapPrompt` + `FeeBreakdown` result + `BalanceDisplay` + `TransactionLogList`
@@ -453,14 +453,14 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Display device binding error messages
     - _Requirements: 8.1, 8.9, 21.1, 21.4, 21.6_
 
-  - [ ] 15.5 Create MbcScout page
+  - [x] 15.5 Create MbcScout page
     - Create `src/presentation/pages/(mbc)/MbcScout/index.tsx` and `mbc-scout.module.scss`
     - Resolve `scoutController` from DI container
     - Render `NfcTapPrompt` + `CardInfoDisplay` with full card data
     - _Requirements: 9.1, 9.2_
 
-- [ ] 16. Routing — TanStack Router file-based routes
-  - [ ] 16.1 Create MBC route files
+- [x] 16. Routing — TanStack Router file-based routes
+  - [x] 16.1 Create MBC route files
     - Create `src/routes/mbc/index.tsx` → lazy load `MbcRolePicker` page (route: `/mbc`)
     - Create `src/routes/mbc/station.tsx` → lazy load `MbcStation` page (route: `/mbc/station`)
     - Create `src/routes/mbc/gate.tsx` → lazy load `MbcGate` page (route: `/mbc/gate`)
@@ -469,28 +469,28 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Use TanStack Router `createFileRoute` with auto code-splitting
     - _Requirements: 1.1, 1.2_
 
-- [ ] 17. Checkpoint — Verify full UI integration
+- [x] 17. Checkpoint — Verify full UI integration
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 18. PWA setup — Service Worker and manifest
-  - [ ] 18.1 Configure PWA with vite-plugin-pwa
+- [x] 18. PWA setup — Service Worker and manifest
+  - [x] 18.1 Configure PWA with vite-plugin-pwa
     - Install `vite-plugin-pwa` as a dev dependency
     - Update `vite.config.ts` to add `VitePWA` plugin with precache strategy for all assets
     - Configure cache-first strategy, no runtime API caching
     - Set scope to `/mbc` start URL
     - _Requirements: 14.3, 14.6_
 
-  - [ ] 18.2 Create or update web app manifest for MBC
+  - [x] 18.2 Create or update web app manifest for MBC
     - Create or update `public/site.webmanifest` with MBC-specific fields: `name: "Membership Benefit Card"`, `short_name: "MBC"`, `start_url: "/mbc"`, `display: "standalone"`, theme colors
     - Reuse existing icons (`android-chrome-192x192.png`, `android-chrome-512x512.png`)
     - _Requirements: 14.1, 14.5_
 
-  - [ ]* 18.3 Write integration test for offline capability
+  - [x]* 18.3 Write integration test for offline capability
     - Verify Service Worker registration and asset caching
     - Verify no external API calls during card operations
     - _Requirements: 14.2, 14.4_
 
-- [ ] 19. Final checkpoint — Ensure all tests pass
+- [x] 19. Final checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
