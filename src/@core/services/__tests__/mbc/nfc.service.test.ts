@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { NfcProtocol } from '@core/protocols/nfc';
 import type { NfcError, NfcScanSession } from '@core/services/mbc/models';

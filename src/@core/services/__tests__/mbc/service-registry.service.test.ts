@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { KeyValueStoreProtocol } from '@core/protocols/key-value-store';
 import type { ServiceType } from '@core/services/mbc/models';
@@ -17,17 +17,6 @@ const BIKE_RENTAL: ServiceType = {
   pricing: {
     ratePerUnit: 5000,
     unitType: 'per-hour',
-    roundingStrategy: 'ceiling',
-  },
-};
-
-const GYM_SESSION: ServiceType = {
-  id: 'gym-session',
-  displayName: 'Gym Session',
-  activityType: 'gym-session',
-  pricing: {
-    ratePerUnit: 15000,
-    unitType: 'per-visit',
     roundingStrategy: 'ceiling',
   },
 };
