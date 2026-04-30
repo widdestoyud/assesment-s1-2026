@@ -14,7 +14,7 @@ pie title Implementation Progress
     "Phase 1 — Layer 0 (Done)" : 5
     "Phase 2 — Layer 1 (Done)" : 3
     "Phase 3 — Layer 2-3 (Done)" : 9
-    "Phase 4 — Layer 4 (Planned)" : 8
+    "Phase 4 — Layer 4 (Done)" : 9
     "Phase 5 — Layer 5 (Planned)" : 6
     "Phase 6 — Layer 6 (Planned)" : 20
 ```
@@ -330,20 +330,21 @@ graph TB
 
 ---
 
-## Phase 4: Layer 4 — Use Cases 📋 Planned
+## Phase 4: Layer 4 — Use Cases ✅ Done
+
+**Milestone:** [Phase 4](https://github.com/widdestoyud/assesment-s1-2026/milestone/4) (Closed) | **PR:** [#37](https://github.com/widdestoyud/assesment-s1-2026/pull/37) | **Detail:** [Laporan Fase 4](../09-Phase-Reports/Phase-4-Report)
 
 | Task | Status | Description |
 |------|--------|-------------|
-| 9.1 | 📋 Planned | RegisterMember use case |
-| 9.2 | 📋 Planned | TopUpBalance use case |
-| 9.3 | 📋 Planned | CheckIn use case |
-| 9.4 | 📋 Planned | CheckOut use case |
-| 9.5* | 📋 Planned | Property test: Device Binding (P10) |
-| 9.6 | 📋 Planned | ReadCard use case |
-| 9.7 | 📋 Planned | ManualCalculation use case |
-| 9.8 | 📋 Planned | ManageServiceRegistry use case |
-| 9.9* | 📋 Planned | Unit tests for use cases |
-| 11.1 | 📋 Planned | Use case DI container |
+| 9.1 | ✅ Done | RegisterMember use case |
+| 9.2 | ✅ Done | TopUpBalance use case |
+| 9.3 | ✅ Done | CheckIn use case |
+| 9.4 | ✅ Done | CheckOut use case (with snapshot rollback) |
+| 9.6 | ✅ Done | ReadCard use case |
+| 9.7 | ✅ Done | ManualCalculation use case |
+| 9.8 | ✅ Done | ManageServiceRegistry use case |
+| 9.9* | ✅ Done | Unit tests (36 tests) |
+| 11.1 | ✅ Done | Use case DI container |
 
 ## Phase 5: Layer 5 — Controllers 📋 Planned
 
@@ -378,10 +379,10 @@ graph TB
 | Phase 1 | Layer 0 | 5 | 0 | 5 | ✅ 100% |
 | Phase 2 | Layer 1 | 3 | 9 | 12 | ✅ 100% |
 | Phase 3 | Layer 2-3 | 8 | 1 | 9 | ✅ 100% |
-| Phase 4 | Layer 4 | 8 | 2 | 0 | 📋 0% |
+| Phase 4 | Layer 4 | 8 | 1 | 9 | ✅ 100% |
 | Phase 5 | Layer 5 | 6 | 1 | 0 | 📋 0% |
 | Phase 6 | Layer 6 | 18 | 2 | 0 | 📋 0% |
-| **Total** | | **48** | **15** | **26** | **~41%** |
+| **Total** | | **48** | **14** | **35** | **~56%** |
 
 ### Test Progression
 
@@ -390,6 +391,7 @@ graph TB
 | Phase 1 | 0 | 0 | 0 |
 | Phase 2 | 16 | 16 | 3 |
 | Phase 3 | 45 | 61 | 7 |
+| Phase 4 | 36 | 97 | 14 |
 
 ## Related Pages
 
