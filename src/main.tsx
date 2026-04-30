@@ -21,7 +21,18 @@ const queryClient = new QueryClient({
 });
 
 const persister = createAsyncStoragePersister({
-  storage: webStorageAdapter,
+  storage: {
+    getItem: async (key: string) => {
+      const value = await webStorageAdapter.get<string>('tanstack', key);
+      return value ?? null;
+    },
+    setItem: async (key: string, value: string) => {
+      await webStorageAdapter.set('tanstack', key, value);
+    },
+    removeItem: async (key: string) => {
+      await webStorageAdapter.delete('tanstack', key);
+    },
+  },
   key: 'MyTelkomselMBCStorage',
 });
 

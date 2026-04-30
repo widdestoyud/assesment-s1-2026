@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { useState, useCallback } from 'react';
 import { renderHook, act } from '@testing-library/react';
 
