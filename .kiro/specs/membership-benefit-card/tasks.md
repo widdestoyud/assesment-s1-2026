@@ -35,8 +35,8 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Create `src/@core/protocols/indexed-db/index.ts` with `IndexedDbProtocol` interface (`get`, `set`, `delete`, `getAll`, `isAvailable`)
     - _Requirements: 20.1_
 
-- [-] 3. Layer 1 — Pure logic services (stateless, no I/O)
-  - [-] 3.1 Implement pricing.service
+- [x] 3. Layer 1 — Pure logic services (stateless, no I/O)
+  - [x] 3.1 Implement pricing.service
     - Create `src/@core/services/mbc/pricing.service.ts` with `PricingServiceInterface` and `PricingService` factory function
     - Implement `calculateFee(strategy, checkInTime, checkOutTime)` returning `FeeResult`
     - Support `per-hour` (duration-based with rounding), `per-visit` (single charge), `flat-fee` (fixed amount)
@@ -59,7 +59,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Add to `src/@core/services/__tests__/mbc/pricing.service.test.ts`
     - **Validates: Requirements 12.5, 12.6**
 
-  - [ ] 3.4 Implement card-data.service
+  - [x] 3.4 Implement card-data.service
     - Create `src/@core/services/mbc/card-data.service.ts` with `CardDataServiceInterface` and `CardDataService` factory function
     - Implement `serialize(card)` → `Uint8Array` (JSON stringify → UTF-8 encode)
     - Implement `deserialize(raw)` → `CardData` (UTF-8 decode → JSON parse → Zod validate)
@@ -108,7 +108,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Add to `src/@core/services/__tests__/mbc/card-data.service.test.ts`
     - **Validates: Requirements 10.2**
 
-  - [ ] 3.11 Implement silent-shield.service
+  - [x] 3.11 Implement silent-shield.service
     - Create `src/@core/services/mbc/silent-shield.service.ts` with `SilentShieldServiceInterface` and `SilentShieldService` factory function
     - Implement `encrypt(data)` → `Uint8Array` using AES-256-GCM via `crypto-browserify`
     - Implement `decrypt(data)` → `Uint8Array`

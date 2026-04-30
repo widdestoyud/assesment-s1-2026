@@ -12,14 +12,19 @@ export interface SilentShieldServiceInterface {
 export const SilentShieldService = (
   _deps: AwilixRegistry,
 ): SilentShieldServiceInterface => {
+  // Cache the derived key to avoid expensive PBKDF2 on every call
+  let cachedKey: Buffer | null = null;
+
   const deriveKey = (): Buffer => {
-    return crypto.pbkdf2Sync(
+    if (cachedKey) return cachedKey;
+    cachedKey = crypto.pbkdf2Sync(
       MBC_KEYS.SILENT_SHIELD_PASSPHRASE,
       MBC_KEYS.SILENT_SHIELD_SALT,
       MBC_KEYS.SILENT_SHIELD_ITERATIONS,
       MBC_KEYS.SILENT_SHIELD_KEY_LENGTH,
       'sha256',
     );
+    return cachedKey;
   };
 
   const encrypt = (data: Uint8Array): Uint8Array => {
