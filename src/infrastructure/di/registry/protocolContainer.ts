@@ -1,13 +1,13 @@
 import { AwilixContainer, asValue } from 'awilix';
-import { LocalStorageProtocol } from '@core/protocols/storage';
+import type { KeyValueStoreProtocol } from '@core/protocols/key-value-store';
 import { webStorageAdapter } from '@src/infrastructure/storage/webStorageAdapter';
 
 export function registerProtocolModules(container: AwilixContainer) {
   container.register({
-    localStorage: asValue(webStorageAdapter),
+    keyValueStore: asValue(webStorageAdapter),
   });
 }
 
 export interface ProtocolContainerInterface {
-  localStorage: LocalStorageProtocol;
+  keyValueStore: KeyValueStoreProtocol;
 }

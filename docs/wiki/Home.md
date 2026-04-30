@@ -46,20 +46,18 @@ graph TB
             S3[silent-shield]
             S4[nfc]
             S5[device]
-            S6[resilient-storage]
+            S6[storage-health]
             S7[service-registry]
         end
 
         subgraph Infra["Layer 2 — Infrastructure"]
             A1[webNfcAdapter]
-            A2[indexedDbAdapter]
             A3[webStorageAdapter]
         end
     end
 
     subgraph External["External"]
         NFC[NFC Card]
-        IDB[(IndexedDB)]
         LS[(localStorage)]
     end
 
@@ -100,7 +98,7 @@ graph TB
 - [Device Binding](membership-benefit-card/04-Technical-Flows/Device-Binding)
 - [Silent Shield Encryption](membership-benefit-card/04-Technical-Flows/Silent-Shield-Encryption)
 - [NFC Capability Detection](membership-benefit-card/04-Technical-Flows/NFC-Capability-Detection)
-- [Resilient Storage](membership-benefit-card/04-Technical-Flows/Resilient-Storage)
+- [Storage Architecture](membership-benefit-card/04-Technical-Flows/Storage-Architecture)
 - [Pricing Engine](membership-benefit-card/04-Technical-Flows/Pricing-Engine)
 
 ### UI & Testing
@@ -110,5 +108,7 @@ graph TB
 
 ### Development
 - [Getting Started](membership-benefit-card/07-Development/Getting-Started)
+- [Git Flow & Branch Strategy](membership-benefit-card/07-Development/Git-Flow)
 - [Phase Progress](membership-benefit-card/07-Development/Phase-Progress)
+- [Agents & Hooks](membership-benefit-card/07-Development/Agents-and-Hooks)
 - [Glossary](membership-benefit-card/08-Glossary/Glossary)
