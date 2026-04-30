@@ -27,6 +27,7 @@ const persister = createAsyncStoragePersister({
 
 export const router = createRouter({
   routeTree,
+  basepath: config.basePath || '/',
   defaultPreload: 'intent',
   scrollRestoration: true,
   context: {
