@@ -281,14 +281,14 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Update `src/infrastructure/di/container.ts` to import and call `registerMbcUseCaseModules`, add to `AwilixRegistry`
     - _Requirements: all use case requirements_
 
-- [ ] 12. Layer 5 — Controllers
-  - [ ] 12.1 Implement role-picker.controller
+- [x] 12. Layer 5 — Controllers
+  - [x] 12.1 Implement role-picker.controller
     - Create `src/controllers/mbc/role-picker.controller.ts` with `RolePickerControllerInterface`
     - Receive `useNavigation` from DI
     - Return `roles` array (station, gate, terminal, scout with labels/descriptions), `onSelectRole` (navigates to `/mbc/{role}`), `activeRole`
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 12.2 Implement station.controller
+  - [x] 12.2 Implement station.controller
     - Create `src/controllers/mbc/station.controller.ts` with `StationControllerInterface`
     - Receive `registerMemberUseCase`, `topUpBalanceUseCase`, `manageServiceRegistryUseCase`, `nfcService`, `useFormHook`, `zodResolver`, `zod` from DI
     - Manage registration form (name, memberId), top-up form (amount), service config CRUD
@@ -298,7 +298,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Check storage health and quota on mount, display warnings
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4, 5.5, 15.1, 15.2, 15.3, 15.4, 20.4, 20.7_
 
-  - [ ] 12.3 Implement gate.controller
+  - [x] 12.3 Implement gate.controller
     - Create `src/controllers/mbc/gate.controller.ts` with `GateControllerInterface`
     - Receive `checkInUseCase`, `manageServiceRegistryUseCase`, `deviceService`, `nfcService` from DI
     - Manage service type selection from registry, auto-select if only one
@@ -308,7 +308,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Ensure Device_ID is available on mount via `deviceService.ensureDeviceId()`
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 7.1, 7.2, 7.3, 7.4, 17.1, 17.2, 17.3, 17.4, 17.5, 19.2_
 
-  - [ ] 12.4 Implement terminal.controller
+  - [x] 12.4 Implement terminal.controller
     - Create `src/controllers/mbc/terminal.controller.ts` with `TerminalControllerInterface`
     - Receive `checkOutUseCase`, `manualCalculationUseCase`, `manageServiceRegistryUseCase`, `deviceService`, `nfcService` from DI
     - Handle NFC tap: set `isProcessing` lock, execute check-out use case, update `lastResult` with fee breakdown
@@ -316,27 +316,27 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Ensure Device_ID is available on mount
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.11, 8.12, 21.1, 21.2, 21.3, 21.4, 21.5, 21.6, 21.7, 21.8_
 
-  - [ ] 12.5 Implement scout.controller
+  - [x] 12.5 Implement scout.controller
     - Create `src/controllers/mbc/scout.controller.ts` with `ScoutControllerInterface`
     - Receive `readCardUseCase`, `nfcService`, `manageServiceRegistryUseCase` from DI
     - Handle NFC tap: read card data, resolve service type names from registry for display
     - Return `cardData`, `nfcStatus`, `isReading`
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [ ] 12.6 Register MBC controllers in DI
+  - [x] 12.6 Register MBC controllers in DI
     - Create `src/infrastructure/di/registry/mbcControllerContainer.ts`
     - Register all MBC controllers: `rolePickerController`, `stationController`, `gateController`, `terminalController`, `scoutController`
     - Export `MbcControllerContainerInterface`
     - Update `src/infrastructure/di/container.ts` to import and call `registerMbcControllerModules`, add to `AwilixRegistry`
     - _Requirements: all controller requirements_
 
-  - [ ]* 12.7 Write unit tests for controllers
+  - [x]* 12.7 Write unit tests for controllers
     - Create test files in `src/controllers/__tests__/mbc/` for each controller
     - Mock all use case and service dependencies
     - Test NFC status transitions, form validation, processing lock behavior, simulation mode
     - _Requirements: 1.1, 1.2, 6.3, 6.8, 7.1, 8.8, 8.12, 21.1_
 
-- [ ] 13. Checkpoint — Verify controllers and DI wiring
+- [x] 13. Checkpoint — Verify controllers and DI wiring
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Layer 6 — Reusable presentation components
