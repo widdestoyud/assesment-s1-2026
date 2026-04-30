@@ -1,0 +1,69 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PopupError > should match snapshot when popup is closed 1`] = `
+<DocumentFragment>
+  <div
+    class="closed"
+    data-testid="responsive-dialog"
+  >
+    <div
+      class="popupErrorWrapper-mock"
+    >
+      <img
+        alt="pop-up-error-image"
+        class="popupErrorImage-mock"
+        src="custom-error-image.png"
+      />
+      <div
+        class="popupErrorTitle-mock"
+      >
+        Error Title
+      </div>
+      <div
+        class="popupErrorMsg-mock"
+      >
+        Error Message
+      </div>
+    </div>
+    <button
+      data-testid="register-button"
+    >
+      Close
+    </button>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`PopupError > should match snapshot when popup is open 1`] = `
+<DocumentFragment>
+  <div
+    class="opened"
+    data-testid="responsive-dialog"
+  >
+    <div
+      class="popupErrorWrapper-mock"
+    >
+      <img
+        alt="pop-up-error-image"
+        class="popupErrorImage-mock"
+        src="custom-error-image.png"
+      />
+      <div
+        class="popupErrorTitle-mock"
+      >
+        Error Title
+      </div>
+      <div
+        class="popupErrorMsg-mock"
+      >
+        Error Message
+      </div>
+    </div>
+    <button
+      data-testid="register-button"
+    >
+      Close
+    </button>
+  </div>
+</DocumentFragment>
+`;

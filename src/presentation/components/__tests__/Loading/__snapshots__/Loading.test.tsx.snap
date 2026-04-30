@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Loading Component > matches snapshot 1`] = `
+<DocumentFragment>
+  <img
+    alt="MyTelkomsel Loading"
+    class="loader-class test-class"
+    src="mocked-loader-path.svg"
+  />
+</DocumentFragment>
+`;

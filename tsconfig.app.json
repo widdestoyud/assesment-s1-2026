@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@core/*": ["./src/@core/*"],
+      "@di/*": ["./src/infrastructure/di/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@components/*": ["./src/presentation/components/*"],
+      "@pages/*": ["./src/presentation/pages/*"],
+      "@home/*": ["./src/presentation/pages/(home)/*"],
+      "@register/*": ["./src/presentation/pages/(register)/*"],
+      "@status/*": ["./src/presentation/pages/(status)/*"],
+      "@images/*": ["./src/assets/images/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "types": ["vite/client", "@testing-library/jest-dom"]
+  },
+  "include": ["postcss.config.ts", "src", "types/**/*", "vitest.setup.ts"],
+  "typeRoots": ["./node_modules/@types", "./types"],
+  "types": ["node", "vite", "vitest/globals", "@testing-library/jest-dom"]
+}

@@ -1,0 +1,15 @@
+.mask {
+  @apply fixed top-0 left-0 justify-center items-center w-full h-full bg-black/10 backdrop-blur z-50;
+
+  img {
+    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+  }
+}
+
+.globalLoader {
+  @apply w-10 lg:w-14;
+}
+
+body:has(.mask) {
+  @apply overflow-hidden;
+}

@@ -1,0 +1,58 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LangSelector Component > matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="langContainer"
+  >
+    <div
+      class="lngButtonContainer"
+    >
+      <button
+        class="buttonLang active"
+      >
+        <img
+          alt="English"
+          class="h-4"
+          src="us-flag.png"
+        />
+        English
+      </button>
+      <div
+        class="divider"
+      />
+    </div>
+    <div
+      class="lngButtonContainer"
+    >
+      <button
+        class="buttonLang"
+      >
+        <img
+          alt="Spanish"
+          class="h-4"
+          src="es-flag.png"
+        />
+        Spanish
+      </button>
+      <div
+        class="divider"
+      />
+    </div>
+    <div
+      class="lngButtonContainer"
+    >
+      <button
+        class="buttonLang"
+      >
+        <img
+          alt="French"
+          class="h-4"
+          src="fr-flag.png"
+        />
+        French
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;

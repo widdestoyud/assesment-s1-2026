@@ -1,0 +1,62 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.telkomsel.mytelkomsel_staging",
+      "sha256_cert_fingerprints": [
+        "65:48:B7:69:23:17:1C:73:67:69:0A:7F:BB:55:41:D8:97:49:CC:34:68:31:6C:5A:7F:0C:8D:47:51:26:6C:E3"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.telkomsel.mytelkomsel_preprod",
+      "sha256_cert_fingerprints": [
+        "65:48:B7:69:23:17:1C:73:67:69:0A:7F:BB:55:41:D8:97:49:CC:34:68:31:6C:5A:7F:0C:8D:47:51:26:6C:E3"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.telkomsel.mytelkomsel_production",
+      "sha256_cert_fingerprints": [
+        "65:48:B7:69:23:17:1C:73:67:69:0A:7F:BB:55:41:D8:97:49:CC:34:68:31:6C:5A:7F:0C:8D:47:51:26:6C:E3"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.telkomsel.telkomselcm",
+      "sha256_cert_fingerprints": [
+        "0A:92:B9:7B:81:15:62:05:E5:33:37:81:C4:11:43:0B:64:2E:87:62:B3:FC:6D:9B:39:80:13:DD:10:6D:24:7E"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tsel.telkomselku",
+      "sha256_cert_fingerprints": [
+        "99:2A:CD:72:06:6F:E0:B4:44:9F:D8:1C:5F:84:C4:9F:9B:4C:5D:76:29:D1:70:CE:97:3D:01:77:F2:6F:1D:CB"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tsel.telkomselku.dev",
+      "sha256_cert_fingerprints": [
+        "99:2A:CD:72:06:6F:E0:B4:44:9F:D8:1C:5F:84:C4:9F:9B:4C:5D:76:29:D1:70:CE:97:3D:01:77:F2:6F:1D:CB"
+      ]
+    }
+  }
+]

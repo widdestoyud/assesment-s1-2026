@@ -1,0 +1,5 @@
+# .vitestignore
+i18nConfig.ts
+src/locale/**
+src/routes/**/**
+**/{tailwind,postcss}.config.*}

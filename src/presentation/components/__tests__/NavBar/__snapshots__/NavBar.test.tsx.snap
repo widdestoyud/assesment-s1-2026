@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`NavBar Component > matches snapshot 1`] = `
+<DocumentFragment>
+  <nav
+    class="navBarContainer"
+  >
+    <div
+      class="navigation"
+    >
+      <div
+        class="tselLogoContainer"
+      >
+        <button
+          class="buttonLogo"
+        >
+          <img
+            alt="Telkomsel Logo"
+            src="mocked-telkomsel-logo.svg"
+          />
+        </button>
+      </div>
+      <div
+        data-testid="mock-lang-selector"
+      >
+        LangSelector
+      </div>
+    </div>
+  </nav>
+</DocumentFragment>
+`;

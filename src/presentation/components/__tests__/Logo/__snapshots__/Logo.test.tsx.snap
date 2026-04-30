@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Logo Component > matches snapshot 1`] = `
+<DocumentFragment>
+  <img
+    alt="MyTelkomsel Logo"
+    class="logo-class test-class"
+    src="mocked-logo-path.png"
+  />
+</DocumentFragment>
+`;

@@ -1,0 +1,25 @@
+{
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^@core/(.*)$",
+    "^@di/(.*)$",
+    "^@src/(.*)$",
+    "^@routes/(.*)$",
+    "^@controllers/(.*)$",
+    "^@components/(.*)$",
+    "^@home/(.*)$",
+    "^@register/(.*)$",
+    "^@status/(.*)$",
+    "^@utils/(.*)$",
+    "^@images/(.*)$",
+    "^[./]",
+    "$.css",
+    "$.scss"
+  ],
+  "importOrderSortSpecifiers": true,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"]
+}

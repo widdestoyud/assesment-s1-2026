@@ -1,0 +1,39 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TN44P3E6DY.telkomsel.mytelkomsel-dev",
+        "paths": [
+          "NOT /customer-consent",
+          "NOT /psb/*",
+          "NOT /svoc",
+          "NOT /migrate/*",
+          "NOT /volte",
+          "NOT /data-landing",
+          "NOT /data-landing/*",
+          "NOT /sim-replacement/*",
+          "NOT /provisioning/*",
+          "/",
+          "*"
+        ]
+      },
+      {
+        "appID": "TN44P3E6DY.com.telkomsel.my",
+        "paths": [
+          "NOT /customer-consent",
+          "NOT /psb/*",
+          "NOT /svoc",
+          "NOT /migrate/*",
+          "NOT /volte",
+          "NOT /data-landing",
+          "NOT /data-landing/*",
+          "NOT /sim-replacement/*",
+          "NOT /provisioning/*",
+          "/",
+          "*"
+        ]
+      }
+    ]
+  }
+}
