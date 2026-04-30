@@ -1,13 +1,12 @@
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import config from '@src/infrastructure/config';
 import { webStorageAdapter } from '@src/infrastructure/storage/webStorageAdapter';
-import GoogleTagManager from '@utils/helpers/gtm.helper.ts';
 import './global.css';
 import { routeTree } from './routeTree.gen';
 import { initTranslation } from './translation/i18n.config.ts';
@@ -23,7 +22,7 @@ const queryClient = new QueryClient({
 
 const persister = createAsyncStoragePersister({
   storage: webStorageAdapter,
-  key: 'MyTelkomselPrepaidRegistrationStorage',
+  key: 'MyTelkomselMBCStorage',
 });
 
 export const router = createRouter({
@@ -36,8 +35,6 @@ export const router = createRouter({
 });
 
 const i18n = initTranslation(queryClient);
-
-GoogleTagManager.initGoogleTagManager();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

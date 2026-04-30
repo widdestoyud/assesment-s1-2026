@@ -1,13 +1,7 @@
-import { AwilixContainer, asFunction } from 'awilix';
-import { UseCaseProtocol } from '@core/protocols/use_case';
-import { GetAllWebConfig } from '@core/use_case/GetAllWebConfig';
+import { AwilixContainer } from 'awilix';
 
-export function registerUseCaseModules(container: AwilixContainer) {
-  container.register({
-    getAllConfigUseCase: asFunction(GetAllWebConfig).singleton(),
-  });
+export function registerUseCaseModules(_container: AwilixContainer) {
+  // MBC use cases will be registered in mbcUseCaseContainer.ts
 }
 
-export interface UseCaseContainerInterface {
-  getAllConfigUseCase: UseCaseProtocol;
-}
+export interface UseCaseContainerInterface {}
