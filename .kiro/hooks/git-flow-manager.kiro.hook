@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Git Flow Manager",
+  "description": "Triggers the Git Flow Manager agent when the user mentions release, merge, commit, branch, or phase-related git operations. Handles branching, PR creation, merging, and issue closing automatically.",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Check if the user's message contains git flow keywords: \"release\", \"merge\", \"commit\", \"push\", \"branch\", \"fase\", \"phase\", \"deploy\", \"PR\", \"pull request\", \"git status\", \"mulai fase\", \"start phase\", \"release fase\". If matched, read .kiro/agents/git-flow.prompt.md for full instructions and execute the appropriate git flow operation. If no git keywords found, respond with \"No git operation needed\" and continue normally."
+  }
+}
