@@ -51,3 +51,8 @@
 
 **08 — Glossary**
 - [Glossary](membership-benefit-card/08-Glossary/Glossary)
+
+**09 — Laporan Fase**
+- [Fase 1: Data Models & Protocols](membership-benefit-card/09-Phase-Reports/Phase-1-Report)
+- [Fase 2: Pure Logic Services](membership-benefit-card/09-Phase-Reports/Phase-2-Report)
+- [Fase 3: Adapters & Stateful Services](membership-benefit-card/09-Phase-Reports/Phase-3-Report)

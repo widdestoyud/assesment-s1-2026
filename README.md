@@ -78,8 +78,8 @@ src/
 | Phase | Status | Deskripsi |
 |-------|--------|-----------|
 | Phase 1: Layer 0 | ✅ Done | Data models, types, Zod schemas, protocols |
-| Phase 2: Layer 1 | 🔲 Todo | Pure logic services (pricing, card-data, silent-shield) |
-| Phase 3: Layer 2-3 | 🔲 Todo | I/O adapters + stateful services + DI wiring |
+| Phase 2: Layer 1 | ✅ Done | Pure logic services (pricing, card-data, silent-shield) |
+| Phase 3: Layer 2-3 | 🔄 In Progress | I/O adapters + stateful services + DI wiring |
 | Phase 4: Layer 4 | 🔲 Todo | Use cases (Register, TopUp, CheckIn, CheckOut, dll) |
 | Phase 5: Layer 5 | 🔲 Todo | Controllers |
 | Phase 6: Layer 6 | 🔲 Todo | Components, pages, routing, PWA |
@@ -140,7 +140,10 @@ Proyek ini menggunakan custom agents untuk workflow automation:
 | Agent | Trigger | Fungsi |
 |-------|---------|--------|
 | **@product-owner** | Otomatis saat ada keyword bisnis/fitur | Analisis PO: acceptance criteria, edge cases, impact |
+| **@developer** | Manual via chat (`Ctrl+Shift+D`) | Implementasi kode: read, write, build, test — full permission |
 | **@qa-tester** | Manual via chat atau otomatis via hooks | Jalankan test, cek coverage, validasi specs |
+| **@git-flow** | Otomatis saat ada keyword git (release, commit, branch, fase) | Branching, commit, push, PR, merge |
+| **@wiki-documenter** | Manual via chat | Generate/update wiki documentation |
 
 ### Hooks
 
