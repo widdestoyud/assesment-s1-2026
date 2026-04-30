@@ -24,7 +24,7 @@ export type {
   AtomicWriteResult,
   AtomicWriteError,
   WriteVerifyResult,
-  StorageQuotaInfo,
+  StorageError,
   NfcCapabilityStatus,
 } from './common.model.ts';
 

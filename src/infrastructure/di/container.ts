@@ -31,11 +31,21 @@ import {
   UseCaseContainerInterface,
   registerUseCaseModules,
 } from '@di/registry/useCaseContainer';
+import {
+  MbcProtocolContainerInterface,
+  registerMbcProtocolModules,
+} from '@di/registry/mbcProtocolContainer';
+import {
+  MbcServiceContainerInterface,
+  registerMbcServiceModules,
+} from '@di/registry/mbcServiceContainer';
 
 const container = createContainer<AwilixRegistry>();
 
 registerProtocolModules(container);
+registerMbcProtocolModules(container);
 registerServiceModules(container);
+registerMbcServiceModules(container);
 registerTanstackModule(container);
 registerUseCaseModules(container);
 registerLibraryModule(container);
@@ -48,6 +58,8 @@ export default container;
 export type AwilixRegistry = ControllerContainerInterface &
   HelperContainerInterface &
   LibraryContainerInterface &
+  MbcProtocolContainerInterface &
+  MbcServiceContainerInterface &
   ProtocolContainerInterface &
   ReactContainerInterface &
   ServiceContainerInterface &

@@ -1,0 +1,37 @@
+{
+  "name": "developer",
+  "description": "Senior Developer agent — writes production-quality TypeScript code following Clean Architecture, project patterns, and coding standards. Full read/write/build permission within this workspace. Supervised by @product-owner.",
+  "prompt": "file://developer.prompt.md",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "grep",
+    "glob",
+    "code",
+    "shell",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "grep",
+    "glob",
+    "code",
+    "shell",
+    "knowledge"
+  ],
+  "resources": [
+    "file://src/**/*.ts",
+    "file://src/**/*.tsx",
+    "file://src/**/*.scss",
+    "file://.kiro/steering/**/*.md",
+    "file://.kiro/specs/**/*",
+    "file://package.json",
+    "file://tsconfig.json",
+    "file://vite.config.*",
+    "file://eslint.config.*",
+    "file://vitest.config.*"
+  ],
+  "keyboardShortcut": "ctrl+shift+d",
+  "welcomeMessage": "Developer mode aktif. Saya siap mengerjakan implementasi dengan presisi — read, write, build, test tanpa konfirmasi. Semua kode mengikuti Clean Architecture dan coding standards proyek ini. Task apa yang mau dikerjakan?"
+}

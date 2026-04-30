@@ -12,6 +12,7 @@ Proyek MBC menggunakan 4 Kiro agents dan beberapa hooks untuk mengotomasi workfl
 | Agent | Trigger | Function |
 |-------|---------|----------|
 | **@product-owner** | Auto on business/feature keywords | PO analysis: acceptance criteria, edge cases, validasi terhadap KDX#1 |
+| **@developer** | Manual via chat (`Ctrl+Shift+D`) | Implementasi kode: read, write, build, test — full permission dalam workspace |
 | **@qa-tester** | Manual via chat or auto via hooks | Run tests, check coverage, validate specs |
 | **@git-flow** | Auto on git keywords (`release`, `commit`, `branch`, `fase`) | Branching, commit, push, PR creation, merge, milestone closing |
 | **@wiki-documenter** | Manual via chat | Generate/update wiki documentation |
@@ -22,6 +23,13 @@ Proyek MBC menggunakan 4 Kiro agents dan beberapa hooks untuk mengotomasi workfl
 - **Peran:** Mendefinisikan requirements, menulis user stories, mereview fitur dari perspektif pengguna
 - **Sumber kebenaran:** Selalu cross-reference dengan `referensi/KDX#1 - Membership Benefit Card (MBC).pdf`
 - **Output:** Validasi KDX#1 (Sesuai/Menyimpang/Melanggar) untuk setiap keputusan produk
+
+### @developer
+- **Peran:** Implementasi kode production-quality mengikuti Clean Architecture dan coding standards
+- **Permission:** Full read/write/build dalam workspace tanpa konfirmasi
+- **Batasan:** Tidak boleh commit/push (itu @git-flow), tidak boleh ubah specs tanpa approval (itu @product-owner), tidak boleh install package tanpa izin
+- **Supervisi:** Diawasi oleh @product-owner — semua implementasi harus sesuai specs
+- **Shortcut:** `Ctrl+Shift+D`
 
 ### @git-flow
 - **Peran:** Mengelola seluruh operasi git dengan strategi Feature Branching

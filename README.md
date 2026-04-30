@@ -140,6 +140,7 @@ Proyek ini menggunakan custom agents untuk workflow automation:
 | Agent | Trigger | Fungsi |
 |-------|---------|--------|
 | **@product-owner** | Otomatis saat ada keyword bisnis/fitur | Analisis PO: acceptance criteria, edge cases, impact |
+| **@developer** | Manual via chat (`Ctrl+Shift+D`) | Implementasi kode: read, write, build, test — full permission |
 | **@qa-tester** | Manual via chat atau otomatis via hooks | Jalankan test, cek coverage, validasi specs |
 | **@git-flow** | Otomatis saat ada keyword git (release, commit, branch, fase) | Branching, commit, push, PR, merge |
 | **@wiki-documenter** | Manual via chat | Generate/update wiki documentation |

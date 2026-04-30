@@ -127,8 +127,8 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 - [ ] 4. Checkpoint — Verify pure logic layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Layer 2 — I/O adapters (protocol implementations)
-  - [ ] 5.1 Implement webNfcAdapter
+- [x] 5. Layer 2 — I/O adapters (protocol implementations)
+  - [x] 5.1 Implement webNfcAdapter
     - Create `src/infrastructure/nfc/webNfcAdapter.ts` implementing `NfcProtocol`
     - Wrap `NDEFReader` API: `isSupported()` checks `'NDEFReader' in window`
     - `requestPermission()` attempts a scan to trigger browser permission prompt
@@ -137,8 +137,8 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Handle all Web NFC error types and map to `NfcError`
     - _Requirements: 2.1, 2.2, 2.4, 3.1_
 
-- [ ] 6. Layer 3 — Stateful services (compose pure logic + I/O adapters via DI)
-  - [ ] 6.1 Implement nfc.service
+- [x] 6. Layer 3 — Stateful services (compose pure logic + I/O adapters via DI)
+  - [x] 6.1 Implement nfc.service
     - Create `src/@core/services/mbc/nfc.service.ts` with `NfcServiceInterface` and `NfcService` factory function
     - Depends on `NfcProtocol` (via DI), `CardDataService`, `SilentShieldService`
     - `readCard()`: scan → read raw NDEF → return raw bytes
@@ -146,14 +146,14 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - `writeAndVerify(data)`: write → read back → compare → return `WriteVerifyResult`
     - _Requirements: 2.1, 3.1, 3.4, 3.7_
 
-  - [ ] 6.2 Implement storage-health.service
+  - [x] 6.2 Implement storage-health.service
     - Create `src/@core/services/mbc/storage-health.service.ts` with `StorageHealthServiceInterface` and `StorageHealthService` factory function
     - Depends on `KeyValueStoreProtocol` (via DI)
     - `isAvailable()`: check if localStorage is accessible and writable
     - `checkWriteCapacity()`: attempt a test write, detect quota exceeded errors, return `{ canWrite, error? }`
     - _Requirements: 20.2, 20.3, 20.4_
 
-  - [ ] 6.3 Implement device.service
+  - [x] 6.3 Implement device.service
     - Create `src/@core/services/mbc/device.service.ts` with `DeviceServiceInterface` and `DeviceService` factory function
     - Depends on `KeyValueStoreProtocol` (via DI)
     - `getDeviceId()`: read from localStorage via KeyValueStoreProtocol
@@ -162,7 +162,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Handle storage write failures gracefully with `StorageError`
     - _Requirements: 19.1, 19.6, 19.7, 20.8_
 
-  - [ ] 6.4 Implement service-registry.service
+  - [x] 6.4 Implement service-registry.service
     - Create `src/@core/services/mbc/service-registry.service.ts` with `ServiceRegistryServiceInterface` and `ServiceRegistryService` factory function
     - Depends on `KeyValueStoreProtocol` (via DI)
     - Implement `getAll`, `getById`, `add`, `update`, `remove`, `initializeDefaults`
@@ -171,33 +171,33 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Handle storage write failures gracefully with `StorageError`
     - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 20.5, 20.6, 20.8_
 
-  - [ ]* 6.5 Write unit tests for stateful services
+  - [x]* 6.5 Write unit tests for stateful services
     - Create `src/@core/services/__tests__/mbc/device.service.test.ts` — test Device_ID generation, persistence, regeneration warning, storage failure handling
     - Create `src/@core/services/__tests__/mbc/storage-health.service.test.ts` — test availability check, write capacity check, quota exceeded detection
     - Create `src/@core/services/__tests__/mbc/service-registry.service.test.ts` — test CRUD, default initialization, validation, storage failure handling
     - Mock `KeyValueStoreProtocol` via partial `AwilixRegistry`
     - _Requirements: 19.1, 19.7, 20.1, 20.2, 20.3, 20.4, 15.5, 15.6, 15.7, 20.8_
 
-- [ ] 7. Layer 2-3 — DI container registration
-  - [ ] 7.1 Create MBC protocol container
+- [x] 7. Layer 2-3 — DI container registration
+  - [x] 7.1 Create MBC protocol container
     - Create `src/infrastructure/di/registry/mbcProtocolContainer.ts`
     - Register `nfcProtocol` → `webNfcAdapter`
     - Export `MbcProtocolContainerInterface`
     - _Requirements: 2.1_
 
-  - [ ] 7.2 Create MBC service container
+  - [x] 7.2 Create MBC service container
     - Create `src/infrastructure/di/registry/mbcServiceContainer.ts`
     - Register all MBC services: `pricingService`, `cardDataService`, `silentShieldService`, `nfcService`, `deviceService`, `storageHealthService`, `serviceRegistryService`
     - Use `asFunction(...).singleton()` for stateful services
     - Export `MbcServiceContainerInterface`
     - _Requirements: 12.1, 13.1, 11.1, 2.1, 19.1, 20.1, 15.1_
 
-  - [ ] 7.3 Wire MBC containers into root container
+  - [x] 7.3 Wire MBC containers into root container
     - Update `src/infrastructure/di/container.ts` to import and call `registerMbcProtocolModules`, `registerMbcServiceModules`
     - Add `MbcProtocolContainerInterface` and `MbcServiceContainerInterface` to `AwilixRegistry` type union
     - _Requirements: all_
 
-- [ ] 8. Checkpoint — Verify services and DI wiring
+- [x] 8. Checkpoint — Verify services and DI wiring
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 9. Layer 4 — Use cases (orchestrate services)
