@@ -79,8 +79,8 @@ src/
 |-------|--------|-----------|
 | Phase 1: Layer 0 | ✅ Done | Data models, types, Zod schemas, protocols |
 | Phase 2: Layer 1 | ✅ Done | Pure logic services (pricing, card-data, silent-shield) |
-| Phase 3: Layer 2-3 | 🔄 In Progress | I/O adapters + stateful services + DI wiring |
-| Phase 4: Layer 4 | 🔲 Todo | Use cases (Register, TopUp, CheckIn, CheckOut, dll) |
+| Phase 3: Layer 2-3 | ✅ Done | I/O adapters + stateful services + DI wiring |
+| Phase 4: Layer 4 | ✅ Done | Use cases (Register, TopUp, CheckIn, CheckOut, dll) |
 | Phase 5: Layer 5 | 🔲 Todo | Controllers |
 | Phase 6: Layer 6 | 🔲 Todo | Components, pages, routing, PWA |
 

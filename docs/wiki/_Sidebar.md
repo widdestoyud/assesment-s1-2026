@@ -56,3 +56,4 @@
 - [Fase 1: Data Models & Protocols](membership-benefit-card/09-Phase-Reports/Phase-1-Report)
 - [Fase 2: Pure Logic Services](membership-benefit-card/09-Phase-Reports/Phase-2-Report)
 - [Fase 3: Adapters & Stateful Services](membership-benefit-card/09-Phase-Reports/Phase-3-Report)
+- [Fase 4: Use Cases](membership-benefit-card/09-Phase-Reports/Phase-4-Report)
