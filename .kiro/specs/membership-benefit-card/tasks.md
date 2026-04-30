@@ -200,22 +200,22 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 - [x] 8. Checkpoint — Verify services and DI wiring
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Layer 4 — Use cases (orchestrate services)
-  - [ ] 9.1 Implement RegisterMember use case
+- [x] 9. Layer 4 — Use cases (orchestrate services)
+  - [x] 9.1 Implement RegisterMember use case
     - Create `src/@core/use_case/mbc/RegisterMember.ts`
     - Orchestrate: read card → decrypt → deserialize → validate blank card → apply registration → serialize → encrypt → atomic write with verify
     - Reject if card already has member data
     - Return `OperationResult` with member details and initial balance 0
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 3.5, 18.1_
 
-  - [ ] 9.2 Implement TopUpBalance use case
+  - [x] 9.2 Implement TopUpBalance use case
     - Create `src/@core/use_case/mbc/TopUpBalance.ts`
     - Orchestrate: read card → decrypt → deserialize → validate registered card → apply top-up → append transaction log → serialize → encrypt → atomic write with verify
     - Reject if card is not registered
     - Return `OperationResult` with previous balance, amount, new balance
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 10.1, 3.5, 18.1_
 
-  - [ ] 9.3 Implement CheckIn use case
+  - [x] 9.3 Implement CheckIn use case
     - Create `src/@core/use_case/mbc/CheckIn.ts`
     - Orchestrate: read card → decrypt → deserialize → validate no active check-in → apply check-in (timestamp, serviceTypeId, deviceId) → serialize → encrypt → atomic write with verify
     - Reject if already checked in (double tap-in prevention)
@@ -224,7 +224,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Return `CheckInResult` with member name, entry time, service type name
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.7, 6.8, 7.3, 18.1, 18.5_
 
-  - [ ] 9.4 Implement CheckOut use case
+  - [x] 9.4 Implement CheckOut use case
     - Create `src/@core/use_case/mbc/CheckOut.ts`
     - Orchestrate: read card → decrypt → deserialize → validate active check-in → validate device ID match → lookup service type from registry → calculate fee → validate balance sufficient → apply check-out (deduct fee, clear check-in, append transaction log) → serialize → encrypt → atomic write with verify
     - Reject if not checked in (double tap-out prevention)
@@ -243,14 +243,14 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Mock NFC and storage services
     - **Validates: Requirements 19.3, 19.4**
 
-  - [ ] 9.6 Implement ReadCard use case
+  - [x] 9.6 Implement ReadCard use case
     - Create `src/@core/use_case/mbc/ReadCard.ts`
     - Orchestrate: read card → decrypt → deserialize → return `CardData`
     - Read-only — no writes
     - Reject if card data is invalid/corrupted
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 2.3_
 
-  - [ ] 9.7 Implement ManualCalculation use case
+  - [x] 9.7 Implement ManualCalculation use case
     - Create `src/@core/use_case/mbc/ManualCalculation.ts`
     - Accept check-in timestamp and service type ID as input
     - Lookup service type from registry → calculate fee using current time as check-out
@@ -258,23 +258,23 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Return `FeeResult`
     - _Requirements: 21.2, 21.3, 21.4, 21.5, 21.7_
 
-  - [ ] 9.8 Implement ManageServiceRegistry use case
+  - [x] 9.8 Implement ManageServiceRegistry use case
     - Create `src/@core/use_case/mbc/ManageServiceRegistry.ts`
     - Expose `getAll`, `add`, `update`, `remove` operations delegating to `ServiceRegistryService`
     - Initialize defaults on first access
     - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 16.1, 16.2, 16.3, 16.5_
 
-  - [ ]* 9.9 Write unit tests for use cases
+  - [x]* 9.9 Write unit tests for use cases
     - Create test files in `src/@core/use_case/__tests__/mbc/` for `RegisterMember`, `TopUpBalance`, `CheckIn`, `ReadCard`, `ManualCalculation`, `ManageServiceRegistry`
     - Mock all service dependencies via partial `AwilixRegistry`
     - Test success paths, rejection conditions, and error handling
     - _Requirements: 4.2, 4.3, 5.2, 5.5, 6.2, 6.3, 8.3, 8.7, 8.8, 8.10, 9.4, 21.5_
 
-- [ ] 10. Checkpoint — Verify use cases
+- [x] 10. Checkpoint — Verify use cases
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 11. Layer 4 — Use case DI registration
-  - [ ] 11.1 Create MBC use case container
+- [x] 11. Layer 4 — Use case DI registration
+  - [x] 11.1 Create MBC use case container
     - Create `src/infrastructure/di/registry/mbcUseCaseContainer.ts`
     - Register all MBC use cases: `registerMemberUseCase`, `topUpBalanceUseCase`, `checkInUseCase`, `checkOutUseCase`, `readCardUseCase`, `manualCalculationUseCase`, `manageServiceRegistryUseCase`
     - Export `MbcUseCaseContainerInterface`
