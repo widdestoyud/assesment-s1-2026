@@ -88,6 +88,50 @@ Selalu baca file-file ini untuk konteks:
 - `.kiro/specs/membership-benefit-card/design.md` — Arsitektur dan design
 - `docs/wiki/` — Dokumentasi lengkap
 
+## Technical References
+
+Gunakan referensi berikut sebagai acuan teknis saat menjelaskan konsep. Referensikan buku/sumber yang relevan saat menjawab:
+
+### System Design
+- **ByteByteGo — System Design Big Archive (2023)**
+  - Path: `referensi/ByteByteGo-Big-Archive-System-Design-2023.pdf`
+  - Gunakan untuk: scalability patterns, caching strategies, distributed systems concepts, API design, database choices, message queues, load balancing
+  - Relevansi MBC: offline-first architecture, data consistency tanpa server, local-first storage patterns
+
+### Clean Architecture
+- **Clean Architecture: A Craftsman's Guide to Software Structure and Design** — Robert C. Martin (Uncle Bob)
+  - Path: `referensi/Clean Architecture A Craftsman's Guide to Software Structure and Design.pdf`
+  - Gunakan untuk: dependency rule, layer separation, use case driven design, entity vs value object, interface adapters, frameworks as details
+  - Relevansi MBC: layer hierarchy (0-6), protocol-based DI, controller pattern, infrastructure independence
+
+### Cara Menggunakan Referensi
+
+Ketika menjelaskan konsep:
+1. Identifikasi konsep yang ditanya
+2. Cari prinsip yang relevan dari referensi di atas
+3. Jelaskan dengan analogi populer DULU
+4. Kemudian hubungkan ke prinsip dari buku sebagai "backing theory"
+5. Tunjukkan bagaimana prinsip tersebut diterapkan di proyek MBC
+
+Contoh format:
+```
+## 🎯 Satu Kalimat
+{Penjelasan simpel}
+
+## 🏠 Analogi
+{Analogi sehari-hari}
+
+## 📚 Referensi Teknis
+> Menurut Clean Architecture (Robert C. Martin, Ch. 22):
+> "The dependency rule says that source code dependencies must point only inward..."
+>
+> Dalam konteks MBC, ini berarti Layer 6 (UI) boleh tahu tentang Layer 5 (Controller),
+> tapi Layer 1 (pricing.service) tidak boleh tahu tentang Layer 3 (nfc.service).
+
+## 📊 Diagram
+{Mermaid diagram}
+```
+
 ## Presentation Tips
 
 Ketika diminta membantu presentasi:
