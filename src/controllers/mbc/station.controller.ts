@@ -3,7 +3,6 @@ import type {
   NfcStatus,
   OperationResult,
   ServiceType,
-  StorageError,
 } from '@core/services/mbc/models';
 
 export interface RegistrationFormData {
@@ -44,7 +43,6 @@ const StationController = (
     | 'registerMemberUseCase'
     | 'topUpBalanceUseCase'
     | 'manageServiceRegistryUseCase'
-    | 'nfcService'
     | 'storageHealthService'
   >,
 ): StationControllerInterface => {
@@ -55,7 +53,6 @@ const StationController = (
     registerMemberUseCase,
     topUpBalanceUseCase,
     manageServiceRegistryUseCase,
-    nfcService,
     storageHealthService,
   } = deps;
 

@@ -92,7 +92,7 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
         <select
           id="st-unit"
           value={unitType}
-          onChange={(e) => setUnitType(e.target.value)}
+          onChange={(e) => setUnitType(e.target.value as 'per-hour' | 'per-visit' | 'flat-fee')}
           className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         >
           <option value="per-hour">Per Jam</option>
@@ -105,7 +105,7 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
         <select
           id="st-rounding"
           value={roundingStrategy}
-          onChange={(e) => setRoundingStrategy(e.target.value)}
+          onChange={(e) => setRoundingStrategy(e.target.value as 'ceiling' | 'floor' | 'nearest')}
           className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         >
           <option value="ceiling">Ke Atas (Ceiling)</option>
