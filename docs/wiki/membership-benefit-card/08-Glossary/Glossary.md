@@ -50,7 +50,7 @@ A configuration object associated with a Service_Type that defines the rate per 
 A string identifier for the type of transaction recorded in the Transaction_Log (e.g., `top-up`, `parking-fee`, `bike-rental`).
 
 ### Service_Registry
-The in-app configuration store that holds all available Service_Type definitions and their associated Pricing_Strategy configurations. Persisted via [Resilient Storage](../04-Technical-Flows/Resilient-Storage).
+The in-app configuration store that holds all available Service_Type definitions and their associated Pricing_Strategy configurations. Persisted via [Storage Architecture](../04-Technical-Flows/Storage-Architecture).
 
 ### Fare
 The calculated charge for a service usage, determined by the active Service_Type's Pricing_Strategy. Default: parking at Rp 2.000 per hour with ceiling rounding.
@@ -70,7 +70,7 @@ The detected state of Web NFC support on the current device: `supported`, `unsup
 ## Technical Terms
 
 ### Protocol
-An interface defined in `@core/protocols/`. Protocols are framework-agnostic contracts that infrastructure adapters implement. Examples: `NfcProtocol`, `IndexedDbProtocol`.
+An interface defined in `@core/protocols/`. Protocols are framework-agnostic contracts that infrastructure adapters implement. Examples: `NfcProtocol`, `KeyValueStoreProtocol`.
 
 ### Service
 Business logic in `@core/services/`. Can be pure (stateless) or stateful. Examples: `pricing.service`, `nfc.service`.

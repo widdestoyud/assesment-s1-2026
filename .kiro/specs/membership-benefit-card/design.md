@@ -22,7 +22,7 @@ The system supports an extensible service type architecture where different busi
 3. **Atomic writes with verification** — Every NFC write captures a pre-operation snapshot, writes all changes as a unit, reads back for verification, and rolls back on any inconsistency.
 4. **Device binding** — A unique `Device_ID` generated on first launch ties each check-in session to a specific physical device, preventing cross-device check-out.
 5. **Silent Shield encryption** — Card data is encrypted/obfuscated before writing so third-party NFC readers cannot read member data in plain text. Uses AES-256-GCM via the existing `crypto-browserify` polyfill.
-6. **Dual-layer local storage** — IndexedDB (primary) with localStorage fallback for Device_ID and Service Registry resilience.
+6. **localStorage persistence** — Device_ID and Service Registry are persisted in localStorage with graceful error handling for unavailability and quota limits.
 7. **NFC capability gating** — On launch, the app detects Web NFC support and permission status. Unsupported browsers see a compatibility notice; supported browsers without permission see a permission prompt. Role modes that require NFC (Station, Gate, Terminal) are disabled until NFC is confirmed available.
 
 ### Technology Stack
@@ -61,14 +61,13 @@ Build Order (each layer only depends on layers below it):
 
   Layer 2 — I/O Adapters (protocol implementations, isolated side effects)
   ├── webNfcAdapter — wraps NDEFReader behind NfcProtocol
-  ├── indexedDbAdapter — wraps IndexedDB behind IndexedDbProtocol
-  └── webStorageAdapter — wraps localStorage (existing)
+  └── webStorageAdapter — wraps localStorage behind KeyValueStoreProtocol (existing)
 
   Layer 3 — Stateful Services (compose Layer 1 + Layer 2 via DI)
   ├── nfc.service — read/write/verify using NfcProtocol + card-data + silent-shield
-  ├── device.service — Device_ID lifecycle using resilient-storage
-  ├── resilient-storage.service — dual-layer persistence using IndexedDB + localStorage
-  └── service-registry.service — CRUD using resilient-storage
+  ├── device.service — Device_ID lifecycle using KeyValueStoreProtocol
+  ├── storage-health.service — localStorage availability and error detection
+  └── service-registry.service — CRUD using KeyValueStoreProtocol
 
   Layer 4 — Use Cases (orchestrate Layer 3 services, single responsibility)
   ├── RegisterMember, TopUpBalance, CheckIn, CheckOut
@@ -96,7 +95,7 @@ Each module does exactly one thing. No module mixes concerns.
 | `silent-shield.service` | Encrypt/decrypt byte arrays | Card schema knowledge, NFC I/O |
 | `nfc.service` | Read/write/verify NFC tags | Fee calculation, card schema, storage |
 | `device.service` | Manage Device_ID lifecycle | NFC operations, pricing, UI |
-| `resilient-storage.service` | Dual-layer persist/retrieve | Business logic, card data, NFC |
+| `storage-health.service` | Detect storage availability and errors | Business logic, card data, NFC |
 | `service-registry.service` | CRUD service type configs | Pricing calculation, NFC, UI |
 | `NfcTapPrompt` component | Render tap animation + status | Fee calculation, card parsing |
 | `FeeBreakdown` component | Render fee details from props | NFC operations, data fetching |
@@ -113,7 +112,7 @@ All inter-module communication happens through **interfaces (protocols)** and **
 ```
 ✅ ALLOWED — Depend on interfaces (protocols)
    nfc.service depends on NfcProtocol (interface)
-   resilient-storage.service depends on IndexedDbProtocol + LocalStorageProtocol
+   device.service depends on KeyValueStoreProtocol (interface)
 
 ✅ ALLOWED — Depend on pure data types
    pricing.service depends on PricingStrategy type (pure data)
@@ -146,14 +145,13 @@ graph LR
 
     subgraph "I/O Boundary"
         NfcProto[NfcProtocol]
-        IdbProto[IndexedDbProtocol]
-        LsProto[LocalStorageProtocol]
+        KvProto[KeyValueStoreProtocol]
     end
 
     subgraph "Stateful Services"
         NfcSvc[nfc.service]
         DevSvc[device.service]
-        ResSvc[resilient-storage.service]
+        HealthSvc[storage-health.service]
         RegSvc[service-registry.service]
     end
 
@@ -168,10 +166,9 @@ graph LR
     NfcSvc --> NfcProto
     NfcSvc --> CardData
     NfcSvc --> Shield
-    ResSvc --> IdbProto
-    ResSvc --> LsProto
-    DevSvc --> ResSvc
-    RegSvc --> ResSvc
+    DevSvc --> KvProto
+    HealthSvc --> KvProto
+    RegSvc --> KvProto
     UC --> NfcSvc
     UC --> Pricing
     UC --> DevSvc
@@ -179,7 +176,7 @@ graph LR
     Ctrl --> UC
 ```
 
-**Key guarantee:** You can swap `webNfcAdapter` with a mock adapter for testing, or replace `indexedDbAdapter` with an in-memory adapter, without changing any service or use case code. The DI container handles all wiring.
+**Key guarantee:** You can swap `webNfcAdapter` with a mock adapter for testing, or replace `webStorageAdapter` with an in-memory adapter, without changing any service or use case code. The DI container handles all wiring.
 
 ### 4. Component Composition Pattern
 
@@ -261,19 +258,17 @@ graph TB
             PricingSvc[pricing.service]
             CryptoSvc[silent-shield.service]
             DeviceSvc[device.service]
-            StorageSvc[resilient-storage.service]
+            StorageSvc[storage-health.service]
             ServiceRegSvc[service-registry.service]
         end
         subgraph Protocols["Protocols"]
             NfcProto[NfcProtocol]
-            StorageProto[LocalStorageProtocol<br/>existing]
-            IndexedDbProto[IndexedDbProtocol]
+            StorageProto[KeyValueStoreProtocol<br/>existing]
         end
     end
 
     subgraph Infrastructure["Infrastructure Layer"]
         NfcAdapter[webNfcAdapter<br/>NDEFReader wrapper]
-        IdbAdapter[indexedDbAdapter]
         WebStorage[webStorageAdapter<br/>existing]
     end
 
@@ -354,17 +349,6 @@ export interface NfcError {
 }
 ```
 
-```typescript
-// src/@core/protocols/indexed-db/index.ts
-export interface IndexedDbProtocol {
-  get<T>(storeName: string, key: string): Promise<T | undefined>;
-  set<T>(storeName: string, key: string, value: T): Promise<void>;
-  delete(storeName: string, key: string): Promise<void>;
-  getAll<T>(storeName: string): Promise<T[]>;
-  isAvailable(): Promise<boolean>;
-}
-```
-
 ### Services (New)
 
 #### NFC Service
@@ -440,23 +424,20 @@ export interface DeviceServiceInterface {
 }
 ```
 
-#### Resilient Storage Service
+#### Storage Health Service
 
 ```typescript
-// src/@core/services/resilient-storage.service.ts
-export interface ResilientStorageServiceInterface {
-  get<T>(key: string): Promise<T | undefined>;
-  set<T>(key: string, value: T): Promise<void>;
-  delete(key: string): Promise<void>;
-  isStorageHealthy(): Promise<boolean>;
-  checkStorageQuota(): Promise<StorageQuotaInfo>;
+// src/@core/services/storage-health.service.ts
+export interface StorageHealthServiceInterface {
+  /** Check if localStorage is available and writable */
+  isAvailable(): Promise<boolean>;
+  /** Attempt a write and detect quota exceeded errors */
+  checkWriteCapacity(): Promise<{ canWrite: boolean; error?: StorageError }>;
 }
 
-export interface StorageQuotaInfo {
-  usedBytes: number;
-  totalBytes: number;
-  percentUsed: number;
-  isLow: boolean;
+export interface StorageError {
+  type: 'unavailable' | 'quota_exceeded' | 'read_failed' | 'write_failed';
+  message: string;
 }
 ```
 
@@ -854,34 +835,25 @@ The write-lock prevents concurrent operations on the same card:
 ```mermaid
 sequenceDiagram
     participant App as MBC_App Launch
-    participant IDB as IndexedDB
     participant LS as localStorage
-    participant Card as NFC Card
 
-    App->>IDB: get("mbc-config", "device-id")
-    alt Device_ID exists in IDB
-        IDB-->>App: deviceId
-    else Missing from IDB
-        App->>LS: getItem("mbc-device-id")
-        alt Device_ID exists in LS
-            LS-->>App: deviceId
-            App->>IDB: set("mbc-config", "device-id", deviceId)
-        else Missing from both
-            App->>App: crypto.randomUUID()
-            App->>IDB: set("mbc-config", "device-id", newId)
-            App->>LS: setItem("mbc-device-id", newId)
-            App->>App: Show warning: "New Device_ID generated"
-        end
+    App->>LS: getItem("mbc-device-id")
+    alt Device_ID exists in LS
+        LS-->>App: deviceId
+    else Missing from LS
+        App->>App: crypto.randomUUID()
+        App->>LS: setItem("mbc-device-id", newId)
+        App->>App: Show warning: "New Device_ID generated"
     end
 
-    Note over App,Card: During Check-In at The Gate
-    App->>Card: Write deviceId into CheckInStatus.deviceId
+    Note over App: During Check-In at The Gate
+    App->>App: Write deviceId into CheckInStatus.deviceId (on NFC card)
 
-    Note over App,Card: During Check-Out at The Terminal
-    App->>Card: Read CheckInStatus.deviceId
+    Note over App: During Check-Out at The Terminal
+    App->>App: Read CheckInStatus.deviceId (from NFC card)
     App->>App: Compare card.deviceId === local.deviceId
     alt Match
-        App->>Card: Process check-out
+        App->>App: Process check-out
     else Mismatch
         App->>App: Reject — "Return to original device"
     end
@@ -889,50 +861,30 @@ sequenceDiagram
 
 ---
 
-## Resilient Storage Architecture
+## Storage Architecture
 
-### Dual-Layer Strategy
+### localStorage Strategy
 
 ```
 ┌─────────────────────────────────────────┐
-│           Resilient Storage Service       │
-│  ┌─────────────┐   ┌─────────────────┐  │
-│  │  IndexedDB   │   │  localStorage   │  │
-│  │  (Primary)   │   │  (Fallback)     │  │
-│  │              │   │                 │  │
-│  │ • Device_ID  │   │ • Device_ID     │  │
-│  │ • Service    │   │ • Service       │  │
-│  │   Registry   │   │   Registry      │  │
-│  └─────────────┘   └─────────────────┘  │
+│         KeyValueStoreProtocol            │
+│  ┌─────────────────────────────────────┐ │
+│  │         localStorage                │ │
+│  │                                     │ │
+│  │ • mbc-config:device-id             │ │
+│  │ • mbc-config:service-registry      │ │
+│  └─────────────────────────────────────┘ │
 └─────────────────────────────────────────┘
 ```
 
-### Recovery Logic on App Launch
+### Error Handling on App Launch
 
-1. Try reading from IndexedDB
-2. If IndexedDB fails → read from localStorage fallback
-3. If both fail → re-initialize with defaults + show warning
-4. After successful read → sync both stores to ensure consistency
-5. Check storage quota → warn if > 80% used
-
-### IndexedDB Schema
-
-```typescript
-// Database: "mbc-app"
-// Version: 1
-// Object Stores:
-const DB_SCHEMA = {
-  name: 'mbc-app',
-  version: 1,
-  stores: {
-    'mbc-config': {
-      keyPath: 'key',
-      // Records: { key: 'device-id', value: string }
-      //          { key: 'service-registry', value: ServiceType[] }
-    },
-  },
-};
-```
+1. Check if localStorage is available (`isAvailable()`)
+2. If unavailable → display informative message, app runs in degraded mode
+3. If available → read Device_ID and Service Registry
+4. Validate Service Registry data integrity with Zod schema
+5. If data missing or corrupted → re-initialize with defaults + show warning
+6. On write failure (quota exceeded) → display clear error message to operator
 
 ---
 
@@ -1008,15 +960,14 @@ const SILENT_SHIELD_CONFIG = {
 src/
 ├── @core/
 │   ├── protocols/
-│   │   ├── nfc/index.ts                          # NfcProtocol interface
-│   │   └── indexed-db/index.ts                    # IndexedDbProtocol interface
+│   │   └── nfc/index.ts                          # NfcProtocol interface
 │   ├── services/
 │   │   ├── nfc.service.ts                         # NFC read/write/verify
 │   │   ├── card-data.service.ts                   # Serialize/deserialize/mutate card data
 │   │   ├── silent-shield.service.ts               # AES-256-GCM encrypt/decrypt
 │   │   ├── pricing.service.ts                     # Fee calculation engine
 │   │   ├── device.service.ts                      # Device_ID management
-│   │   ├── resilient-storage.service.ts           # IndexedDB + localStorage dual-layer
+│   │   ├── storage-health.service.ts              # localStorage availability and error detection
 │   │   ├── service-registry.service.ts            # Service type CRUD
 │   │   └── __tests__/
 │   │       ├── nfc.service.test.ts
@@ -1024,7 +975,7 @@ src/
 │   │       ├── silent-shield.service.test.ts
 │   │       ├── pricing.service.test.ts
 │   │       ├── device.service.test.ts
-│   │       ├── resilient-storage.service.test.ts
+│   │       ├── storage-health.service.test.ts
 │   │       └── service-registry.service.test.ts
 │   └── use_case/
 │       ├── mbc/
@@ -1052,7 +1003,7 @@ src/
 │   ├── nfc/
 │   │   └── webNfcAdapter.ts                       # NDEFReader implementation
 │   └── storage/
-│       └── indexedDbAdapter.ts                     # IndexedDB implementation
+│       └── webStorageAdapter.ts                   # localStorage implementation (existing)
 ├── controllers/
 │   └── mbc/
 │       ├── role-picker.controller.ts
@@ -1282,7 +1233,7 @@ These properties define the formal correctness guarantees that the system must u
 | Req 17: Service Selection | GateController.onSelectServiceType, ServiceTypeSelector component |
 | Req 18: Atomic Integrity | AtomicWritePipeline, write-lock state, snapshot/rollback mechanism |
 | Req 19: Device Binding | DeviceService, Device_ID in CheckInStatus, device match validation |
-| Req 20: Data Resilience | ResilientStorageService, IndexedDB + localStorage dual-layer, recovery logic |
+| Req 20: Data Persistence | StorageHealthService, localStorage via KeyValueStoreProtocol, error handling, Zod validation |
 | Req 21: Manual Fallback | ManualCalculation use case, TerminalController.manualMode, ManualCalcForm |
 | Req 22: NFC Capability Detection | NfcProtocol.isSupported(), RolePickerController NFC gating, NfcCompatibilityNotice component |
 

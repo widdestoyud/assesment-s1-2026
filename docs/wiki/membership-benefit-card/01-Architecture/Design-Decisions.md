@@ -82,7 +82,7 @@ See [Atomic Write Pipeline](../04-Technical-Flows/Atomic-Write-Pipeline) for the
 
 **Context:** Check-out must happen on the same device as check-in to prevent fraud.
 
-**Decision:** Generate a unique `Device_ID` on first launch, persist in dual-layer storage, write to card during check-in, validate during check-out.
+**Decision:** Generate a unique `Device_ID` on first launch, persist in localStorage, write to card during check-in, validate during check-out.
 
 **Consequences:**
 - ✅ Prevents cross-device check-out fraud
@@ -91,18 +91,26 @@ See [Atomic Write Pipeline](../04-Technical-Flows/Atomic-Write-Pipeline) for the
 
 See [Device Binding](../04-Technical-Flows/Device-Binding) for the full lifecycle.
 
-## ADR-7: Dual-Layer Storage (IndexedDB + localStorage)
+## ADR-7: localStorage Persistence with Graceful Error Handling
 
-**Context:** Device_ID and Service Registry must survive app restarts and storage disruptions.
+**Context:** Device_ID and Service Registry must survive app restarts. Storage errors must be handled gracefully.
 
-**Decision:** Use IndexedDB as primary storage with localStorage as redundant fallback.
+**Decision:** Use localStorage as the single storage mechanism via `KeyValueStoreProtocol`, with explicit error handling for unavailability and quota limits.
 
 **Rationale:**
-- IndexedDB: larger quota, structured data, async API
-- localStorage: synchronous, simpler, widely supported
-- Writing to both ensures recovery if either is cleared
+- localStorage: synchronous, simple, widely supported across all browsers
+- Single storage layer reduces complexity — no dual-layer orchestration needed
+- Error handling covers the realistic failure modes: unavailable (private mode) and quota exceeded
+- All storage access goes through `KeyValueStoreProtocol` interface, so the implementation can be swapped later if needed
 
-See [Resilient Storage](../04-Technical-Flows/Resilient-Storage) for recovery logic.
+**Consequences:**
+- ✅ Simpler architecture, fewer moving parts
+- ✅ Every business error is handled and communicated to the user
+- ✅ Swappable via DI if requirements change in the future
+- ⚠️ No redundancy — if localStorage is cleared, data is lost
+- ⚠️ Limited quota (~5-10 MB), sufficient for current data needs
+
+See [Storage Architecture](../04-Technical-Flows/Storage-Architecture) for error handling flows.
 
 ## ADR-8: Extensible Service Type Architecture
 
@@ -145,4 +153,4 @@ See [Resilient Storage](../04-Technical-Flows/Resilient-Storage) for recovery lo
 - [Atomic Write Pipeline](../04-Technical-Flows/Atomic-Write-Pipeline) — ADR-5 implementation
 - [Device Binding](../04-Technical-Flows/Device-Binding) — ADR-6 implementation
 - [Silent Shield Encryption](../04-Technical-Flows/Silent-Shield-Encryption) — ADR-4 implementation
-- [Resilient Storage](../04-Technical-Flows/Resilient-Storage) — ADR-7 implementation
+- [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — ADR-7 implementation

@@ -41,7 +41,7 @@ docs/wiki/
 │   ├── Device-Binding.md            # Device_ID lifecycle, check-in/check-out binding
 │   ├── Silent-Shield-Encryption.md  # AES-256-GCM encryption/decryption flow
 │   ├── NFC-Capability-Detection.md  # Browser support check, permission flow, degradation
-│   ├── Resilient-Storage.md         # IndexedDB + localStorage dual-layer strategy
+│   ├── Storage-Architecture.md        # localStorage persistence with error handling
 │   └── Pricing-Engine.md            # Per-hour, per-visit, flat-fee calculation logic
 ├── 05-UI-Components/
 │   ├── Role-Picker.md               # Role selection interface

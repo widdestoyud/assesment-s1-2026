@@ -78,11 +78,9 @@ export interface WriteVerifyResult {
   error?: string;
 }
 
-export interface StorageQuotaInfo {
-  usedBytes: number;
-  totalBytes: number;
-  percentUsed: number;
-  isLow: boolean;
+export interface StorageError {
+  type: 'unavailable' | 'quota_exceeded' | 'read_failed' | 'write_failed';
+  message: string;
 }
 
 export type NfcCapabilityStatus =

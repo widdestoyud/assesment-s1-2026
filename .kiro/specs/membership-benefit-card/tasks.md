@@ -8,7 +8,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 
 - [x] 1. Layer 0 — Data models, types, Zod schemas, and constants
   - [x] 1.1 Create MBC constants and storage keys
-    - Create `src/utils/constants/mbc-keys.ts` with MBC-specific storage keys (`MBC_DEVICE_ID`, `MBC_SERVICE_REGISTRY`), IndexedDB config (`DB_NAME`, `DB_VERSION`, `STORE_NAME`), and Silent Shield config constants
+    - Create `src/utils/constants/mbc-keys.ts` with MBC-specific storage keys (`MBC_DEVICE_ID`, `MBC_SERVICE_REGISTRY`), storage config (`STORE_NAME`), and Silent Shield config constants
     - Export from `src/utils/constants/index.ts`
     - Register in DI container via `helperContainer.ts`
     - _Requirements: 19.1, 19.6, 20.1_
@@ -16,7 +16,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
   - [x] 1.2 Create MBC data model interfaces and Zod schemas
     - Create `src/@core/services/mbc/models/card-data.model.ts` with `CardData`, `MemberIdentity`, `CheckInStatus`, `TransactionLogEntry` interfaces
     - Create `src/@core/services/mbc/models/service-type.model.ts` with `ServiceType`, `PricingStrategy` interfaces and `DEFAULT_PARKING_SERVICE` constant
-    - Create `src/@core/services/mbc/models/common.model.ts` with `RoleMode`, `NfcStatus`, `NfcError`, `FeeResult`, `CheckInResult`, `CheckOutResult`, `OperationResult`, `AtomicWriteResult`, `AtomicWriteError`, `WriteVerifyResult`, `StorageQuotaInfo`, `NfcPermissionResult`, `NfcScanSession` types
+    - Create `src/@core/services/mbc/models/common.model.ts` with `RoleMode`, `NfcStatus`, `NfcError`, `FeeResult`, `CheckInResult`, `CheckOutResult`, `OperationResult`, `AtomicWriteResult`, `AtomicWriteError`, `WriteVerifyResult`, `StorageError`, `NfcPermissionResult`, `NfcScanSession` types
     - Create `src/@core/services/mbc/models/schemas.ts` with Zod schemas: `CardDataSchema`, `ServiceTypeFormSchema`, `RegistrationFormSchema`, `TopUpFormSchema`, `ManualCalcFormSchema`
     - Create `src/@core/services/mbc/models/index.ts` barrel export
     - _Requirements: 13.1, 12.2-3, 1.1, 15.2_
@@ -31,8 +31,8 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Create `src/@core/protocols/nfc/index.ts` with `NfcProtocol` interface (`isSupported`, `requestPermission`, `startScan`, `write`)
     - _Requirements: 2.1, 2.2, 2.4, 3.1_
 
-  - [x] 2.2 Create IndexedDbProtocol interface
-    - Create `src/@core/protocols/indexed-db/index.ts` with `IndexedDbProtocol` interface (`get`, `set`, `delete`, `getAll`, `isAvailable`)
+  - [x] 2.2 ~~Create IndexedDbProtocol interface~~ (Removed — simplified to localStorage-only)
+    - IndexedDbProtocol is no longer needed. Storage uses existing `KeyValueStoreProtocol` with `webStorageAdapter`.
     - _Requirements: 20.1_
 
 - [x] 3. Layer 1 — Pure logic services (stateless, no I/O)
@@ -137,13 +137,6 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Handle all Web NFC error types and map to `NfcError`
     - _Requirements: 2.1, 2.2, 2.4, 3.1_
 
-  - [ ] 5.2 Implement indexedDbAdapter
-    - Create `src/infrastructure/storage/indexedDbAdapter.ts` implementing `IndexedDbProtocol`
-    - Open/create `mbc-app` database with version 1 and `mbc-config` object store
-    - Implement `get`, `set`, `delete`, `getAll`, `isAvailable`
-    - Handle IndexedDB errors gracefully (return undefined on missing keys)
-    - _Requirements: 20.1_
-
 - [ ] 6. Layer 3 — Stateful services (compose pure logic + I/O adapters via DI)
   - [ ] 6.1 Implement nfc.service
     - Create `src/@core/services/mbc/nfc.service.ts` with `NfcServiceInterface` and `NfcService` factory function
@@ -153,49 +146,48 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - `writeAndVerify(data)`: write → read back → compare → return `WriteVerifyResult`
     - _Requirements: 2.1, 3.1, 3.4, 3.7_
 
-  - [ ] 6.2 Implement resilient-storage.service
-    - Create `src/@core/services/mbc/resilient-storage.service.ts` with `ResilientStorageServiceInterface` and `ResilientStorageService` factory function
-    - Depends on `IndexedDbProtocol` and `LocalStorageProtocol` (via DI)
-    - `get(key)`: try IndexedDB → fallback to localStorage → return undefined
-    - `set(key, value)`: write to both IndexedDB and localStorage
-    - `delete(key)`: delete from both stores
-    - `isStorageHealthy()`: check IndexedDB availability
-    - `checkStorageQuota()`: use `navigator.storage.estimate()` → return `StorageQuotaInfo`
-    - _Requirements: 20.1, 20.2, 20.3, 20.4_
+  - [ ] 6.2 Implement storage-health.service
+    - Create `src/@core/services/mbc/storage-health.service.ts` with `StorageHealthServiceInterface` and `StorageHealthService` factory function
+    - Depends on `KeyValueStoreProtocol` (via DI)
+    - `isAvailable()`: check if localStorage is accessible and writable
+    - `checkWriteCapacity()`: attempt a test write, detect quota exceeded errors, return `{ canWrite, error? }`
+    - _Requirements: 20.2, 20.3, 20.4_
 
   - [ ] 6.3 Implement device.service
     - Create `src/@core/services/mbc/device.service.ts` with `DeviceServiceInterface` and `DeviceService` factory function
-    - Depends on `ResilientStorageService` (via DI)
-    - `getDeviceId()`: read from resilient storage
+    - Depends on `KeyValueStoreProtocol` (via DI)
+    - `getDeviceId()`: read from localStorage via KeyValueStoreProtocol
     - `ensureDeviceId()`: get or generate via `crypto.randomUUID()`, persist, return `{ deviceId, wasRegenerated }`
     - On regeneration, flag `wasRegenerated: true` so UI can show warning
-    - _Requirements: 19.1, 19.6, 19.7_
+    - Handle storage write failures gracefully with `StorageError`
+    - _Requirements: 19.1, 19.6, 19.7, 20.8_
 
   - [ ] 6.4 Implement service-registry.service
     - Create `src/@core/services/mbc/service-registry.service.ts` with `ServiceRegistryServiceInterface` and `ServiceRegistryService` factory function
-    - Depends on `ResilientStorageService` (via DI)
+    - Depends on `KeyValueStoreProtocol` (via DI)
     - Implement `getAll`, `getById`, `add`, `update`, `remove`, `initializeDefaults`
     - `initializeDefaults()`: check if registry exists, if not create with `DEFAULT_PARKING_SERVICE`
     - Validate service type data integrity on read using Zod schema
-    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 20.5, 20.6_
+    - Handle storage write failures gracefully with `StorageError`
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 20.5, 20.6, 20.8_
 
   - [ ]* 6.5 Write unit tests for stateful services
-    - Create `src/@core/services/__tests__/mbc/device.service.test.ts` — test Device_ID generation, persistence, regeneration warning
-    - Create `src/@core/services/__tests__/mbc/resilient-storage.service.test.ts` — test dual-layer fallback, quota check
-    - Create `src/@core/services/__tests__/mbc/service-registry.service.test.ts` — test CRUD, default initialization, validation
-    - Mock `IndexedDbProtocol` and `LocalStorageProtocol` via partial `AwilixRegistry`
-    - _Requirements: 19.1, 19.7, 20.1, 20.2, 20.3, 15.5, 15.6, 15.7_
+    - Create `src/@core/services/__tests__/mbc/device.service.test.ts` — test Device_ID generation, persistence, regeneration warning, storage failure handling
+    - Create `src/@core/services/__tests__/mbc/storage-health.service.test.ts` — test availability check, write capacity check, quota exceeded detection
+    - Create `src/@core/services/__tests__/mbc/service-registry.service.test.ts` — test CRUD, default initialization, validation, storage failure handling
+    - Mock `KeyValueStoreProtocol` via partial `AwilixRegistry`
+    - _Requirements: 19.1, 19.7, 20.1, 20.2, 20.3, 20.4, 15.5, 15.6, 15.7, 20.8_
 
 - [ ] 7. Layer 2-3 — DI container registration
   - [ ] 7.1 Create MBC protocol container
     - Create `src/infrastructure/di/registry/mbcProtocolContainer.ts`
-    - Register `nfcProtocol` → `webNfcAdapter`, `indexedDbProtocol` → `indexedDbAdapter`
+    - Register `nfcProtocol` → `webNfcAdapter`
     - Export `MbcProtocolContainerInterface`
-    - _Requirements: 2.1, 20.1_
+    - _Requirements: 2.1_
 
   - [ ] 7.2 Create MBC service container
     - Create `src/infrastructure/di/registry/mbcServiceContainer.ts`
-    - Register all MBC services: `pricingService`, `cardDataService`, `silentShieldService`, `nfcService`, `deviceService`, `resilientStorageService`, `serviceRegistryService`
+    - Register all MBC services: `pricingService`, `cardDataService`, `silentShieldService`, `nfcService`, `deviceService`, `storageHealthService`, `serviceRegistryService`
     - Use `asFunction(...).singleton()` for stateful services
     - Export `MbcServiceContainerInterface`
     - _Requirements: 12.1, 13.1, 11.1, 2.1, 19.1, 20.1, 15.1_

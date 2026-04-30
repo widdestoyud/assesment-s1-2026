@@ -73,4 +73,4 @@ interface StationControllerInterface {
 - [Member Registration](../03-Business-Flows/Member-Registration) — Registration flow details
 - [Balance Top-Up](../03-Business-Flows/Balance-Top-Up) — Top-up flow details
 - [Service Type Configuration](../03-Business-Flows/Service-Type-Configuration) — Config flow details
-- [Resilient Storage](../04-Technical-Flows/Resilient-Storage) — Storage health monitoring
+- [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — Storage health monitoring

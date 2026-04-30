@@ -28,7 +28,7 @@
 - [Device Binding](membership-benefit-card/04-Technical-Flows/Device-Binding)
 - [Silent Shield](membership-benefit-card/04-Technical-Flows/Silent-Shield-Encryption)
 - [NFC Detection](membership-benefit-card/04-Technical-Flows/NFC-Capability-Detection)
-- [Resilient Storage](membership-benefit-card/04-Technical-Flows/Resilient-Storage)
+- [Storage Architecture](membership-benefit-card/04-Technical-Flows/Storage-Architecture)
 - [Pricing Engine](membership-benefit-card/04-Technical-Flows/Pricing-Engine)
 
 **05 — UI Components**

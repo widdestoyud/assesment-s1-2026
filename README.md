@@ -45,8 +45,8 @@ Proyek mengikuti **Clean Architecture** dengan prinsip **Start with Bricks** (bo
 ```
 Layer 0 — Data Models & Schemas (pure types, zero dependencies)
 Layer 1 — Pure Logic Services (stateless: pricing, card-data, silent-shield)
-Layer 2 — I/O Adapters (webNfcAdapter, indexedDbAdapter)
-Layer 3 — Stateful Services (nfc, device, resilient-storage, service-registry)
+Layer 2 — I/O Adapters (webNfcAdapter, webStorageAdapter)
+Layer 3 — Stateful Services (nfc, device, storage-health, service-registry)
 Layer 4 — Use Cases (RegisterMember, CheckIn, CheckOut, dll)
 Layer 5 — Controllers (pure functions via DI, bukan React components)
 Layer 6 — Presentation (Pages + Components, props-in/events-out)
@@ -55,7 +55,7 @@ Layer 6 — Presentation (Pages + Components, props-in/events-out)
 ```
 src/
 ├── @core/                    # Core business logic (framework-agnostic)
-│   ├── protocols/            # Interface contracts (NFC, IndexedDB)
+│   ├── protocols/            # Interface contracts (NFC, KeyValueStore)
 │   ├── services/mbc/         # MBC services + data models
 │   └── use_case/mbc/         # Application use cases
 ├── infrastructure/           # External adapters & DI container
