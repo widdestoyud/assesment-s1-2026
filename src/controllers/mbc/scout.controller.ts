@@ -1,6 +1,7 @@
 import type { AwilixRegistry } from '@di/container';
 import type {
   CardData,
+  NfcCapabilityStatus,
   NfcStatus,
   ServiceType,
 } from '@core/services/mbc/models';
@@ -11,6 +12,7 @@ export interface ScoutControllerInterface {
   isReading: boolean;
   error: string | null;
   serviceTypes: ServiceType[];
+  nfcCapability: NfcCapabilityStatus;
   onReadCard: () => Promise<void>;
 }
 
@@ -22,6 +24,7 @@ const ScoutController = (
     | 'useCallback'
     | 'readCardUseCase'
     | 'manageServiceRegistryUseCase'
+    | 'nfcService'
   >,
 ): ScoutControllerInterface => {
   const {
@@ -30,6 +33,7 @@ const ScoutController = (
     useCallback,
     readCardUseCase,
     manageServiceRegistryUseCase,
+    nfcService,
   } = deps;
 
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
@@ -37,10 +41,14 @@ const ScoutController = (
   const [isReading, setIsReading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
   // Load service types on mount (for resolving display names)
   useEffect(() => {
     const init = async () => {
+      const isNfcAvailable = nfcService.isAvailable();
+      setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
+
       const types = await manageServiceRegistryUseCase.getAll();
       setServiceTypes(types);
     };
@@ -72,6 +80,7 @@ const ScoutController = (
     isReading,
     error,
     serviceTypes,
+    nfcCapability,
     onReadCard,
   };
 };

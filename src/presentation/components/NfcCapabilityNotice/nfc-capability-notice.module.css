@@ -1,0 +1,25 @@
+@reference "tailwindcss";
+
+.nfc-capability-notice {
+  @apply rounded-lg border p-4 text-sm;
+}
+
+.nfc-capability-notice--unsupported {
+  @apply border-red-300 bg-red-50 text-red-700;
+}
+
+.nfc-capability-notice--permission-pending {
+  @apply border-orange-300 bg-orange-50 text-orange-700;
+}
+
+.nfc-capability-notice--permission-denied {
+  @apply border-red-300 bg-red-50 text-red-700;
+}
+
+.nfc-capability-notice__title {
+  @apply mb-1 font-semibold;
+}
+
+.nfc-capability-notice__message {
+  @apply text-xs;
+}

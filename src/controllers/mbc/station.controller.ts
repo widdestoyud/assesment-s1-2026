@@ -1,5 +1,6 @@
 import type { AwilixRegistry } from '@di/container';
 import type {
+  NfcCapabilityStatus,
   NfcStatus,
   OperationResult,
   ServiceType,
@@ -32,6 +33,8 @@ export interface StationControllerInterface {
   error: string | null;
   // Storage health
   storageWarning: string | null;
+  // NFC capability
+  nfcCapability: NfcCapabilityStatus;
 }
 
 const StationController = (
@@ -44,6 +47,7 @@ const StationController = (
     | 'topUpBalanceUseCase'
     | 'manageServiceRegistryUseCase'
     | 'storageHealthService'
+    | 'nfcService'
   >,
 ): StationControllerInterface => {
   const {
@@ -54,6 +58,7 @@ const StationController = (
     topUpBalanceUseCase,
     manageServiceRegistryUseCase,
     storageHealthService,
+    nfcService,
   } = deps;
 
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
@@ -62,10 +67,14 @@ const StationController = (
   const [error, setError] = useState<string | null>(null);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
+  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
   // Initialize on mount
   useEffect(() => {
     const init = async () => {
+      const isNfcAvailable = nfcService.isAvailable();
+      setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
+
       // Check storage health
       const health = await storageHealthService.checkWriteCapacity();
       if (!health.canWrite && health.error) {
@@ -157,6 +166,7 @@ const StationController = (
     isProcessing,
     error,
     storageWarning,
+    nfcCapability,
   };
 };
 

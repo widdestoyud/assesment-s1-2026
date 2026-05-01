@@ -2,9 +2,10 @@ import type { FC } from 'react';
 import { useState } from 'react';
 import container from '@di/container';
 import type { StationControllerInterface } from '@controllers/mbc/station.controller';
-import NfcTapPrompt from '@components/mbc/NfcTapPrompt';
-import BalanceDisplay from '@components/mbc/BalanceDisplay';
-import ServiceTypeForm from '@components/mbc/ServiceTypeForm';
+import NfcTapPrompt from '@components/NfcTapPrompt';
+import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import BalanceDisplay from '@components/BalanceDisplay';
+import ServiceTypeForm from '@components/ServiceTypeForm';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './mbc-station.module.css';
 
@@ -16,6 +17,7 @@ const MbcStation: FC = () => {
   const [regName, setRegName] = useState('');
   const [regMemberId, setRegMemberId] = useState('');
   const [topUpAmount, setTopUpAmount] = useState('');
+  const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'register', label: 'Registrasi' },
@@ -49,8 +51,10 @@ const MbcStation: FC = () => {
         ))}
       </div>
 
+      {activeTab !== 'config' && <NfcCapabilityNotice status={ctrl.nfcCapability} />}
+
       {/* Registration Tab */}
-      {activeTab === 'register' && (
+      {activeTab === 'register' && nfcAvailable && (
         <div className={styles['mbc-station__section']}>
           <form
             onSubmit={(e) => {
@@ -76,7 +80,7 @@ const MbcStation: FC = () => {
       )}
 
       {/* Top-Up Tab */}
-      {activeTab === 'topup' && (
+      {activeTab === 'topup' && nfcAvailable && (
         <div className={styles['mbc-station__section']}>
           <form
             onSubmit={(e) => {

@@ -1,25 +1,31 @@
 import type { FC } from 'react';
 import container from '@di/container';
 import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
-import NfcTapPrompt from '@components/mbc/NfcTapPrompt';
-import ServiceTypeSelector from '@components/mbc/ServiceTypeSelector';
-import SimulationBanner from '@components/mbc/SimulationBanner';
+import NfcTapPrompt from '@components/NfcTapPrompt';
+import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import ServiceTypeSelector from '@components/ServiceTypeSelector';
+import SimulationBanner from '@components/SimulationBanner';
 import styles from './mbc-gate.module.css';
 
 const MbcGate: FC = () => {
   const ctrl = container.resolve<GateControllerInterface>('gateController');
+  const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
 
   return (
     <main className={styles['mbc-gate']}>
       <h1 className={styles['mbc-gate__title']}>🚪 The Gate</h1>
       <p className={styles['mbc-gate__subtitle']}>Check-in member dengan NFC</p>
 
-      <SimulationBanner
-        isActive={ctrl.simulationMode}
-        timestamp={ctrl.simulationTimestamp}
-      />
+      <NfcCapabilityNotice status={ctrl.nfcCapability} />
 
-      <div className={styles['mbc-gate__content']}>
+      {nfcAvailable && (
+        <>
+          <SimulationBanner
+            isActive={ctrl.simulationMode}
+            timestamp={ctrl.simulationTimestamp}
+          />
+
+          <div className={styles['mbc-gate__content']}>
         <ServiceTypeSelector
           serviceTypes={ctrl.serviceTypes}
           selectedId={ctrl.selectedServiceType?.id ?? null}
@@ -87,6 +93,8 @@ const MbcGate: FC = () => {
           </output>
         )}
       </div>
+        </>
+      )}
     </main>
   );
 };

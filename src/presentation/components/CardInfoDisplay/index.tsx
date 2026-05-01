@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { CardData, ServiceType } from '@core/services/mbc/models';
-import BalanceDisplay from '@components/mbc/BalanceDisplay';
-import TransactionLogList from '@components/mbc/TransactionLogList';
+import BalanceDisplay from '@components/BalanceDisplay';
+import TransactionLogList from '@components/TransactionLogList';
 import styles from './card-info-display.module.css';
 
 export interface CardInfoDisplayProps {

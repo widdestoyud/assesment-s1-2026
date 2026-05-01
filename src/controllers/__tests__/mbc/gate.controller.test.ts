@@ -36,7 +36,15 @@ function createMocks() {
     }),
   };
 
-  return { checkInUseCase, manageServiceRegistryUseCase, deviceService };
+  const nfcService = {
+    isAvailable: () => true,
+    requestPermission: vi.fn(),
+    readCard: vi.fn(),
+    writeCard: vi.fn(),
+    writeAndVerify: vi.fn(),
+  };
+
+  return { checkInUseCase, manageServiceRegistryUseCase, deviceService, nfcService };
 }
 
 function createController(mocks = createMocks()) {

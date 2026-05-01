@@ -1,20 +1,24 @@
 import type { FC } from 'react';
 import container from '@di/container';
 import type { TerminalControllerInterface } from '@controllers/mbc/terminal.controller';
-import NfcTapPrompt from '@components/mbc/NfcTapPrompt';
-import FeeBreakdown from '@components/mbc/FeeBreakdown';
-import BalanceDisplay from '@components/mbc/BalanceDisplay';
-import ManualCalcForm from '@components/mbc/ManualCalcForm';
+import NfcTapPrompt from '@components/NfcTapPrompt';
+import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import FeeBreakdown from '@components/FeeBreakdown';
+import BalanceDisplay from '@components/BalanceDisplay';
+import ManualCalcForm from '@components/ManualCalcForm';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './mbc-terminal.module.css';
 
 const MbcTerminal: FC = () => {
   const ctrl = container.resolve<TerminalControllerInterface>('terminalController');
+  const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
 
   return (
     <main className={styles['mbc-terminal']}>
       <h1 className={styles['mbc-terminal__title']}>💳 The Terminal</h1>
       <p className={styles['mbc-terminal__subtitle']}>Check-out dan kalkulasi tarif</p>
+
+      <NfcCapabilityNotice status={ctrl.nfcCapability} />
 
       <div className={styles['mbc-terminal__content']}>
         {/* Manual Mode Toggle */}
@@ -55,7 +59,7 @@ const MbcTerminal: FC = () => {
         )}
 
         {/* NFC Check-Out */}
-        {!ctrl.isManualMode && (
+        {nfcAvailable && !ctrl.isManualMode && (
           <>
             <button
               type="button"

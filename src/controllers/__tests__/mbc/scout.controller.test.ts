@@ -30,7 +30,15 @@ function createMocks() {
     initializeDefaults: vi.fn().mockResolvedValue(undefined),
   };
 
-  return { readCardUseCase, manageServiceRegistryUseCase };
+  const nfcService = {
+    isAvailable: () => true,
+    requestPermission: vi.fn(),
+    readCard: vi.fn(),
+    writeCard: vi.fn(),
+    writeAndVerify: vi.fn(),
+  };
+
+  return { readCardUseCase, manageServiceRegistryUseCase, nfcService };
 }
 
 function createController(mocks = createMocks()) {

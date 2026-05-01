@@ -1,6 +1,7 @@
 import type { AwilixRegistry } from '@di/container';
 import type {
   CheckInResult,
+  NfcCapabilityStatus,
   NfcStatus,
   ServiceType,
 } from '@core/services/mbc/models';
@@ -18,6 +19,7 @@ export interface GateControllerInterface {
   isProcessing: boolean;
   error: string | null;
   deviceId: string | null;
+  nfcCapability: NfcCapabilityStatus;
   onCheckIn: () => Promise<void>;
 }
 
@@ -30,6 +32,7 @@ const GateController = (
     | 'checkInUseCase'
     | 'manageServiceRegistryUseCase'
     | 'deviceService'
+    | 'nfcService'
   >,
 ): GateControllerInterface => {
   const {
@@ -39,6 +42,7 @@ const GateController = (
     checkInUseCase,
     manageServiceRegistryUseCase,
     deviceService,
+    nfcService,
   } = deps;
 
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
@@ -50,10 +54,14 @@ const GateController = (
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
   // Initialize on mount
   useEffect(() => {
     const init = async () => {
+      const isNfcAvailable = nfcService.isAvailable();
+      setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
+
       // Ensure Device_ID
       const { deviceId: id } = await deviceService.ensureDeviceId();
       setDeviceId(id);
@@ -125,6 +133,7 @@ const GateController = (
     isProcessing,
     error,
     deviceId,
+    nfcCapability,
     onCheckIn,
   };
 };
