@@ -86,10 +86,8 @@ export const StorageHealthService = (
 /** Detect QuotaExceededError across browsers */
 function isQuotaExceededError(error: unknown): boolean {
   if (error instanceof DOMException) {
-    // Chrome, Firefox, Edge
+    // Chrome, Firefox, Edge, Safari
     if (error.name === 'QuotaExceededError') return true;
-    // Safari (older versions)
-    if (error.code === 22) return true;
   }
   return false;
 }

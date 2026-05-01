@@ -76,9 +76,9 @@ const MbcTerminal: FC = () => {
         {/* Check-Out Result */}
         {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
           <div className="space-y-3">
-            <div role="status" className="rounded-md bg-green-50 p-3 text-sm text-green-700">
+            <output className="block rounded-md bg-green-50 p-3 text-sm text-green-700">
               ✅ Check-out berhasil — {ctrl.lastResult.serviceTypeName}
-            </div>
+            </output>
             <FeeBreakdown
               feeResult={ctrl.lastResult.feeBreakdown}
               serviceTypeName={ctrl.lastResult.serviceTypeName}

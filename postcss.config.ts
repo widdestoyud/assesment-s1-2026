@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 const aliasMapping: AliasInterface = {
   '@src': filename => path.resolve(__dirname, `src/${filename}`),

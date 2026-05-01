@@ -1,6 +1,5 @@
 import { createContainer } from 'awilix';
 import {
-  ControllerContainerInterface,
   registerControllerModules,
 } from '@di/registry/controllerContainer';
 import {
@@ -20,15 +19,12 @@ import {
   registerReactModules,
 } from '@di/registry/reactContainer';
 import {
-  ServiceContainerInterface,
   registerServiceModules,
 } from '@di/registry/serviceContainer';
 import {
-  TanstackContainerInterface,
   registerTanstackModule,
 } from '@di/registry/tanstackContainer';
 import {
-  UseCaseContainerInterface,
   registerUseCaseModules,
 } from '@di/registry/useCaseContainer';
 import {
@@ -65,7 +61,7 @@ registerHelperModules(container);
 
 export default container;
 
-export type AwilixRegistry = ControllerContainerInterface &
+export type AwilixRegistry =
   HelperContainerInterface &
   LibraryContainerInterface &
   MbcControllerContainerInterface &
@@ -73,7 +69,4 @@ export type AwilixRegistry = ControllerContainerInterface &
   MbcServiceContainerInterface &
   MbcUseCaseContainerInterface &
   ProtocolContainerInterface &
-  ReactContainerInterface &
-  ServiceContainerInterface &
-  TanstackContainerInterface &
-  UseCaseContainerInterface;
+  ReactContainerInterface;
