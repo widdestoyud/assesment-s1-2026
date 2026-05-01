@@ -28,8 +28,6 @@ const viteConfig = ({ mode }: { mode: string }) => {
         '@utils': path.resolve(__dirname, './src/utils'),
         '@routes': path.resolve(__dirname, './src/routes'),
         '@images': path.resolve(__dirname, './src/assets/images'),
-        stream: 'stream-browserify',
-        util: 'util/',
       },
     },
     plugins: [

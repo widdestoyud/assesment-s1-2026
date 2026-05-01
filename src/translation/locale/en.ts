@@ -22,7 +22,7 @@ export default {
   app_popup_close_button_label: 'Close',
 
   /* Document Title */
-  web_register_landing_document_title: 'Prepaid Registration | Telkomsel',
+  web_register_landing_document_title: 'Membership Benefit Card | Telkomsel',
   web_register_verification_document_title:
     'Prepaid Number Verification | Telkomsel',
   web_register_personal_data_document_title:

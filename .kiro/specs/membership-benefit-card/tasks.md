@@ -612,6 +612,52 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - NFC unsupported notice visible on desktop Chrome (no Web NFC)
     - Manual Calculation still works on Terminal when NFC unsupported
 
+- [ ] 23. Refactor — Migrate Silent Shield to Web Crypto API
+  - **Assigned:** @developer
+  - **Scope:** Replace `crypto-browserify` polyfill with native `crypto.subtle` (Web Crypto API) for AES-256-GCM encryption
+  - **Motivation:** Eliminate 6 low-severity npm audit vulnerabilities from `elliptic` chain, reduce bundle size, use browser-native crypto
+
+  - [ ] 23.1 Rewrite silent-shield.service to use Web Crypto API
+    - Replace `crypto-browserify` imports with `crypto.subtle` calls
+    - Use `crypto.subtle.deriveKey()` with PBKDF2 for key derivation
+    - Use `crypto.subtle.encrypt()` / `crypto.subtle.decrypt()` with AES-GCM
+    - Maintain same output format: `[IV (12B) | ciphertext | authTag]`
+    - Ensure backward compatibility: cards encrypted with old implementation must still decrypt
+    - _Requirements: 11.1, 11.2, 11.3, 11.4_
+
+  - [ ] 23.2 Remove crypto polyfill dependencies
+    - Uninstall `crypto-browserify` from dependencies
+    - Uninstall `vite-plugin-node-polyfills` from devDependencies
+    - Remove `nodePolyfills({ include: ['crypto'] })` from `vite.config.ts`
+    - Remove `stream` and `vm` externalization warnings
+    - _Impact: eliminates 6 low-severity vulnerabilities_
+
+  - [ ] 23.3 Update property tests for encryption round-trip
+    - Verify `decrypt(encrypt(data))` equals `data` using Web Crypto API
+    - Verify backward compatibility with test vectors from old implementation
+    - _Requirements: 11.4_
+
+  - [ ] 23.4 Verification checkpoint
+    - `npm run build` passes with zero errors
+    - `npx vitest --run` passes with zero failures
+    - `npm audit` reports 0 vulnerabilities
+    - Bundle size reduced (no more crypto polyfill)
+
+- [ ] 24. Feature — Backup Storage Harian ke Excel (placeholder)
+  - **Assigned:** TBD
+  - **Scope:** Export data dari The Station ke format Excel (.xlsx) untuk backup harian
+  - **Status:** Detail acceptance criteria akan didefinisikan kemudian
+
+  - [ ] 24.1 Define detailed requirements and acceptance criteria
+    - Tentukan data apa yang di-export (transaction logs, member data, service registry)
+    - Tentukan format kolom Excel
+    - Tentukan trigger (manual button vs scheduled)
+    - Tentukan lokasi download
+    - _Requirements: TBD_
+
+  - [ ] 24.2 Implementation
+    - Detail TBD
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP
