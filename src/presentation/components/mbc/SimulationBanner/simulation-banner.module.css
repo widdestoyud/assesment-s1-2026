@@ -1,0 +1,9 @@
+@reference "tailwindcss";
+
+.simulation-banner {
+    @apply rounded-md border border-yellow-400 bg-yellow-100 px-4 py-2 text-sm text-yellow-800;
+}
+
+.simulation-banner__timestamp {
+    @apply ml-2;
+}

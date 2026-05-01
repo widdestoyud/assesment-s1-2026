@@ -1,0 +1,25 @@
+@reference "tailwindcss";
+
+.mbc-scout {
+    @apply mx-auto max-w-lg px-4 py-6;
+}
+
+.mbc-scout__title {
+    @apply mb-1 text-xl font-bold;
+}
+
+.mbc-scout__subtitle {
+    @apply mb-4 text-sm text-gray-500;
+}
+
+.mbc-scout__content {
+    @apply space-y-4;
+}
+
+.mbc-scout__primary-button {
+    @apply w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50;
+}
+
+.mbc-scout__error-alert {
+    @apply rounded-md bg-red-50 p-3 text-sm text-red-700;
+}

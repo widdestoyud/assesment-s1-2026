@@ -1,6 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import { useState } from 'react';
 import type { ServiceType } from '@core/services/mbc/models';
+import styles from './service-type-form.module.css';
 
 export interface ServiceTypeFormProps {
   onSubmit: (data: ServiceType) => void;
@@ -35,9 +36,9 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} data-testid="service-type-form" className="space-y-3">
+    <form onSubmit={handleSubmit} data-testid="service-type-form" className={styles['service-type-form']}>
       <div>
-        <label htmlFor="st-id" className="block text-sm font-medium text-gray-700">ID</label>
+        <label htmlFor="st-id" className={styles['service-type-form__label']}>ID</label>
         <input
           id="st-id"
           type="text"
@@ -47,11 +48,11 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
           placeholder="parking"
           pattern="^[a-z0-9-]+$"
           required
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm disabled:opacity-50"
+          className={styles['service-type-form__input--disabled']}
         />
       </div>
       <div>
-        <label htmlFor="st-name" className="block text-sm font-medium text-gray-700">Nama</label>
+        <label htmlFor="st-name" className={styles['service-type-form__label']}>Nama</label>
         <input
           id="st-name"
           type="text"
@@ -59,11 +60,11 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="Parkir"
           required
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={styles['service-type-form__input']}
         />
       </div>
       <div>
-        <label htmlFor="st-activity" className="block text-sm font-medium text-gray-700">Activity Type</label>
+        <label htmlFor="st-activity" className={styles['service-type-form__label']}>Activity Type</label>
         <input
           id="st-activity"
           type="text"
@@ -72,11 +73,11 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
           placeholder="parking-fee"
           pattern="^[a-z0-9-]+$"
           required
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={styles['service-type-form__input']}
         />
       </div>
       <div>
-        <label htmlFor="st-rate" className="block text-sm font-medium text-gray-700">Tarif (Rp)</label>
+        <label htmlFor="st-rate" className={styles['service-type-form__label']}>Tarif (Rp)</label>
         <input
           id="st-rate"
           type="number"
@@ -84,16 +85,16 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
           onChange={(e) => setRatePerUnit(e.target.value)}
           min="1"
           required
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={styles['service-type-form__input']}
         />
       </div>
       <div>
-        <label htmlFor="st-unit" className="block text-sm font-medium text-gray-700">Tipe Unit</label>
+        <label htmlFor="st-unit" className={styles['service-type-form__label']}>Tipe Unit</label>
         <select
           id="st-unit"
           value={unitType}
           onChange={(e) => setUnitType(e.target.value as 'per-hour' | 'per-visit' | 'flat-fee')}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={styles['service-type-form__select']}
         >
           <option value="per-hour">Per Jam</option>
           <option value="per-visit">Per Kunjungan</option>
@@ -101,12 +102,12 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
         </select>
       </div>
       <div>
-        <label htmlFor="st-rounding" className="block text-sm font-medium text-gray-700">Pembulatan</label>
+        <label htmlFor="st-rounding" className={styles['service-type-form__label']}>Pembulatan</label>
         <select
           id="st-rounding"
           value={roundingStrategy}
           onChange={(e) => setRoundingStrategy(e.target.value as 'ceiling' | 'floor' | 'nearest')}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={styles['service-type-form__select']}
         >
           <option value="ceiling">Ke Atas (Ceiling)</option>
           <option value="floor">Ke Bawah (Floor)</option>
@@ -115,7 +116,7 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
       </div>
       <button
         type="submit"
-        className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        className={styles['service-type-form__submit-button']}
       >
         {isEditing ? 'Simpan Perubahan' : 'Tambah Service Type'}
       </button>

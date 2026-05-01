@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { formatIDR } from '@utils/helpers/mbc.helper';
+import styles from './balance-display.module.css';
 
 export interface BalanceDisplayProps {
   balance: number;
@@ -13,13 +14,13 @@ const BalanceDisplay: FC<BalanceDisplayProps> = ({
   changeAmount,
 }) => {
   return (
-    <div data-testid="balance-display" className="rounded-lg bg-blue-50 p-4">
-      <p className="text-sm text-gray-600">Saldo</p>
-      <p className="text-2xl font-bold text-blue-700">{formatIDR(balance)}</p>
+    <div data-testid="balance-display" className={styles['balance-display']}>
+      <p className={styles['balance-display__label']}>Saldo</p>
+      <p className={styles['balance-display__amount']}>{formatIDR(balance)}</p>
       {previousBalance !== undefined && changeAmount !== undefined && (
-        <div className="mt-2 text-sm text-gray-500">
+        <div className={styles['balance-display__change-row']}>
           <span>{formatIDR(previousBalance)}</span>
-          <span className={changeAmount >= 0 ? 'text-green-600' : 'text-red-600'}>
+          <span className={changeAmount >= 0 ? styles['balance-display__change--positive'] : styles['balance-display__change--negative']}>
             {' '}
             {changeAmount >= 0 ? '+' : ''}
             {formatIDR(changeAmount)}

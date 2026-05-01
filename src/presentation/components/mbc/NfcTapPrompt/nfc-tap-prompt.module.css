@@ -1,0 +1,17 @@
+@reference "tailwindcss";
+
+.nfc-tap-prompt {
+    @apply flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-gray-300 p-8 text-center;
+}
+
+.nfc-tap-prompt__emoji {
+    @apply text-5xl;
+}
+
+.nfc-tap-prompt__status-text {
+    @apply text-lg font-medium text-gray-700;
+}
+
+.nfc-tap-prompt__processing-text {
+    @apply text-sm text-gray-500;
+}

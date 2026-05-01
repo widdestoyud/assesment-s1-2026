@@ -1,0 +1,93 @@
+@reference "tailwindcss";
+
+.mbc-station {
+    @apply mx-auto max-w-lg px-4 py-6;
+}
+
+.mbc-station__title {
+    @apply mb-1 text-xl font-bold;
+}
+
+.mbc-station__subtitle {
+    @apply mb-4 text-sm text-gray-500;
+}
+
+.mbc-station__storage-warning {
+    @apply mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700;
+}
+
+.mbc-station__tab-list {
+    @apply mb-4 flex gap-1 rounded-lg bg-gray-100 p-1;
+}
+
+.mbc-station__tab--active {
+    @apply flex-1 rounded-md bg-white px-3 py-2 text-sm font-medium shadow-sm transition-colors;
+}
+
+.mbc-station__tab--inactive {
+    @apply flex-1 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors;
+}
+
+.mbc-station__tab--inactive:hover {
+    @apply text-gray-700;
+}
+
+.mbc-station__section {
+    @apply space-y-4;
+}
+
+.mbc-station__form-group {
+    @apply space-y-3;
+}
+
+.mbc-station__label {
+    @apply block text-sm font-medium text-gray-700;
+}
+
+.mbc-station__input {
+    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm;
+}
+
+.mbc-station__primary-button {
+    @apply w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50;
+}
+
+.mbc-station__secondary-button {
+    @apply w-full rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50;
+}
+
+.mbc-station__config-heading {
+    @apply text-sm font-semibold text-gray-600;
+}
+
+.mbc-station__config--empty {
+    @apply text-sm text-gray-400;
+}
+
+.mbc-station__config-list {
+    @apply space-y-2;
+}
+
+.mbc-station__config-item {
+    @apply flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm;
+}
+
+.mbc-station__config-item-name {
+    @apply font-medium;
+}
+
+.mbc-station__config-item-rate {
+    @apply text-xs text-gray-400;
+}
+
+.mbc-station__remove-button {
+    @apply text-red-500 hover:text-red-700;
+}
+
+.mbc-station__error-alert {
+    @apply mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700;
+}
+
+.mbc-station__success-output {
+    @apply mt-4 block rounded-md bg-green-50 p-3 text-sm text-green-700;
+}

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { CardData, ServiceType } from '@core/services/mbc/models';
 import BalanceDisplay from '@components/mbc/BalanceDisplay';
 import TransactionLogList from '@components/mbc/TransactionLogList';
+import styles from './card-info-display.module.css';
 
 export interface CardInfoDisplayProps {
   cardData: CardData;
@@ -15,12 +16,12 @@ const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, serviceTypes }) =
   };
 
   return (
-    <div data-testid="card-info-display" className="space-y-4">
+    <div data-testid="card-info-display" className={styles['card-info-display']}>
       {/* Member Identity */}
-      <div className="rounded-lg bg-white p-4 shadow-sm">
-        <h3 className="text-sm font-semibold text-gray-500">Identitas Member</h3>
-        <p className="text-xl font-bold">{cardData.member.name}</p>
-        <p className="text-sm text-gray-500">ID: {cardData.member.memberId}</p>
+      <div className={styles['card-info-display__member-card']}>
+        <h3 className={styles['card-info-display__member-label']}>Identitas Member</h3>
+        <p className={styles['card-info-display__member-name']}>{cardData.member.name}</p>
+        <p className={styles['card-info-display__member-id']}>ID: {cardData.member.memberId}</p>
       </div>
 
       {/* Balance */}
@@ -28,12 +29,12 @@ const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, serviceTypes }) =
 
       {/* Check-in Status */}
       {cardData.checkIn && (
-        <div className="rounded-lg bg-orange-50 p-4">
-          <h3 className="text-sm font-semibold text-orange-700">Status Check-In Aktif</h3>
-          <p className="text-sm">
+        <div className={styles['card-info-display__check-in-card']}>
+          <h3 className={styles['card-info-display__check-in-label']}>Status Check-In Aktif</h3>
+          <p className={styles['card-info-display__check-in-detail']}>
             Layanan: <strong>{resolveServiceName(cardData.checkIn.serviceTypeId)}</strong>
           </p>
-          <p className="text-sm">
+          <p className={styles['card-info-display__check-in-detail']}>
             Waktu masuk:{' '}
             <strong>
               {new Date(cardData.checkIn.timestamp).toLocaleString('id-ID')}

@@ -547,6 +547,71 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - No `any` types introduced
     - Clean Architecture layer boundaries maintained
 
+- [x] 21. Refactor — CSS Modules with Tailwind @apply
+  - **Assigned:** @developer
+  - **Steering:** `.kiro/steering/styling-rules.md`
+  - **Scope:** Move all inline Tailwind utility classes from JSX to co-located CSS Module files using `@apply`
+
+  - [x] 21.1 Refactor presentation components (10 files)
+    - `NfcTapPrompt/index.tsx` → + `nfc-tap-prompt.module.css`
+    - `FeeBreakdown/index.tsx` → + `fee-breakdown.module.css`
+    - `BalanceDisplay/index.tsx` → + `balance-display.module.css`
+    - `TransactionLogList/index.tsx` → + `transaction-log-list.module.css`
+    - `ServiceTypeSelector/index.tsx` → + `service-type-selector.module.css`
+    - `ServiceTypeForm/index.tsx` → + `service-type-form.module.css`
+    - `CardInfoDisplay/index.tsx` → + `card-info-display.module.css`
+    - `SimulationBanner/index.tsx` → + `simulation-banner.module.css`
+    - `ManualCalcForm/index.tsx` → + `manual-calc-form.module.css`
+    - `RoleCard/index.tsx` → + `role-card.module.css`
+
+  - [x] 21.2 Refactor pages (5 files)
+    - `MbcRolePicker/index.tsx` → + `mbc-role-picker.module.css`
+    - `MbcStation/index.tsx` → + `mbc-station.module.css`
+    - `MbcGate/index.tsx` → + `mbc-gate.module.css`
+    - `MbcTerminal/index.tsx` → + `mbc-terminal.module.css`
+    - `MbcScout/index.tsx` → + `mbc-scout.module.css`
+
+  - [x] 21.3 Update steering document
+    - Updated `.kiro/steering/styling-rules.md` with CSS Modules + `@apply` conventions
+    - All CSS Module files include `@reference "tailwindcss"` directive (Tailwind v4 requirement)
+    - Conditional classes use template literals with `styles.*` references
+
+  - [x] 21.4 Verification checkpoint
+    - Build: ✅ Pass (`npm run build` — zero errors)
+    - Tests: ✅ Pass (`npx vitest --run` — 119 passed, 18 test files, zero failures)
+    - 15 CSS Module files created, 15 TSX files updated
+    - No inline Tailwind utilities remain in JSX `className` props
+
+- [ ] 22. Refactor — Proactive NFC Capability Detection
+  - **Assigned:** @developer
+  - **Issue:** #50
+  - **Scope:** NFC-dependent pages check Web NFC capability on mount, display inline notice when unsupported
+
+  - [ ] 22.1 Add NFC capability check to controllers
+    - Update `station.controller`, `gate.controller`, `terminal.controller`, `scout.controller`
+    - Add `nfcCapability: NfcCapabilityStatus` state checked on mount via `nfcService.isAvailable()`
+    - States: `supported`, `unsupported`, `permission_denied`, `permission_pending`, `checking`
+    - _Requirements: 22.1, 22.2, 22.3_
+
+  - [ ] 22.2 Create NfcCapabilityNotice component
+    - Create `src/presentation/components/mbc/NfcCapabilityNotice/index.tsx` + `nfc-capability-notice.module.css`
+    - Props: `status: NfcCapabilityStatus`
+    - Render inline warning/error notice with explanation per status
+    - Use CSS Modules + `@apply` per styling-rules steering
+    - _Requirements: 22.2, 22.3, 2.2_
+
+  - [ ] 22.3 Update pages to conditionally render NFC UI
+    - `MbcStation` — gate registration/top-up tabs behind capability check, config tab always available
+    - `MbcGate` — replace NFC area with notice when unsupported
+    - `MbcTerminal` — replace NFC area with notice, keep Manual Calc available
+    - `MbcScout` — replace NFC area with notice
+    - _Requirements: 22.4, 22.5_
+
+  - [ ] 22.4 Verification checkpoint
+    - Build passes, tests pass
+    - NFC unsupported notice visible on desktop Chrome (no Web NFC)
+    - Manual Calculation still works on Terminal when NFC unsupported
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP

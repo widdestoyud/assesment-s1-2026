@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { ServiceType } from '@core/services/mbc/models';
+import styles from './service-type-selector.module.css';
 
 export interface ServiceTypeSelectorProps {
   serviceTypes: ServiceType[];
@@ -16,7 +17,7 @@ const ServiceTypeSelector: FC<ServiceTypeSelectorProps> = ({
 }) => {
   if (serviceTypes.length === 0) {
     return (
-      <div data-testid="service-type-selector" className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-700">
+      <div data-testid="service-type-selector" className={styles['service-type-selector--empty']}>
         Belum ada service type yang dikonfigurasi. Silakan konfigurasi di The Station.
       </div>
     );
@@ -24,7 +25,7 @@ const ServiceTypeSelector: FC<ServiceTypeSelectorProps> = ({
 
   return (
     <div data-testid="service-type-selector">
-      <label htmlFor="service-type-select" className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor="service-type-select" className={styles['service-type-selector__label']}>
         Pilih Layanan
       </label>
       <select
@@ -32,7 +33,7 @@ const ServiceTypeSelector: FC<ServiceTypeSelectorProps> = ({
         value={selectedId ?? ''}
         onChange={(e) => onSelect(e.target.value)}
         disabled={disabled}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+        className={styles['service-type-selector__select']}
       >
         <option value="" disabled>
           -- Pilih layanan --

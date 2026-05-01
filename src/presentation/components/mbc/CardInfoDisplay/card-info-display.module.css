@@ -1,0 +1,33 @@
+@reference "tailwindcss";
+
+.card-info-display {
+    @apply space-y-4;
+}
+
+.card-info-display__member-card {
+    @apply rounded-lg bg-white p-4 shadow-sm;
+}
+
+.card-info-display__member-label {
+    @apply text-sm font-semibold text-gray-500;
+}
+
+.card-info-display__member-name {
+    @apply text-xl font-bold;
+}
+
+.card-info-display__member-id {
+    @apply text-sm text-gray-500;
+}
+
+.card-info-display__check-in-card {
+    @apply rounded-lg bg-orange-50 p-4;
+}
+
+.card-info-display__check-in-label {
+    @apply text-sm font-semibold text-orange-700;
+}
+
+.card-info-display__check-in-detail {
+    @apply text-sm;
+}

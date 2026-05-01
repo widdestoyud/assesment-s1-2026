@@ -1,0 +1,13 @@
+@reference "tailwindcss";
+
+.service-type-selector--empty {
+    @apply rounded-md bg-yellow-50 p-3 text-sm text-yellow-700;
+}
+
+.service-type-selector__label {
+    @apply mb-1 block text-sm font-medium text-gray-700;
+}
+
+.service-type-selector__select {
+    @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50;
+}

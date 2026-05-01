@@ -1,0 +1,33 @@
+@reference "tailwindcss";
+
+.transaction-log-list--empty {
+    @apply py-4 text-center text-sm text-gray-400;
+}
+
+.transaction-log-list__heading {
+    @apply mb-2 text-sm font-semibold text-gray-600;
+}
+
+.transaction-log-list__list {
+    @apply space-y-2;
+}
+
+.transaction-log-list__item {
+    @apply flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm;
+}
+
+.transaction-log-list__service-name {
+    @apply font-medium;
+}
+
+.transaction-log-list__timestamp {
+    @apply text-xs text-gray-400;
+}
+
+.transaction-log-list__amount--positive {
+    @apply font-semibold text-green-600;
+}
+
+.transaction-log-list__amount--negative {
+    @apply font-semibold text-red-600;
+}

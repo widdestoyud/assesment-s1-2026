@@ -1,6 +1,7 @@
 import type { FC, FormEvent } from 'react';
 import { useState } from 'react';
 import type { ServiceType } from '@core/services/mbc/models';
+import styles from './manual-calc-form.module.css';
 
 export interface ManualCalcFormData {
   checkInTimestamp: string;
@@ -33,13 +34,13 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
   };
 
   return (
-    <div data-testid="manual-calc-form" className="rounded-lg border-2 border-dashed border-orange-300 bg-orange-50 p-4">
-      <h3 className="mb-3 text-sm font-semibold text-orange-700">
+    <div data-testid="manual-calc-form" className={styles['manual-calc-form']}>
+      <h3 className={styles['manual-calc-form__heading']}>
         Manual / Offline Calculation
       </h3>
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className={styles['manual-calc-form__form']}>
         <div>
-          <label htmlFor="mc-timestamp" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="mc-timestamp" className={styles['manual-calc-form__label']}>
             Waktu Check-In
           </label>
           <input
@@ -48,11 +49,11 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
             value={checkInTimestamp}
             onChange={(e) => setCheckInTimestamp(e.target.value)}
             required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className={styles['manual-calc-form__input']}
           />
         </div>
         <div>
-          <label htmlFor="mc-service" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="mc-service" className={styles['manual-calc-form__label']}>
             Layanan
           </label>
           <select
@@ -60,7 +61,7 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
             value={serviceTypeId}
             onChange={(e) => setServiceTypeId(e.target.value)}
             required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className={styles['manual-calc-form__select']}
           >
             <option value="" disabled>-- Pilih layanan --</option>
             {serviceTypes.map((st) => (
@@ -70,7 +71,7 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
         </div>
         <button
           type="submit"
-          className="w-full rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+          className={styles['manual-calc-form__submit-button']}
         >
           Hitung Tarif
         </button>

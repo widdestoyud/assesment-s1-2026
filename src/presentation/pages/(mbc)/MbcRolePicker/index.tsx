@@ -3,17 +3,18 @@ import { useNavigate } from '@tanstack/react-router';
 import container from '@di/container';
 import type { RolePickerControllerInterface } from '@controllers/mbc/role-picker.controller';
 import RoleCard from '@components/mbc/RoleCard';
+import styles from './mbc-role-picker.module.css';
 
 const MbcRolePicker: FC = () => {
   const ctrl = container.resolve<RolePickerControllerInterface>('rolePickerController');
   const navigate = useNavigate();
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-2 text-center text-2xl font-bold">Membership Benefit Card</h1>
-      <p className="mb-8 text-center text-gray-500">Pilih mode operasi</p>
+    <main className={styles['mbc-role-picker']}>
+      <h1 className={styles['mbc-role-picker__title']}>Membership Benefit Card</h1>
+      <p className={styles['mbc-role-picker__subtitle']}>Pilih mode operasi</p>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className={styles['mbc-role-picker__grid']}>
         {ctrl.roles.map((role) => (
           <RoleCard
             key={role.id}

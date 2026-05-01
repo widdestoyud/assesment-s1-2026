@@ -1,0 +1,25 @@
+@reference "tailwindcss";
+
+.service-type-form {
+    @apply space-y-3;
+}
+
+.service-type-form__label {
+    @apply block text-sm font-medium text-gray-700;
+}
+
+.service-type-form__input {
+    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm;
+}
+
+.service-type-form__input--disabled {
+    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm disabled:opacity-50;
+}
+
+.service-type-form__select {
+    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm;
+}
+
+.service-type-form__submit-button {
+    @apply w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700;
+}

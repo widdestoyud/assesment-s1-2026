@@ -1,0 +1,29 @@
+@reference "tailwindcss";
+
+.role-card {
+    @apply flex w-full flex-col items-center gap-2 rounded-xl border-2 p-6 text-center transition-colors;
+}
+
+.role-card--active {
+    @apply border-blue-500 bg-blue-50 shadow-md;
+}
+
+.role-card--default {
+    @apply border-gray-200 bg-white;
+}
+
+.role-card--default:hover {
+    @apply border-blue-300 bg-gray-50;
+}
+
+.role-card__icon {
+    @apply text-4xl;
+}
+
+.role-card__label {
+    @apply text-lg font-semibold;
+}
+
+.role-card__description {
+    @apply text-sm text-gray-500;
+}

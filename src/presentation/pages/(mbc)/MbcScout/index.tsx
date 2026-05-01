@@ -3,21 +3,22 @@ import container from '@di/container';
 import type { ScoutControllerInterface } from '@controllers/mbc/scout.controller';
 import NfcTapPrompt from '@components/mbc/NfcTapPrompt';
 import CardInfoDisplay from '@components/mbc/CardInfoDisplay';
+import styles from './mbc-scout.module.css';
 
 const MbcScout: FC = () => {
   const ctrl = container.resolve<ScoutControllerInterface>('scoutController');
 
   return (
-    <main className="mx-auto max-w-lg px-4 py-6">
-      <h1 className="mb-1 text-xl font-bold">🔍 The Scout</h1>
-      <p className="mb-4 text-sm text-gray-500">Lihat isi kartu member</p>
+    <main className={styles['mbc-scout']}>
+      <h1 className={styles['mbc-scout__title']}>🔍 The Scout</h1>
+      <p className={styles['mbc-scout__subtitle']}>Lihat isi kartu member</p>
 
-      <div className="space-y-4">
+      <div className={styles['mbc-scout__content']}>
         <button
           type="button"
           onClick={ctrl.onReadCard}
           disabled={ctrl.isReading}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className={styles['mbc-scout__primary-button']}
         >
           Baca Kartu
         </button>
@@ -28,7 +29,7 @@ const MbcScout: FC = () => {
         />
 
         {ctrl.error && (
-          <div role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <div role="alert" className={styles['mbc-scout__error-alert']}>
             {ctrl.error}
           </div>
         )}
