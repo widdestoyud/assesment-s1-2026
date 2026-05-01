@@ -1,0 +1,65 @@
+@reference "tailwindcss";
+
+.mbc-gate {
+    @apply mx-auto max-w-lg px-4 py-6;
+}
+
+.mbc-gate__title {
+    @apply mb-1 text-xl font-bold;
+}
+
+.mbc-gate__subtitle {
+    @apply mb-4 text-sm text-gray-500;
+}
+
+.mbc-gate__content {
+    @apply mt-4 space-y-4;
+}
+
+.mbc-gate__toggle-row {
+    @apply flex items-center gap-3;
+}
+
+.mbc-gate__toggle-label {
+    @apply text-sm font-medium text-gray-700;
+}
+
+.mbc-gate__switch--on {
+    @apply relative inline-flex h-6 w-11 items-center rounded-full bg-yellow-500 transition-colors;
+}
+
+.mbc-gate__switch--off {
+    @apply relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 transition-colors;
+}
+
+.mbc-gate__switch-knob--on {
+    @apply inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6;
+}
+
+.mbc-gate__switch-knob--off {
+    @apply inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1;
+}
+
+.mbc-gate__label {
+    @apply block text-sm font-medium text-gray-700;
+}
+
+.mbc-gate__input {
+    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm;
+}
+
+.mbc-gate__primary-button {
+    @apply w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50;
+}
+
+.mbc-gate__error-alert {
+    @apply rounded-md bg-red-50 p-3 text-sm text-red-700;
+}
+
+.mbc-gate__success-output {
+    @apply rounded-md bg-green-50 p-4 text-sm;
+}
+
+.mbc-gate__success-title {
+    @apply font-semibold text-green-700;
+}

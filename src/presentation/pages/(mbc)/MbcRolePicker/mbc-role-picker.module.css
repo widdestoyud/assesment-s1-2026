@@ -1,0 +1,17 @@
+@reference "tailwindcss";
+
+.mbc-role-picker {
+    @apply mx-auto max-w-2xl px-4 py-8;
+}
+
+.mbc-role-picker__title {
+    @apply mb-2 text-center text-2xl font-bold;
+}
+
+.mbc-role-picker__subtitle {
+    @apply mb-8 text-center text-gray-500;
+}
+
+.mbc-role-picker__grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2;
+}

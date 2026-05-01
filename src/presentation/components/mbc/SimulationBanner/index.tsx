@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import styles from './simulation-banner.module.css';
 
 export interface SimulationBannerProps {
   isActive: boolean;
@@ -12,11 +13,11 @@ const SimulationBanner: FC<SimulationBannerProps> = ({ isActive, timestamp }) =>
     <div
       role="alert"
       data-testid="simulation-banner"
-      className="rounded-md bg-yellow-100 border border-yellow-400 px-4 py-2 text-sm text-yellow-800"
+      className={styles['simulation-banner']}
     >
       <strong>⚠️ Mode Simulasi Aktif</strong>
       {timestamp && (
-        <span className="ml-2">
+        <span className={styles['simulation-banner__timestamp']}>
           — Waktu check-in: {new Date(timestamp).toLocaleString('id-ID')}
         </span>
       )}

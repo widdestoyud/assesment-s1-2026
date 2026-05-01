@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { TransactionLogEntry, ServiceType } from '@core/services/mbc/models';
 import { formatIDR } from '@utils/helpers/mbc.helper';
+import styles from './transaction-log-list.module.css';
 
 export interface TransactionLogListProps {
   transactions: TransactionLogEntry[];
@@ -29,7 +30,7 @@ const TransactionLogList: FC<TransactionLogListProps> = ({
 
   if (transactions.length === 0) {
     return (
-      <div data-testid="transaction-log" className="py-4 text-center text-sm text-gray-400">
+      <div data-testid="transaction-log" className={styles['transaction-log-list--empty']}>
         Belum ada riwayat transaksi
       </div>
     );
@@ -37,19 +38,19 @@ const TransactionLogList: FC<TransactionLogListProps> = ({
 
   return (
     <div data-testid="transaction-log">
-      <h3 className="mb-2 text-sm font-semibold text-gray-600">Riwayat Transaksi</h3>
-      <ul className="space-y-2">
+      <h3 className={styles['transaction-log-list__heading']}>Riwayat Transaksi</h3>
+      <ul className={styles['transaction-log-list__list']}>
         {transactions.map((tx, index) => (
           <li
             key={`${tx.timestamp}-${index}`}
-            className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm"
+            className={styles['transaction-log-list__item']}
           >
             <div>
-              <p className="font-medium">{resolveServiceName(tx.serviceTypeId)}</p>
-              <p className="text-xs text-gray-400">{formatTimestamp(tx.timestamp)}</p>
+              <p className={styles['transaction-log-list__service-name']}>{resolveServiceName(tx.serviceTypeId)}</p>
+              <p className={styles['transaction-log-list__timestamp']}>{formatTimestamp(tx.timestamp)}</p>
             </div>
             <span
-              className={tx.amount >= 0 ? 'font-semibold text-green-600' : 'font-semibold text-red-600'}
+              className={tx.amount >= 0 ? styles['transaction-log-list__amount--positive'] : styles['transaction-log-list__amount--negative']}
             >
               {tx.amount >= 0 ? '+' : ''}
               {formatIDR(tx.amount)}

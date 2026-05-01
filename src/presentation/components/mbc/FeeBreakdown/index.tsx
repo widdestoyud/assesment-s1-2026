@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import type { FeeResult } from '@core/services/mbc/models';
 import { formatIDR } from '@utils/helpers/mbc.helper';
+import styles from './fee-breakdown.module.css';
 
 export interface FeeBreakdownProps {
   feeResult: FeeResult;
@@ -9,32 +10,32 @@ export interface FeeBreakdownProps {
 
 const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, serviceTypeName }) => {
   return (
-    <div data-testid="fee-breakdown" className="rounded-lg bg-gray-50 p-4">
-      <h3 className="mb-3 text-lg font-semibold">Rincian Biaya</h3>
-      <dl className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <dt className="text-gray-600">Layanan</dt>
-          <dd className="font-medium">{serviceTypeName}</dd>
+    <div data-testid="fee-breakdown" className={styles['fee-breakdown']}>
+      <h3 className={styles['fee-breakdown__title']}>Rincian Biaya</h3>
+      <dl className={styles['fee-breakdown__list']}>
+        <div className={styles['fee-breakdown__row']}>
+          <dt className={styles['fee-breakdown__label']}>Layanan</dt>
+          <dd className={styles['fee-breakdown__value']}>{serviceTypeName}</dd>
         </div>
-        <div className="flex justify-between">
-          <dt className="text-gray-600">Penggunaan</dt>
-          <dd className="font-medium">
+        <div className={styles['fee-breakdown__row']}>
+          <dt className={styles['fee-breakdown__label']}>Penggunaan</dt>
+          <dd className={styles['fee-breakdown__value']}>
             {feeResult.usageUnits} {feeResult.unitLabel}
           </dd>
         </div>
-        <div className="flex justify-between">
-          <dt className="text-gray-600">Tarif</dt>
-          <dd className="font-medium">
+        <div className={styles['fee-breakdown__row']}>
+          <dt className={styles['fee-breakdown__label']}>Tarif</dt>
+          <dd className={styles['fee-breakdown__value']}>
             {formatIDR(feeResult.ratePerUnit)} / {feeResult.unitLabel}
           </dd>
         </div>
         {feeResult.roundingApplied !== 'none' && (
-          <div className="flex justify-between">
-            <dt className="text-gray-600">Pembulatan</dt>
-            <dd className="font-medium">{feeResult.roundingApplied}</dd>
+          <div className={styles['fee-breakdown__row']}>
+            <dt className={styles['fee-breakdown__label']}>Pembulatan</dt>
+            <dd className={styles['fee-breakdown__value']}>{feeResult.roundingApplied}</dd>
           </div>
         )}
-        <div className="flex justify-between border-t pt-2 text-base font-bold">
+        <div className={styles['fee-breakdown__total-row']}>
           <dt>Total</dt>
           <dd>{formatIDR(feeResult.fee)}</dd>
         </div>

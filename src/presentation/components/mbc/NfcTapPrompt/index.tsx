@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import type { NfcStatus } from '@core/services/mbc/models';
+import styles from './nfc-tap-prompt.module.css';
 
 export interface NfcTapPromptProps {
   nfcStatus: NfcStatus;
@@ -30,17 +31,17 @@ const NfcTapPrompt: FC<NfcTapPromptProps> = ({
       aria-live="polite"
       aria-busy={isProcessing}
       data-testid="nfc-tap-prompt"
-      className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-gray-300 p-8 text-center"
+      className={styles['nfc-tap-prompt']}
       style={{ opacity: isProcessing ? 0.6 : 1 }}
     >
-      <span className="text-5xl" aria-hidden="true">
+      <span className={styles['nfc-tap-prompt__emoji']} aria-hidden="true">
         {config.emoji}
       </span>
-      <p className="text-lg font-medium text-gray-700">
+      <p className={styles['nfc-tap-prompt__status-text']}>
         {label ?? config.text}
       </p>
       {isProcessing && (
-        <p className="text-sm text-gray-500">Sedang memproses...</p>
+        <p className={styles['nfc-tap-prompt__processing-text']}>Sedang memproses...</p>
       )}
     </div>
   );
