@@ -7,9 +7,17 @@ import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/M
 import type { DeviceServiceInterface } from '@core/services/mbc/device.service';
 
 import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
-import GateController from '../../mbc/gate.controller';
+import GateController from '../gate.controller';
 
 const MOCK_DEVICE_ID = 'device-test-123';
+
+const mockNfcService = {
+  isAvailable: () => true,
+  requestPermission: vi.fn(),
+  readCard: vi.fn(),
+  writeCard: vi.fn(),
+  writeAndVerify: vi.fn(),
+};
 
 function createMocks() {
   const checkInUseCase: CheckInUseCaseInterface = {
@@ -46,6 +54,7 @@ function createController(mocks = createMocks()) {
       useEffect,
       useCallback,
       ...mocks,
+      nfcService: mockNfcService,
     }),
   );
 }

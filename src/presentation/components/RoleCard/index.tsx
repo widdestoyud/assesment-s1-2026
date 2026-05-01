@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { RoleOption } from '@controllers/mbc/role-picker.controller';
+import type { RoleOption } from '@src/controllers/role-picker.controller';
 
 export interface RoleCardProps {
   role: RoleOption;

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { useState, useCallback } from 'react';
 import { renderHook, act } from '@testing-library/react';
 
-import RolePickerController from '../../mbc/role-picker.controller';
+import RolePickerController from '../role-picker.controller';
 
 function createController() {
   return renderHook(() =>

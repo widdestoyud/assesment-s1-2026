@@ -7,7 +7,15 @@ import type { ReadCardUseCaseInterface } from '@core/use_case/mbc/ReadCard';
 import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/ManageServiceRegistry';
 
 import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
-import ScoutController from '../../mbc/scout.controller';
+import ScoutController from '../scout.controller';
+
+const mockNfcService = {
+  isAvailable: () => true,
+  requestPermission: vi.fn(),
+  readCard: vi.fn(),
+  writeCard: vi.fn(),
+  writeAndVerify: vi.fn(),
+};
 
 const CARD_DATA: CardData = {
   version: 1,
@@ -40,6 +48,7 @@ function createController(mocks = createMocks()) {
       useEffect,
       useCallback,
       ...mocks,
+      nfcService: mockNfcService,
     }),
   );
 }

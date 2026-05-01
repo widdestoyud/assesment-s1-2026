@@ -1,0 +1,45 @@
+@reference "tailwindcss";
+
+.nfc-capability-notice {
+  @apply rounded-lg border-2 p-4 text-sm;
+}
+
+.nfc-capability-notice--unsupported {
+  @apply border-red-300 bg-red-50;
+}
+
+.nfc-capability-notice--denied {
+  @apply border-orange-300 bg-orange-50;
+}
+
+.nfc-capability-notice__icon {
+  @apply mb-2 text-2xl;
+}
+
+.nfc-capability-notice__title {
+  @apply font-semibold;
+}
+
+.nfc-capability-notice__title--unsupported {
+  @apply text-red-700;
+}
+
+.nfc-capability-notice__title--denied {
+  @apply text-orange-700;
+}
+
+.nfc-capability-notice__message {
+  @apply mt-1;
+}
+
+.nfc-capability-notice__message--unsupported {
+  @apply text-red-600;
+}
+
+.nfc-capability-notice__message--denied {
+  @apply text-orange-600;
+}
+
+.nfc-capability-notice__hint {
+  @apply mt-2 text-xs text-gray-500;
+}

@@ -2,6 +2,7 @@ import type { AwilixRegistry } from '@di/container';
 import type {
   CheckOutResult,
   FeeResult,
+  NfcCapabilityStatus,
   NfcStatus,
   ServiceType,
 } from '@core/services/mbc/models';
@@ -22,6 +23,8 @@ export interface TerminalControllerInterface {
   onManualCalculate: (data: ManualCalcFormData) => Promise<void>;
   manualResult: FeeResult | null;
   serviceTypes: ServiceType[];
+  // NFC capability
+  nfcCapability: NfcCapabilityStatus;
   // Actions
   onCheckOut: () => Promise<void>;
 }
@@ -36,6 +39,7 @@ const TerminalController = (
     | 'manualCalculationUseCase'
     | 'manageServiceRegistryUseCase'
     | 'deviceService'
+    | 'nfcService'
   >,
 ): TerminalControllerInterface => {
   const {
@@ -46,6 +50,7 @@ const TerminalController = (
     manualCalculationUseCase,
     manageServiceRegistryUseCase,
     deviceService,
+    nfcService,
   } = deps;
 
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
@@ -56,10 +61,14 @@ const TerminalController = (
   const [manualResult, setManualResult] = useState<FeeResult | null>(null);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
+  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
   // Initialize on mount
   useEffect(() => {
     const init = async () => {
+      // Check NFC capability immediately
+      const isNfcAvailable = nfcService.isAvailable();
+      setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
       const { deviceId } = await deviceService.ensureDeviceId();
       setCurrentDeviceId(deviceId);
 
@@ -120,6 +129,7 @@ const TerminalController = (
     onManualCalculate,
     manualResult,
     serviceTypes,
+    nfcCapability,
     onCheckOut,
   };
 };

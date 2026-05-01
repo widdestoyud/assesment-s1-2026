@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import container from '@di/container';
-import type { RolePickerControllerInterface } from '@controllers/mbc/role-picker.controller';
-import RoleCard from '@components/mbc/RoleCard';
+import type { RolePickerControllerInterface } from '@src/controllers/role-picker.controller';
+import RoleCard from '@components/RoleCard';
 
 const MbcRolePicker: FC = () => {
   const ctrl = container.resolve<RolePickerControllerInterface>('rolePickerController');

@@ -1,9 +1,9 @@
 import type { FC } from 'react';
 import container from '@di/container';
-import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
-import NfcTapPrompt from '@components/mbc/NfcTapPrompt';
-import ServiceTypeSelector from '@components/mbc/ServiceTypeSelector';
-import SimulationBanner from '@components/mbc/SimulationBanner';
+import type { GateControllerInterface } from '@src/controllers/gate.controller';
+import NfcTapPrompt from '@src/presentation/components/NfcTapPrompt';
+import ServiceTypeSelector from '@components/ServiceTypeSelector';
+import SimulationBanner from '@components/SimulationBanner';
 
 const MbcGate: FC = () => {
   const ctrl = container.resolve<GateControllerInterface>('gateController');

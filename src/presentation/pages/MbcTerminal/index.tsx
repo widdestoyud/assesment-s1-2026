@@ -1,22 +1,26 @@
 import type { FC } from 'react';
 import container from '@di/container';
-import type { TerminalControllerInterface } from '@controllers/mbc/terminal.controller';
-import NfcTapPrompt from '@components/mbc/NfcTapPrompt';
-import FeeBreakdown from '@components/mbc/FeeBreakdown';
-import BalanceDisplay from '@components/mbc/BalanceDisplay';
-import ManualCalcForm from '@components/mbc/ManualCalcForm';
+import type { TerminalControllerInterface } from '@controllers/terminal.controller';
+import NfcTapPrompt from '@components/NfcTapPrompt';
+import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import FeeBreakdown from '@components/FeeBreakdown';
+import BalanceDisplay from '@components/BalanceDisplay';
+import ManualCalcForm from '@components/ManualCalcForm';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 
 const MbcTerminal: FC = () => {
   const ctrl = container.resolve<TerminalControllerInterface>('terminalController');
+  const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
 
   return (
     <main className="mx-auto max-w-lg px-4 py-6">
       <h1 className="mb-1 text-xl font-bold">💳 The Terminal</h1>
       <p className="mb-4 text-sm text-gray-500">Check-out dan kalkulasi tarif</p>
 
+      <NfcCapabilityNotice status={ctrl.nfcCapability} />
+
       <div className="space-y-4">
-        {/* Manual Mode Toggle */}
+        {/* Manual Mode Toggle — always available */}
         <div className="flex items-center gap-3">
           <label htmlFor="manual-toggle" className="text-sm font-medium text-gray-700">
             Kalkulasi Manual
@@ -39,7 +43,7 @@ const MbcTerminal: FC = () => {
           </button>
         </div>
 
-        {/* Manual Calculation Form */}
+        {/* Manual Calculation Form — always available */}
         <ManualCalcForm
           onSubmit={ctrl.onManualCalculate}
           serviceTypes={ctrl.serviceTypes}
@@ -57,8 +61,8 @@ const MbcTerminal: FC = () => {
           </div>
         )}
 
-        {/* NFC Check-Out */}
-        {!ctrl.isManualMode && (
+        {/* NFC Check-Out — only when NFC available and not in manual mode */}
+        {nfcAvailable && !ctrl.isManualMode && (
           <>
             <button
               type="button"
