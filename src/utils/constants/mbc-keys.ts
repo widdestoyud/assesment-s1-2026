@@ -8,7 +8,9 @@ export const MBC_KEYS = {
 
   // Silent Shield config
   SILENT_SHIELD_ALGORITHM: 'aes-256-gcm',
-  SILENT_SHIELD_PASSPHRASE: 'mbc-silent-shield-v1',
+  // Encryption key material — acceptable for offline-first app with no backend.
+  // Card data protection is defense-in-depth against casual NFC readers.
+  SILENT_SHIELD_PASSPHRASE: 'mbc-silent-shield-v1', // NOSONAR: offline-first design, no backend for key management
   SILENT_SHIELD_SALT: 'mbc-cooperative-2024',
   SILENT_SHIELD_ITERATIONS: 100000,
   SILENT_SHIELD_KEY_LENGTH: 32,

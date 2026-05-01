@@ -38,7 +38,7 @@ const TransactionLogList: FC<TransactionLogListProps> = ({
   return (
     <div data-testid="transaction-log">
       <h3 className="mb-2 text-sm font-semibold text-gray-600">Riwayat Transaksi</h3>
-      <ul className="space-y-2" role="list">
+      <ul className="space-y-2">
         {transactions.map((tx, index) => (
           <li
             key={`${tx.timestamp}-${index}`}

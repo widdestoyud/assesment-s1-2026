@@ -17,7 +17,7 @@ import type {
  */
 export const webNfcAdapter: NfcProtocol = {
   isSupported(): boolean {
-    return typeof window !== 'undefined' && 'NDEFReader' in window;
+    return typeof globalThis.window !== 'undefined' && 'NDEFReader' in globalThis;
   },
 
   async requestPermission(): Promise<NfcPermissionResult> {
@@ -179,8 +179,8 @@ function extractPayload(message: NDEFMessage): Uint8Array {
 /** Convert Uint8Array to base64 string */
 function uint8ArrayToBase64(bytes: Uint8Array): string {
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (const byte of bytes) {
+    binary += String.fromCodePoint(byte);
   }
   return btoa(binary);
 }
@@ -190,7 +190,7 @@ function base64ToUint8Array(base64: string): Uint8Array {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+    bytes[i] = binary.codePointAt(i) ?? 0;
   }
   return bytes;
 }

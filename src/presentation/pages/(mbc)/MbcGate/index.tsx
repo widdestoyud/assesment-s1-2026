@@ -82,12 +82,12 @@ const MbcGate: FC = () => {
         )}
 
         {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
-          <div role="status" className="rounded-md bg-green-50 p-4 text-sm">
+          <output className="rounded-md bg-green-50 p-4 text-sm">
             <p className="font-semibold text-green-700">✅ Check-in berhasil</p>
             <p>Member: <strong>{ctrl.lastResult.memberName}</strong></p>
             <p>Layanan: <strong>{ctrl.lastResult.serviceTypeName}</strong></p>
             <p>Waktu masuk: <strong>{new Date(ctrl.lastResult.entryTime).toLocaleString('id-ID')}</strong></p>
-          </div>
+          </output>
         )}
       </div>
     </main>

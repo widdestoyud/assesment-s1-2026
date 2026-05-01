@@ -164,7 +164,7 @@ export const CardDataService = (
     transactions: TransactionLogEntry[],
   ): TransactionLogEntry[] => {
     if (transactions.length > 5) {
-      return transactions.slice(transactions.length - 5);
+      return transactions.slice(-5);
     }
     return transactions;
   };

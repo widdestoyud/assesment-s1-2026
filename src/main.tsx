@@ -14,8 +14,8 @@ import { initTranslation } from './translation/i18n.config.ts';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: parseInt(config.tanStack.gcTime, 10) ?? 60000,
-      staleTime: parseInt(config.tanStack.staleTime, 10) ?? 10000,
+      gcTime: Number.parseInt(config.tanStack.gcTime, 10) ?? 60000,
+      staleTime: Number.parseInt(config.tanStack.staleTime, 10) ?? 10000,
     },
   },
 });

@@ -82,7 +82,7 @@ const MbcStation: FC = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              ctrl.onTopUp({ amount: parseInt(topUpAmount, 10) });
+              ctrl.onTopUp({ amount: Number.parseInt(topUpAmount, 10) });
             }}
             className="space-y-3"
           >
@@ -114,7 +114,7 @@ const MbcStation: FC = () => {
             {ctrl.serviceTypes.length === 0 ? (
               <p className="text-sm text-gray-400">Belum ada service type</p>
             ) : (
-              <ul className="space-y-2" role="list">
+              <ul className="space-y-2">
                 {ctrl.serviceTypes.map((st) => (
                   <li key={st.id} className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm">
                     <div>
@@ -144,9 +144,9 @@ const MbcStation: FC = () => {
         </div>
       )}
       {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
-        <div role="status" className="mt-4 rounded-md bg-green-50 p-3 text-sm text-green-700">
+        <output className="mt-4 block rounded-md bg-green-50 p-3 text-sm text-green-700">
           ✅ {ctrl.lastResult.type === 'registration' ? 'Registrasi berhasil' : 'Top-up berhasil'} — {ctrl.lastResult.memberName}
-        </div>
+        </output>
       )}
     </main>
   );

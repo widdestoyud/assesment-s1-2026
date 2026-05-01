@@ -3,9 +3,16 @@
  * Example: formatIDR(2000) → "Rp 2.000"
  */
 export const formatIDR = (amount: number): string => {
-  const formatted = Math.abs(amount)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const absStr = Math.abs(amount).toString();
+  let formatted = '';
+  let count = 0;
+  for (let i = absStr.length - 1; i >= 0; i--) {
+    if (count > 0 && count % 3 === 0) {
+      formatted = '.' + formatted;
+    }
+    formatted = absStr[i] + formatted;
+    count++;
+  }
   return amount < 0 ? `-Rp ${formatted}` : `Rp ${formatted}`;
 };
 

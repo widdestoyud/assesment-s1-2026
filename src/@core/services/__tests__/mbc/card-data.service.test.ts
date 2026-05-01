@@ -135,9 +135,10 @@ describe('CardDataService', () => {
         fc.property(
           cardCheckedInArb,
           isoTimestampArb,
-          (card, exitTimestamp) => {
-            // Fee is between 0 and balance to ensure valid operation
-            const fee = Math.floor(Math.random() * (card.balance + 1));
+          fc.nat(),
+          (card, exitTimestamp, seed) => {
+            // Derive fee deterministically from fast-check seed, bounded by balance
+            const fee = card.balance > 0 ? seed % (card.balance + 1) : 0;
             const result = service.applyCheckOut(
               card,
               fee,

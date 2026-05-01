@@ -27,7 +27,7 @@ const ServiceTypeForm: FC<ServiceTypeFormProps> = ({
       displayName,
       activityType,
       pricing: {
-        ratePerUnit: parseInt(ratePerUnit, 10),
+        ratePerUnit: Number.parseInt(ratePerUnit, 10),
         unitType: unitType as 'per-hour' | 'per-visit' | 'flat-fee',
         roundingStrategy: roundingStrategy as 'ceiling' | 'floor' | 'nearest',
       },

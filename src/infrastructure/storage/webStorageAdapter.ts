@@ -36,7 +36,7 @@ export const webStorageAdapter: KeyValueStoreProtocol = {
     const results: T[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const fullKey = localStorage.key(i);
-      if (fullKey && fullKey.startsWith(prefix)) {
+      if (fullKey?.startsWith(prefix)) {
         const raw = localStorage.getItem(fullKey);
         if (raw) {
           try {

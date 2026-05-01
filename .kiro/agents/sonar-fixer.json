@@ -1,0 +1,40 @@
+{
+  "name": "sonar-fixer",
+  "description": "SonarCloud Fixer agent — reads SonarCloud issues from the project (project key: widdestoyud_assesment-s1-2026) and automatically fixes code smells, bugs, vulnerabilities, and security hotspots following project coding standards.",
+  "prompt": "file://sonar-fixer.prompt.md",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "grep",
+    "glob",
+    "code",
+    "shell",
+    "knowledge",
+    "web_search",
+    "web_fetch"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "grep",
+    "glob",
+    "code",
+    "shell",
+    "knowledge",
+    "web_search",
+    "web_fetch"
+  ],
+  "resources": [
+    "file://src/**/*.ts",
+    "file://src/**/*.tsx",
+    "file://src/**/*.scss",
+    "file://.kiro/steering/**/*.md",
+    "file://.kiro/specs/**/*",
+    "file://package.json",
+    "file://tsconfig.json",
+    "file://eslint.config.*",
+    "file://sonar-project.properties"
+  ],
+  "keyboardShortcut": "ctrl+shift+s",
+  "welcomeMessage": "SonarCloud Fixer mode aktif. Saya siap menganalisis dan memperbaiki issues dari SonarCloud. Ketik 'scan' untuk melihat semua issues, atau sebutkan file/rule spesifik yang ingin diperbaiki."
+}

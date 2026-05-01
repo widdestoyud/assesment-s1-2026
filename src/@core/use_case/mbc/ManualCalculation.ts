@@ -31,8 +31,8 @@ export const ManualCalculationUseCase = (
 
     // Step 2: Validate check-in timestamp
     const checkInDate = new Date(input.checkInTimestamp);
-    if (isNaN(checkInDate.getTime())) {
-      throw new Error('Invalid check-in timestamp format. Expected ISO 8601.');
+    if (Number.isNaN(checkInDate.getTime())) {
+      throw new TypeError('Invalid check-in timestamp format. Expected ISO 8601.');
     }
 
     // Step 3: Calculate fee using current time as check-out
