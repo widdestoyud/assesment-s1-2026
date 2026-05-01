@@ -21,7 +21,7 @@ const MbcRolePicker: FC = () => {
             isActive={ctrl.activeRole === role.id}
             onSelect={() => {
               ctrl.onSelectRole(role.id);
-              navigate({ to: `/mbc/${role.id}` });
+              navigate({ to: `/${role.id}` });
             }}
           />
         ))}
