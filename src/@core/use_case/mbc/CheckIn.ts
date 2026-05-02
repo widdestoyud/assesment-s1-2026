@@ -24,7 +24,7 @@ export const CheckInUseCase = (
   const execute = async (input: CheckInInput): Promise<CheckInResult> => {
     // Step 1: Read card → decrypt → deserialize
     const rawEncrypted = await nfcService.readCard();
-    const decrypted = silentShieldService.decrypt(rawEncrypted);
+    const decrypted = await silentShieldService.decrypt(rawEncrypted);
     const cardData = cardDataService.deserialize(decrypted);
 
     // Step 2: Validate card is registered
@@ -52,7 +52,7 @@ export const CheckInUseCase = (
 
     // Step 6: Serialize → encrypt → write with verify
     const serialized = cardDataService.serialize(updatedCard);
-    const encrypted = silentShieldService.encrypt(serialized);
+    const encrypted = await silentShieldService.encrypt(serialized);
     const writeResult = await nfcService.writeAndVerify(encrypted);
 
     if (!writeResult.success) {

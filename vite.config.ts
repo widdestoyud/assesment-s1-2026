@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 import mkCert from 'vite-plugin-mkcert';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { configDefaults } from 'vitest/config';
 
 const viteConfig = ({ mode }: { mode: string }) => {
@@ -35,7 +34,6 @@ const viteConfig = ({ mode }: { mode: string }) => {
       react(),
       tailwindcss(),
       ...(process.env.NODE_ENV === 'development' ? [mkCert()] : []),
-      nodePolyfills({ include: ['crypto'] }),
     ],
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

@@ -39,8 +39,8 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
-    encrypt: vi.fn().mockReturnValue(new Uint8Array([99])),
-    decrypt: vi.fn().mockReturnValue(new Uint8Array([1])),
+    encrypt: vi.fn().mockResolvedValue(new Uint8Array([99])),
+    decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
   return { nfcService, cardDataService, silentShieldService };

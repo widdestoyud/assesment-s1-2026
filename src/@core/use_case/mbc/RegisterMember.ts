@@ -23,7 +23,7 @@ export const RegisterMemberUseCase = (
 
     // Step 2: Try to decrypt and deserialize to check if card already has data
     try {
-      const decrypted = silentShieldService.decrypt(rawEncrypted);
+      const decrypted = await silentShieldService.decrypt(rawEncrypted);
       const existingCard = cardDataService.deserialize(decrypted);
 
       // If we get here, card already has valid member data
@@ -59,7 +59,7 @@ export const RegisterMemberUseCase = (
 
     // Step 4: Serialize → encrypt → write with verify
     const serialized = cardDataService.serialize(registeredCard);
-    const encrypted = silentShieldService.encrypt(serialized);
+    const encrypted = await silentShieldService.encrypt(serialized);
     const writeResult = await nfcService.writeAndVerify(encrypted);
 
     if (!writeResult.success) {

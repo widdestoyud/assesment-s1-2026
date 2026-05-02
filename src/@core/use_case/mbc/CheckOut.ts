@@ -31,7 +31,7 @@ export const CheckOutUseCase = (
   const execute = async (input: CheckOutInput): Promise<CheckOutResult> => {
     // Step 1: Read card → decrypt → deserialize
     const rawEncrypted = await nfcService.readCard();
-    const decrypted = silentShieldService.decrypt(rawEncrypted);
+    const decrypted = await silentShieldService.decrypt(rawEncrypted);
     const cardData = cardDataService.deserialize(decrypted);
 
     // Step 2: Validate active check-in exists (double tap-out prevention)
@@ -93,13 +93,13 @@ export const CheckOutUseCase = (
 
     // Step 9: Serialize → encrypt → write with verify
     const serialized = cardDataService.serialize(updatedCard);
-    const encrypted = silentShieldService.encrypt(serialized);
+    const encrypted = await silentShieldService.encrypt(serialized);
     const writeResult = await nfcService.writeAndVerify(encrypted);
 
     if (!writeResult.success) {
       // Attempt rollback: restore snapshot
       try {
-        const snapshotEncrypted = silentShieldService.encrypt(snapshot);
+        const snapshotEncrypted = await silentShieldService.encrypt(snapshot);
         await nfcService.writeCard(snapshotEncrypted);
       } catch {
         // Rollback failed — card may be in inconsistent state

@@ -34,7 +34,7 @@ function createMocks() {
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
-    encrypt: vi.fn().mockReturnValue(new Uint8Array([99])),
+    encrypt: vi.fn().mockResolvedValue(new Uint8Array([99])),
     decrypt: vi.fn(),
   };
 
@@ -45,9 +45,9 @@ describe('RegisterMemberUseCase', () => {
   it('registers a blank card successfully', async () => {
     const mocks = createMocks();
     // Simulate blank card: decrypt throws (no valid data)
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('Decryption failed');
-    });
+    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Decryption failed'),
+    );
 
     const useCase = RegisterMemberUseCase(mocks);
     const result = await useCase.execute({
@@ -62,7 +62,7 @@ describe('RegisterMemberUseCase', () => {
 
   it('rejects if card already has member data', async () => {
     const mocks = createMocks();
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockReturnValue(new Uint8Array([1]));
+    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockResolvedValue(new Uint8Array([1]));
     (mocks.cardDataService.deserialize as ReturnType<typeof vi.fn>).mockReturnValue({
       version: 1,
       member: { name: 'Existing User', memberId: 'M999' },
@@ -80,9 +80,9 @@ describe('RegisterMemberUseCase', () => {
 
   it('throws when write verification fails', async () => {
     const mocks = createMocks();
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('Decryption failed');
-    });
+    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Decryption failed'),
+    );
     (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
       success: false,
       error: 'Tag removed',

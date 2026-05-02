@@ -39,8 +39,8 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
-    encrypt: vi.fn().mockReturnValue(new Uint8Array([99])),
-    decrypt: vi.fn().mockReturnValue(new Uint8Array([1])),
+    encrypt: vi.fn().mockResolvedValue(new Uint8Array([99])),
+    decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
   return { nfcService, cardDataService, silentShieldService };
@@ -87,9 +87,9 @@ describe('ReadCardUseCase', () => {
 
   it('throws when decryption fails', async () => {
     const mocks = createMocks();
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('Decryption failed: invalid auth tag');
-    });
+    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Decryption failed: invalid auth tag'),
+    );
     const useCase = ReadCardUseCase(mocks);
 
     await expect(useCase.execute()).rejects.toThrow('Decryption failed');

@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Web Crypto Migration Verification",
+  "description": "Reminds to run npm install, build, and test for the web-crypto-migration branch when resuming work. Task 6 (verification) is still pending because the previous environment had Node 18 instead of the required Node 20.",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "⚠️ REMINDER: Branch `refactor/mbc-web-crypto-migration` has pending verification (Task 6). Code changes are complete but npm install, build, and test have NOT been run yet because the previous environment had Node 18 (needs Node 20+). Before doing anything else on this branch, run: 1) `node --version` to confirm Node 20+, 2) `npm install`, 3) `npm run build`, 4) `npm run test`. If all pass, mark Task 6.1 and 6.2 as done in `.kiro/specs/web-crypto-migration/tasks.md`. After verification succeeds, this hook can be deleted."
+  }
+}
