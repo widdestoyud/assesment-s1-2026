@@ -3,10 +3,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
 
 import type { CheckInUseCaseInterface } from '@core/use_case/mbc/CheckIn';
-import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/ManageServiceRegistry';
+import type { ManageBenefitRegistryUseCaseInterface } from '@core/use_case/mbc/ManageBenefitRegistry';
 import type { DeviceServiceInterface } from '@core/services/mbc/device.service';
 
-import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
+import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
 import GateController from '../../mbc/gate.controller';
 
 const MOCK_DEVICE_ID = 'device-test-123';
@@ -16,12 +16,12 @@ function createMocks() {
     execute: vi.fn().mockResolvedValue({
       memberName: 'John Doe',
       entryTime: '2024-01-01T10:00:00.000Z',
-      serviceTypeName: 'Parkir',
+      benefitTypeName: 'Parkir',
     }),
   };
 
-  const manageServiceRegistryUseCase: ManageServiceRegistryUseCaseInterface = {
-    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_SERVICE]),
+  const manageBenefitRegistryUseCase: ManageBenefitRegistryUseCaseInterface = {
+    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_BENEFIT]),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
@@ -44,7 +44,7 @@ function createMocks() {
     writeAndVerify: vi.fn(),
   };
 
-  return { checkInUseCase, manageServiceRegistryUseCase, deviceService, nfcService };
+  return { checkInUseCase, manageBenefitRegistryUseCase, deviceService, nfcService };
 }
 
 function createController(mocks = createMocks()) {
@@ -77,12 +77,12 @@ describe('GateController', () => {
     });
   });
 
-  it('auto-selects service type when only one exists', async () => {
+  it('auto-selects benefit type when only one exists', async () => {
     const mocks = createMocks();
     const { result } = createController(mocks);
 
     await waitFor(() => {
-      expect(result.current.selectedServiceType).toEqual(DEFAULT_PARKING_SERVICE);
+      expect(result.current.selectedBenefitType).toEqual(DEFAULT_PARKING_BENEFIT);
     });
   });
 
@@ -107,7 +107,7 @@ describe('GateController', () => {
     // Wait for init
     await waitFor(() => {
       expect(result.current.deviceId).toBe(MOCK_DEVICE_ID);
-      expect(result.current.selectedServiceType).not.toBeNull();
+      expect(result.current.selectedBenefitType).not.toBeNull();
     });
 
     await act(async () => {

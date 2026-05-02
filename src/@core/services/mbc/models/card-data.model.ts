@@ -13,7 +13,7 @@ export interface MemberIdentity {
 
 export interface CheckInStatus {
   timestamp: string;
-  serviceTypeId: string;
+  benefitTypeId: string;
   deviceId: string;
 }
 
@@ -21,5 +21,5 @@ export interface TransactionLogEntry {
   amount: number;
   timestamp: string;
   activityType: string;
-  serviceTypeId: string;
+  benefitTypeId: string;
 }

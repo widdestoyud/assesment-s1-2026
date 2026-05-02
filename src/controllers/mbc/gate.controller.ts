@@ -3,13 +3,13 @@ import type {
   CheckInResult,
   NfcCapabilityStatus,
   NfcStatus,
-  ServiceType,
+  BenefitType,
 } from '@core/services/mbc/models';
 
 export interface GateControllerInterface {
-  selectedServiceType: ServiceType | null;
-  serviceTypes: ServiceType[];
-  onSelectServiceType: (id: string) => void;
+  selectedBenefitType: BenefitType | null;
+  benefitTypes: BenefitType[];
+  onSelectBenefitType: (id: string) => void;
   simulationMode: boolean;
   onToggleSimulation: () => void;
   simulationTimestamp: string | null;
@@ -30,7 +30,7 @@ const GateController = (
     | 'useEffect'
     | 'useCallback'
     | 'checkInUseCase'
-    | 'manageServiceRegistryUseCase'
+    | 'manageBenefitRegistryUseCase'
     | 'deviceService'
     | 'nfcService'
   >,
@@ -40,13 +40,13 @@ const GateController = (
     useEffect,
     useCallback,
     checkInUseCase,
-    manageServiceRegistryUseCase,
+    manageBenefitRegistryUseCase,
     deviceService,
     nfcService,
   } = deps;
 
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
-  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
+  const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
+  const [selectedBenefitType, setSelectedBenefitType] = useState<BenefitType | null>(null);
   const [simulationMode, setSimulationMode] = useState(false);
   const [simulationTimestamp, setSimulationTimestamp] = useState<string | null>(null);
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
@@ -66,22 +66,22 @@ const GateController = (
       const { deviceId: id } = await deviceService.ensureDeviceId();
       setDeviceId(id);
 
-      // Load service types
-      const types = await manageServiceRegistryUseCase.getAll();
-      setServiceTypes(types);
+      // Load benefit types
+      const types = await manageBenefitRegistryUseCase.getAll();
+      setBenefitTypes(types);
 
-      // Auto-select if only one service type
+      // Auto-select if only one benefit type
       if (types.length === 1) {
-        setSelectedServiceType(types[0]);
+        setSelectedBenefitType(types[0]);
       }
     };
     init();
   }, []);
 
-  const onSelectServiceType = useCallback((id: string) => {
-    const found = serviceTypes.find((st) => st.id === id);
-    setSelectedServiceType(found ?? null);
-  }, [serviceTypes]);
+  const onSelectBenefitType = useCallback((id: string) => {
+    const found = benefitTypes.find((st) => st.id === id);
+    setSelectedBenefitType(found ?? null);
+  }, [benefitTypes]);
 
   const onToggleSimulation = useCallback(() => {
     setSimulationMode((prev) => !prev);
@@ -95,7 +95,7 @@ const GateController = (
   }, []);
 
   const onCheckIn = useCallback(async () => {
-    if (isProcessing || !selectedServiceType || !deviceId) return;
+    if (isProcessing || !selectedBenefitType || !deviceId) return;
     setIsProcessing(true);
     setNfcStatus('scanning');
     setError(null);
@@ -103,8 +103,8 @@ const GateController = (
 
     try {
       const result = await checkInUseCase.execute({
-        serviceTypeId: selectedServiceType.id,
-        serviceTypeName: selectedServiceType.displayName,
+        benefitTypeId: selectedBenefitType.id,
+        benefitTypeName: selectedBenefitType.displayName,
         deviceId,
         simulationTimestamp: simulationMode && simulationTimestamp
           ? simulationTimestamp
@@ -118,12 +118,12 @@ const GateController = (
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing, selectedServiceType, deviceId, simulationMode, simulationTimestamp]);
+  }, [isProcessing, selectedBenefitType, deviceId, simulationMode, simulationTimestamp]);
 
   return {
-    selectedServiceType,
-    serviceTypes,
-    onSelectServiceType,
+    selectedBenefitType,
+    benefitTypes,
+    onSelectBenefitType,
     simulationMode,
     onToggleSimulation,
     simulationTimestamp,

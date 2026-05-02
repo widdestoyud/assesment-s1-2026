@@ -6,10 +6,10 @@ export type {
 } from './card-data.model.ts';
 
 export type {
-  ServiceType,
+  BenefitType,
   PricingStrategy,
-} from './service-type.model.ts';
-export { DEFAULT_PARKING_SERVICE } from './service-type.model.ts';
+} from './benefit-type.model.ts';
+export { DEFAULT_PARKING_BENEFIT } from './benefit-type.model.ts';
 
 export type {
   RoleMode,
@@ -30,7 +30,7 @@ export type {
 
 export {
   CardDataSchema,
-  ServiceTypeFormSchema,
+  BenefitTypeFormSchema,
   RegistrationFormSchema,
   TopUpFormSchema,
   ManualCalcFormSchema,
@@ -38,7 +38,7 @@ export {
 
 export type {
   CardDataSchemaType,
-  ServiceTypeFormSchemaType,
+  BenefitTypeFormSchemaType,
   RegistrationFormSchemaType,
   TopUpFormSchemaType,
   ManualCalcFormSchemaType,

@@ -41,7 +41,7 @@ const MbcScout: FC = () => {
           {ctrl.cardData && (
             <CardInfoDisplay
               cardData={ctrl.cardData}
-              serviceTypes={ctrl.serviceTypes}
+              benefitTypes={ctrl.benefitTypes}
             />
           )}
         </div>

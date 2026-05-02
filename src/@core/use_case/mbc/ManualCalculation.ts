@@ -3,7 +3,7 @@ import type { FeeResult } from '@core/services/mbc/models';
 
 export interface ManualCalculationInput {
   checkInTimestamp: string;
-  serviceTypeId: string;
+  benefitTypeId: string;
 }
 
 export interface ManualCalculationUseCaseInterface {
@@ -11,20 +11,20 @@ export interface ManualCalculationUseCaseInterface {
 }
 
 export const ManualCalculationUseCase = (
-  deps: Pick<AwilixRegistry, 'pricingService' | 'serviceRegistryService'>,
+  deps: Pick<AwilixRegistry, 'pricingService' | 'benefitRegistryService'>,
 ): ManualCalculationUseCaseInterface => {
-  const { pricingService, serviceRegistryService } = deps;
+  const { pricingService, benefitRegistryService } = deps;
 
   const execute = async (
     input: ManualCalculationInput,
   ): Promise<FeeResult> => {
     // Step 1: Lookup service type from registry
-    const serviceType = await serviceRegistryService.getById(
-      input.serviceTypeId,
+    const serviceType = await benefitRegistryService.getById(
+      input.benefitTypeId,
     );
     if (!serviceType) {
       throw new Error(
-        `Service type "${input.serviceTypeId}" not found in registry. ` +
+        `Service type "${input.benefitTypeId}" not found in registry. ` +
           'Please configure service types at The Station.',
       );
     }

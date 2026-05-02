@@ -20,7 +20,7 @@ export interface CardDataServiceInterface {
   applyTopUp(card: CardData, amount: number): CardData;
   applyCheckIn(
     card: CardData,
-    serviceTypeId: string,
+    benefitTypeId: string,
     deviceId: string,
     timestamp: string,
   ): CardData;
@@ -28,7 +28,7 @@ export interface CardDataServiceInterface {
     card: CardData,
     fee: number,
     activityType: string,
-    serviceTypeId: string,
+    benefitTypeId: string,
     exitTimestamp: string,
   ): CardData;
   appendTransactionLog(card: CardData, entry: TransactionLogEntry): CardData;
@@ -95,7 +95,7 @@ export const CardDataService = (
       amount,
       timestamp: new Date().toISOString(),
       activityType: 'top-up',
-      serviceTypeId: 'top-up',
+      benefitTypeId: 'top-up',
     };
     return {
       ...card,
@@ -106,7 +106,7 @@ export const CardDataService = (
 
   const applyCheckIn = (
     card: CardData,
-    serviceTypeId: string,
+    benefitTypeId: string,
     deviceId: string,
     timestamp: string,
   ): CardData => {
@@ -119,7 +119,7 @@ export const CardDataService = (
       ...card,
       checkIn: {
         timestamp,
-        serviceTypeId,
+        benefitTypeId,
         deviceId,
       },
     };
@@ -129,7 +129,7 @@ export const CardDataService = (
     card: CardData,
     fee: number,
     activityType: string,
-    serviceTypeId: string,
+    benefitTypeId: string,
     exitTimestamp: string,
   ): CardData => {
     if (card.checkIn === null) {
@@ -140,7 +140,7 @@ export const CardDataService = (
       amount: -fee,
       timestamp: exitTimestamp,
       activityType,
-      serviceTypeId,
+      benefitTypeId,
     };
     return {
       ...card,

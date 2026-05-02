@@ -1,4 +1,4 @@
-export interface ServiceType {
+export interface BenefitType {
   id: string;
   displayName: string;
   activityType: string;
@@ -11,7 +11,7 @@ export interface PricingStrategy {
   roundingStrategy: 'ceiling' | 'floor' | 'nearest';
 }
 
-export const DEFAULT_PARKING_SERVICE: ServiceType = {
+export const DEFAULT_PARKING_BENEFIT: BenefitType = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',

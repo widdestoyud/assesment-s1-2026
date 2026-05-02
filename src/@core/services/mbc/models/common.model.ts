@@ -38,11 +38,11 @@ export interface FeeResult {
 export interface CheckInResult {
   memberName: string;
   entryTime: string;
-  serviceTypeName: string;
+  benefitTypeName: string;
 }
 
 export interface CheckOutResult {
-  serviceTypeName: string;
+  benefitTypeName: string;
   entryTime: string;
   exitTime: string;
   duration: string;

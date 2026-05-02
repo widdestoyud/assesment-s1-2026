@@ -1,20 +1,20 @@
 import type { FC } from 'react';
-import type { TransactionLogEntry, ServiceType } from '@core/services/mbc/models';
+import type { TransactionLogEntry, BenefitType } from '@core/services/mbc/models';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './transaction-log-list.module.css';
 
 export interface TransactionLogListProps {
   transactions: TransactionLogEntry[];
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
 }
 
 const TransactionLogList: FC<TransactionLogListProps> = ({
   transactions,
-  serviceTypes,
+  benefitTypes,
 }) => {
-  const resolveServiceName = (serviceTypeId: string): string => {
-    const found = serviceTypes.find((st) => st.id === serviceTypeId);
-    return found?.displayName ?? serviceTypeId;
+  const resolveServiceName = (benefitTypeId: string): string => {
+    const found = benefitTypes.find((st) => st.id === benefitTypeId);
+    return found?.displayName ?? benefitTypeId;
   };
 
   const formatTimestamp = (iso: string): string => {
@@ -46,7 +46,7 @@ const TransactionLogList: FC<TransactionLogListProps> = ({
             className={styles['transaction-log-list__item']}
           >
             <div>
-              <p className={styles['transaction-log-list__service-name']}>{resolveServiceName(tx.serviceTypeId)}</p>
+              <p className={styles['transaction-log-list__service-name']}>{resolveServiceName(tx.benefitTypeId)}</p>
               <p className={styles['transaction-log-list__timestamp']}>{formatTimestamp(tx.timestamp)}</p>
             </div>
             <span

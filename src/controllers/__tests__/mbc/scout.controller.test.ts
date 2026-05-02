@@ -4,9 +4,9 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 import type { CardData } from '@core/services/mbc/models';
 import type { ReadCardUseCaseInterface } from '@core/use_case/mbc/ReadCard';
-import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/ManageServiceRegistry';
+import type { ManageBenefitRegistryUseCaseInterface } from '@core/use_case/mbc/ManageBenefitRegistry';
 
-import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
+import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
 import ScoutController from '../../mbc/scout.controller';
 
 const CARD_DATA: CardData = {
@@ -22,8 +22,8 @@ function createMocks() {
     execute: vi.fn().mockResolvedValue(CARD_DATA),
   };
 
-  const manageServiceRegistryUseCase: ManageServiceRegistryUseCaseInterface = {
-    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_SERVICE]),
+  const manageBenefitRegistryUseCase: ManageBenefitRegistryUseCaseInterface = {
+    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_BENEFIT]),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
@@ -38,7 +38,7 @@ function createMocks() {
     writeAndVerify: vi.fn(),
   };
 
-  return { readCardUseCase, manageServiceRegistryUseCase, nfcService };
+  return { readCardUseCase, manageBenefitRegistryUseCase, nfcService };
 }
 
 function createController(mocks = createMocks()) {
@@ -62,12 +62,12 @@ describe('ScoutController', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('loads service types on mount', async () => {
+  it('loads benefit types on mount', async () => {
     const mocks = createMocks();
     createController(mocks);
 
     await waitFor(() => {
-      expect(mocks.manageServiceRegistryUseCase.getAll).toHaveBeenCalledOnce();
+      expect(mocks.manageBenefitRegistryUseCase.getAll).toHaveBeenCalledOnce();
     });
   });
 

@@ -1,37 +1,37 @@
 import type { AwilixRegistry } from '@di/container';
-import type { ServiceType } from '@core/services/mbc/models';
+import type { BenefitType } from '@core/services/mbc/models';
 
 import {
-  DEFAULT_PARKING_SERVICE,
-  ServiceTypeFormSchema,
+  DEFAULT_PARKING_BENEFIT,
+  BenefitTypeFormSchema,
 } from '@core/services/mbc/models';
 import { MBC_KEYS } from '@utils/constants/mbc-keys';
 
-export interface ServiceRegistryServiceInterface {
-  /** Get all registered service types */
-  getAll(): Promise<ServiceType[]>;
-  /** Get a service type by its unique identifier */
-  getById(id: string): Promise<ServiceType | undefined>;
-  /** Add a new service type to the registry */
-  add(serviceType: ServiceType): Promise<void>;
-  /** Update an existing service type's fields */
-  update(id: string, updates: Partial<Omit<ServiceType, 'id'>>): Promise<void>;
-  /** Remove a service type from the registry */
+export interface BenefitRegistryServiceInterface {
+  /** Get all registered benefit types */
+  getAll(): Promise<BenefitType[]>;
+  /** Get a benefit type by its unique identifier */
+  getById(id: string): Promise<BenefitType | undefined>;
+  /** Add a new benefit type to the registry */
+  add(benefitType: BenefitType): Promise<void>;
+  /** Update an existing benefit type's fields */
+  update(id: string, updates: Partial<Omit<BenefitType, 'id'>>): Promise<void>;
+  /** Remove a benefit type from the registry */
   remove(id: string): Promise<void>;
   /** Initialize the registry with defaults if it doesn't exist */
   initializeDefaults(): Promise<void>;
 }
 
-export const ServiceRegistryService = (
+export const BenefitRegistryService = (
   deps: Pick<AwilixRegistry, 'keyValueStore'>,
-): ServiceRegistryServiceInterface => {
+): BenefitRegistryServiceInterface => {
   const { keyValueStore } = deps;
 
   const storeName = MBC_KEYS.MBC_STORE_NAME;
   const registryKey = MBC_KEYS.MBC_SERVICE_REGISTRY;
 
-  const readRegistry = async (): Promise<ServiceType[]> => {
-    const raw = await keyValueStore.get<ServiceType[]>(storeName, registryKey);
+  const readRegistry = async (): Promise<BenefitType[]> => {
+    const raw = await keyValueStore.get<BenefitType[]>(storeName, registryKey);
 
     if (!raw || !Array.isArray(raw)) {
       return [];
@@ -39,67 +39,67 @@ export const ServiceRegistryService = (
 
     // Validate each entry, filter out corrupted ones
     return raw.filter((entry) => {
-      const result = ServiceTypeFormSchema.safeParse(entry);
+      const result = BenefitTypeFormSchema.safeParse(entry);
       return result.success;
     });
   };
 
-  const writeRegistry = async (registry: ServiceType[]): Promise<void> => {
+  const writeRegistry = async (registry: BenefitType[]): Promise<void> => {
     await keyValueStore.set(storeName, registryKey, registry);
   };
 
-  const getAll = async (): Promise<ServiceType[]> => {
+  const getAll = async (): Promise<BenefitType[]> => {
     return readRegistry();
   };
 
-  const getById = async (id: string): Promise<ServiceType | undefined> => {
+  const getById = async (id: string): Promise<BenefitType | undefined> => {
     const registry = await readRegistry();
     return registry.find((st) => st.id === id);
   };
 
-  const add = async (serviceType: ServiceType): Promise<void> => {
-    // Validate the new service type
-    const validation = ServiceTypeFormSchema.safeParse(serviceType);
+  const add = async (benefitType: BenefitType): Promise<void> => {
+    // Validate the new benefit type
+    const validation = BenefitTypeFormSchema.safeParse(benefitType);
     if (!validation.success) {
       const messages = validation.error.issues
         .map((i) => `${i.path.join('.')}: ${i.message}`)
         .join('; ');
-      throw new Error(`Invalid service type: ${messages}`);
+      throw new Error(`Invalid benefit type: ${messages}`);
     }
 
     const registry = await readRegistry();
 
     // Check for duplicate ID
-    if (registry.some((st) => st.id === serviceType.id)) {
+    if (registry.some((st) => st.id === benefitType.id)) {
       throw new Error(
-        `Service type with id "${serviceType.id}" already exists`,
+        `Benefit type with id "${benefitType.id}" already exists`,
       );
     }
 
-    registry.push(serviceType);
+    registry.push(benefitType);
     await writeRegistry(registry);
   };
 
   const update = async (
     id: string,
-    updates: Partial<Omit<ServiceType, 'id'>>,
+    updates: Partial<Omit<BenefitType, 'id'>>,
   ): Promise<void> => {
     const registry = await readRegistry();
     const index = registry.findIndex((st) => st.id === id);
 
     if (index === -1) {
-      throw new Error(`Service type with id "${id}" not found`);
+      throw new Error(`Benefit type with id "${id}" not found`);
     }
 
-    const updated: ServiceType = { ...registry[index], ...updates, id };
+    const updated: BenefitType = { ...registry[index], ...updates, id };
 
     // Validate the updated entry
-    const validation = ServiceTypeFormSchema.safeParse(updated);
+    const validation = BenefitTypeFormSchema.safeParse(updated);
     if (!validation.success) {
       const messages = validation.error.issues
         .map((i) => `${i.path.join('.')}: ${i.message}`)
         .join('; ');
-      throw new Error(`Invalid service type after update: ${messages}`);
+      throw new Error(`Invalid benefit type after update: ${messages}`);
     }
 
     registry[index] = updated;
@@ -111,7 +111,7 @@ export const ServiceRegistryService = (
     const index = registry.findIndex((st) => st.id === id);
 
     if (index === -1) {
-      throw new Error(`Service type with id "${id}" not found`);
+      throw new Error(`Benefit type with id "${id}" not found`);
     }
 
     registry.splice(index, 1);
@@ -122,7 +122,7 @@ export const ServiceRegistryService = (
     const registry = await readRegistry();
 
     if (registry.length === 0) {
-      await writeRegistry([DEFAULT_PARKING_SERVICE]);
+      await writeRegistry([DEFAULT_PARKING_BENEFIT]);
     }
   };
 

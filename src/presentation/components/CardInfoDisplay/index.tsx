@@ -1,18 +1,18 @@
 import type { FC } from 'react';
-import type { CardData, ServiceType } from '@core/services/mbc/models';
+import type { CardData, BenefitType } from '@core/services/mbc/models';
 import BalanceDisplay from '@components/BalanceDisplay';
 import TransactionLogList from '@components/TransactionLogList';
 import styles from './card-info-display.module.css';
 
 export interface CardInfoDisplayProps {
   cardData: CardData;
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
 }
 
-const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, serviceTypes }) => {
-  const resolveServiceName = (serviceTypeId: string): string => {
-    const found = serviceTypes.find((st) => st.id === serviceTypeId);
-    return found?.displayName ?? serviceTypeId;
+const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, benefitTypes }) => {
+  const resolveServiceName = (benefitTypeId: string): string => {
+    const found = benefitTypes.find((st) => st.id === benefitTypeId);
+    return found?.displayName ?? benefitTypeId;
   };
 
   return (
@@ -32,7 +32,7 @@ const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, serviceTypes }) =
         <div className={styles['card-info-display__check-in-card']}>
           <h3 className={styles['card-info-display__check-in-label']}>Status Check-In Aktif</h3>
           <p className={styles['card-info-display__check-in-detail']}>
-            Layanan: <strong>{resolveServiceName(cardData.checkIn.serviceTypeId)}</strong>
+            Layanan: <strong>{resolveServiceName(cardData.checkIn.benefitTypeId)}</strong>
           </p>
           <p className={styles['card-info-display__check-in-detail']}>
             Waktu masuk:{' '}
@@ -46,7 +46,7 @@ const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, serviceTypes }) =
       {/* Transaction Log */}
       <TransactionLogList
         transactions={cardData.transactions}
-        serviceTypes={serviceTypes}
+        benefitTypes={benefitTypes}
       />
     </div>
   );

@@ -2,8 +2,8 @@ import type { AwilixRegistry } from '@di/container';
 import type { CheckInResult } from '@core/services/mbc/models';
 
 export interface CheckInInput {
-  serviceTypeId: string;
-  serviceTypeName: string;
+  benefitTypeId: string;
+  benefitTypeName: string;
   deviceId: string;
   /** Optional custom timestamp for simulation mode (ISO 8601) */
   simulationTimestamp?: string;
@@ -45,7 +45,7 @@ export const CheckInUseCase = (
     // Step 5: Apply check-in
     const updatedCard = cardDataService.applyCheckIn(
       cardData,
-      input.serviceTypeId,
+      input.benefitTypeId,
       input.deviceId,
       timestamp,
     );
@@ -64,7 +64,7 @@ export const CheckInUseCase = (
     return {
       memberName: cardData.member.name,
       entryTime: timestamp,
-      serviceTypeName: input.serviceTypeName,
+      benefitTypeName: input.benefitTypeName,
     };
   };
 

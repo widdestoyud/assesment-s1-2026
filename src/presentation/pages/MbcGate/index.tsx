@@ -3,7 +3,7 @@ import container from '@di/container';
 import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
 import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
-import ServiceTypeSelector from '@components/ServiceTypeSelector';
+import BenefitTypeSelector from '@components/BenefitTypeSelector';
 import SimulationBanner from '@components/SimulationBanner';
 import styles from './mbc-gate.module.css';
 
@@ -26,10 +26,10 @@ const MbcGate: FC = () => {
           />
 
           <div className={styles['mbc-gate__content']}>
-        <ServiceTypeSelector
-          serviceTypes={ctrl.serviceTypes}
-          selectedId={ctrl.selectedServiceType?.id ?? null}
-          onSelect={ctrl.onSelectServiceType}
+        <BenefitTypeSelector
+          benefitTypes={ctrl.benefitTypes}
+          selectedId={ctrl.selectedBenefitType?.id ?? null}
+          onSelect={ctrl.onSelectBenefitType}
           disabled={ctrl.isProcessing}
         />
 
@@ -70,7 +70,7 @@ const MbcGate: FC = () => {
         <button
           type="button"
           onClick={ctrl.onCheckIn}
-          disabled={ctrl.isProcessing || !ctrl.selectedServiceType}
+          disabled={ctrl.isProcessing || !ctrl.selectedBenefitType}
           className={styles['mbc-gate__primary-button']}
         >
           Check-In
@@ -88,7 +88,7 @@ const MbcGate: FC = () => {
           <output className={styles['mbc-gate__success-output']}>
             <p className={styles['mbc-gate__success-title']}>✅ Check-in berhasil</p>
             <p>Member: <strong>{ctrl.lastResult.memberName}</strong></p>
-            <p>Layanan: <strong>{ctrl.lastResult.serviceTypeName}</strong></p>
+            <p>Layanan: <strong>{ctrl.lastResult.benefitTypeName}</strong></p>
             <p>Waktu masuk: <strong>{new Date(ctrl.lastResult.entryTime).toLocaleString('id-ID')}</strong></p>
           </output>
         )}

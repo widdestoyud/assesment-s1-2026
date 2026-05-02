@@ -3,7 +3,7 @@ import type {
   CardData,
   NfcCapabilityStatus,
   NfcStatus,
-  ServiceType,
+  BenefitType,
 } from '@core/services/mbc/models';
 
 export interface ScoutControllerInterface {
@@ -11,7 +11,7 @@ export interface ScoutControllerInterface {
   cardData: CardData | null;
   isReading: boolean;
   error: string | null;
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
   nfcCapability: NfcCapabilityStatus;
   onReadCard: () => Promise<void>;
 }
@@ -23,7 +23,7 @@ const ScoutController = (
     | 'useEffect'
     | 'useCallback'
     | 'readCardUseCase'
-    | 'manageServiceRegistryUseCase'
+    | 'manageBenefitRegistryUseCase'
     | 'nfcService'
   >,
 ): ScoutControllerInterface => {
@@ -32,7 +32,7 @@ const ScoutController = (
     useEffect,
     useCallback,
     readCardUseCase,
-    manageServiceRegistryUseCase,
+    manageBenefitRegistryUseCase,
     nfcService,
   } = deps;
 
@@ -40,17 +40,17 @@ const ScoutController = (
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [isReading, setIsReading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
-  // Load service types on mount (for resolving display names)
+  // Load benefit types on mount (for resolving display names)
   useEffect(() => {
     const init = async () => {
       const isNfcAvailable = nfcService.isAvailable();
       setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
 
-      const types = await manageServiceRegistryUseCase.getAll();
-      setServiceTypes(types);
+      const types = await manageBenefitRegistryUseCase.getAll();
+      setBenefitTypes(types);
     };
     init();
   }, []);
@@ -79,7 +79,7 @@ const ScoutController = (
     cardData,
     isReading,
     error,
-    serviceTypes,
+    benefitTypes,
     nfcCapability,
     onReadCard,
   };

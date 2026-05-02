@@ -43,7 +43,7 @@ const MbcTerminal: FC = () => {
         {/* Manual Calculation Form */}
         <ManualCalcForm
           onSubmit={ctrl.onManualCalculate}
-          serviceTypes={ctrl.serviceTypes}
+          benefitTypes={ctrl.benefitTypes}
           isActive={ctrl.isManualMode}
         />
 
@@ -78,11 +78,11 @@ const MbcTerminal: FC = () => {
         {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
           <div className={styles['mbc-terminal__result-section']}>
             <output className={styles['mbc-terminal__success-output']}>
-              ✅ Check-out berhasil — {ctrl.lastResult.serviceTypeName}
+              ✅ Check-out berhasil — {ctrl.lastResult.benefitTypeName}
             </output>
             <FeeBreakdown
               feeResult={ctrl.lastResult.feeBreakdown}
-              serviceTypeName={ctrl.lastResult.serviceTypeName}
+              benefitTypeName={ctrl.lastResult.benefitTypeName}
             />
             <BalanceDisplay balance={ctrl.lastResult.remainingBalance} />
           </div>

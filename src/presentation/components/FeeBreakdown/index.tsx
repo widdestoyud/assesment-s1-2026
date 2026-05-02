@@ -5,17 +5,17 @@ import styles from './fee-breakdown.module.css';
 
 export interface FeeBreakdownProps {
   feeResult: FeeResult;
-  serviceTypeName: string;
+  benefitTypeName: string;
 }
 
-const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, serviceTypeName }) => {
+const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, benefitTypeName }) => {
   return (
     <div data-testid="fee-breakdown" className={styles['fee-breakdown']}>
       <h3 className={styles['fee-breakdown__title']}>Rincian Biaya</h3>
       <dl className={styles['fee-breakdown__list']}>
         <div className={styles['fee-breakdown__row']}>
           <dt className={styles['fee-breakdown__label']}>Layanan</dt>
-          <dd className={styles['fee-breakdown__value']}>{serviceTypeName}</dd>
+          <dd className={styles['fee-breakdown__value']}>{benefitTypeName}</dd>
         </div>
         <div className={styles['fee-breakdown__row']}>
           <dt className={styles['fee-breakdown__label']}>Penggunaan</dt>

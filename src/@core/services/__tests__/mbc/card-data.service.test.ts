@@ -22,7 +22,7 @@ const isoTimestampArb = fc
   })
   .map(ms => new Date(ms).toISOString());
 
-const serviceTypeIdArb = fc
+const benefitTypeIdArb = fc
   .stringMatching(/^[a-z][a-z0-9-]{0,19}$/)
   .filter(s => s.length >= 1);
 
@@ -33,8 +33,8 @@ const deviceIdArb = fc
 const transactionEntryArb = fc.record({
   amount: fc.integer({ min: -1000000, max: 1000000 }),
   timestamp: isoTimestampArb,
-  activityType: serviceTypeIdArb,
-  serviceTypeId: serviceTypeIdArb,
+  activityType: benefitTypeIdArb,
+  benefitTypeId: benefitTypeIdArb,
 });
 
 const transactionsArb = fc.array(transactionEntryArb, {
@@ -44,7 +44,7 @@ const transactionsArb = fc.array(transactionEntryArb, {
 
 const checkInStatusArb = fc.record({
   timestamp: isoTimestampArb,
-  serviceTypeId: serviceTypeIdArb,
+  benefitTypeId: benefitTypeIdArb,
   deviceId: deviceIdArb,
 });
 
@@ -196,11 +196,11 @@ describe('CardDataService', () => {
         fc.property(
           cardCheckedInArb,
           isoTimestampArb,
-          serviceTypeIdArb,
+          benefitTypeIdArb,
           deviceIdArb,
-          (card, timestamp, serviceTypeId, deviceId) => {
+          (card, timestamp, benefitTypeId, deviceId) => {
             expect(() =>
-              service.applyCheckIn(card, serviceTypeId, deviceId, timestamp),
+              service.applyCheckIn(card, benefitTypeId, deviceId, timestamp),
             ).toThrow(
               'Cannot check in: card already has an active check-in session',
             );

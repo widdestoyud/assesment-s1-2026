@@ -4,12 +4,12 @@ import type {
   FeeResult,
   NfcCapabilityStatus,
   NfcStatus,
-  ServiceType,
+  BenefitType,
 } from '@core/services/mbc/models';
 
 export interface ManualCalcFormData {
   checkInTimestamp: string;
-  serviceTypeId: string;
+  benefitTypeId: string;
 }
 
 export interface TerminalControllerInterface {
@@ -22,7 +22,7 @@ export interface TerminalControllerInterface {
   onToggleManualMode: () => void;
   onManualCalculate: (data: ManualCalcFormData) => Promise<void>;
   manualResult: FeeResult | null;
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
   // NFC capability
   nfcCapability: NfcCapabilityStatus;
   // Actions
@@ -37,7 +37,7 @@ const TerminalController = (
     | 'useCallback'
     | 'checkOutUseCase'
     | 'manualCalculationUseCase'
-    | 'manageServiceRegistryUseCase'
+    | 'manageBenefitRegistryUseCase'
     | 'deviceService'
     | 'nfcService'
   >,
@@ -48,7 +48,7 @@ const TerminalController = (
     useCallback,
     checkOutUseCase,
     manualCalculationUseCase,
-    manageServiceRegistryUseCase,
+    manageBenefitRegistryUseCase,
     deviceService,
     nfcService,
   } = deps;
@@ -59,7 +59,7 @@ const TerminalController = (
   const [error, setError] = useState<string | null>(null);
   const [isManualMode, setIsManualMode] = useState(false);
   const [manualResult, setManualResult] = useState<FeeResult | null>(null);
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
   const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
@@ -72,8 +72,8 @@ const TerminalController = (
       const { deviceId } = await deviceService.ensureDeviceId();
       setCurrentDeviceId(deviceId);
 
-      const types = await manageServiceRegistryUseCase.getAll();
-      setServiceTypes(types);
+      const types = await manageBenefitRegistryUseCase.getAll();
+      setBenefitTypes(types);
     };
     init();
   }, []);
@@ -111,7 +111,7 @@ const TerminalController = (
     try {
       const result = await manualCalculationUseCase.execute({
         checkInTimestamp: data.checkInTimestamp,
-        serviceTypeId: data.serviceTypeId,
+        benefitTypeId: data.benefitTypeId,
       });
       setManualResult(result);
     } catch (err: unknown) {
@@ -128,7 +128,7 @@ const TerminalController = (
     onToggleManualMode,
     onManualCalculate,
     manualResult,
-    serviceTypes,
+    benefitTypes,
     nfcCapability,
     onCheckOut,
   };

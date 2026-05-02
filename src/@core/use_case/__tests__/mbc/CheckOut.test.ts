@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { CardData, ServiceType } from '@core/services/mbc/models';
+import type { CardData, BenefitType } from '@core/services/mbc/models';
 import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 import type { PricingServiceInterface } from '@core/services/mbc/pricing.service';
-import type { ServiceRegistryServiceInterface } from '@core/services/mbc/service-registry.service';
+import type { BenefitRegistryServiceInterface } from '@core/services/mbc/benefit-registry.service';
 
 import { CheckOutUseCase } from '../../mbc/CheckOut';
 
-const PARKING_SERVICE: ServiceType = {
+const PARKING_BENEFIT: BenefitType = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',
@@ -22,7 +22,7 @@ const CHECKED_IN_CARD: CardData = {
   balance: 50000,
   checkIn: {
     timestamp: '2024-01-01T10:00:00.000Z',
-    serviceTypeId: 'parking',
+    benefitTypeId: 'parking',
     deviceId: 'device-123',
   },
   transactions: [],
@@ -67,16 +67,16 @@ function createMocks(cardData: CardData = CHECKED_IN_CARD) {
     }),
   };
 
-  const serviceRegistryService: ServiceRegistryServiceInterface = {
-    getAll: vi.fn().mockResolvedValue([PARKING_SERVICE]),
-    getById: vi.fn().mockResolvedValue(PARKING_SERVICE),
+  const benefitRegistryService: BenefitRegistryServiceInterface = {
+    getAll: vi.fn().mockResolvedValue([PARKING_BENEFIT]),
+    getById: vi.fn().mockResolvedValue(PARKING_BENEFIT),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     initializeDefaults: vi.fn().mockResolvedValue(undefined),
   };
 
-  return { nfcService, cardDataService, silentShieldService, pricingService, serviceRegistryService };
+  return { nfcService, cardDataService, silentShieldService, pricingService, benefitRegistryService };
 }
 
 describe('CheckOutUseCase', () => {
@@ -86,7 +86,7 @@ describe('CheckOutUseCase', () => {
 
     const result = await useCase.execute({ currentDeviceId: 'device-123' });
 
-    expect(result.serviceTypeName).toBe('Parkir');
+    expect(result.benefitTypeName).toBe('Parkir');
     expect(result.fee).toBe(6000);
     expect(result.remainingBalance).toBe(44000);
     expect(result.feeBreakdown.usageUnits).toBe(3);
@@ -114,7 +114,7 @@ describe('CheckOutUseCase', () => {
 
   it('rejects when service type not found', async () => {
     const mocks = createMocks();
-    (mocks.serviceRegistryService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+    (mocks.benefitRegistryService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
     const useCase = CheckOutUseCase(mocks);
 
     await expect(

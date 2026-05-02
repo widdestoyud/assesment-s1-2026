@@ -7,7 +7,7 @@ import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shi
 import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
 import type { DeviceServiceInterface } from '@core/services/mbc/device.service';
 import type { StorageHealthServiceInterface } from '@core/services/mbc/storage-health.service';
-import type { ServiceRegistryServiceInterface } from '@core/services/mbc/service-registry.service';
+import type { BenefitRegistryServiceInterface } from '@core/services/mbc/benefit-registry.service';
 
 import { PricingService } from '@core/services/mbc/pricing.service';
 import { CardDataService } from '@core/services/mbc/card-data.service';
@@ -15,7 +15,7 @@ import { SilentShieldService } from '@core/services/mbc/silent-shield.service';
 import { NfcService } from '@core/services/mbc/nfc.service';
 import { DeviceService } from '@core/services/mbc/device.service';
 import { StorageHealthService } from '@core/services/mbc/storage-health.service';
-import { ServiceRegistryService } from '@core/services/mbc/service-registry.service';
+import { BenefitRegistryService } from '@core/services/mbc/benefit-registry.service';
 
 export function registerMbcServiceModules(container: AwilixContainer) {
   container.register({
@@ -28,7 +28,7 @@ export function registerMbcServiceModules(container: AwilixContainer) {
     nfcService: asFunction(NfcService).singleton(),
     deviceService: asFunction(DeviceService).singleton(),
     storageHealthService: asFunction(StorageHealthService).singleton(),
-    serviceRegistryService: asFunction(ServiceRegistryService).singleton(),
+    benefitRegistryService: asFunction(BenefitRegistryService).singleton(),
   });
 }
 
@@ -39,5 +39,5 @@ export interface MbcServiceContainerInterface {
   nfcService: NfcServiceInterface;
   deviceService: DeviceServiceInterface;
   storageHealthService: StorageHealthServiceInterface;
-  serviceRegistryService: ServiceRegistryServiceInterface;
+  benefitRegistryService: BenefitRegistryServiceInterface;
 }

@@ -5,7 +5,7 @@ import type { StationControllerInterface } from '@controllers/mbc/station.contro
 import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import BalanceDisplay from '@components/BalanceDisplay';
-import ServiceTypeForm from '@components/ServiceTypeForm';
+import BenefitTypeForm from '@components/BenefitTypeForm';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './mbc-station.module.css';
 
@@ -111,14 +111,14 @@ const MbcStation: FC = () => {
       {/* Service Config Tab */}
       {activeTab === 'config' && (
         <div className={styles['mbc-station__section']}>
-          <ServiceTypeForm onSubmit={(data) => ctrl.onAddServiceType(data)} />
+          <BenefitTypeForm onSubmit={(data) => ctrl.onAddBenefitType(data)} />
           <div className={styles['mbc-station__config-list']}>
             <h3 className={styles['mbc-station__config-heading']}>Service Types Terdaftar</h3>
-            {ctrl.serviceTypes.length === 0 ? (
-              <p className={styles['mbc-station__config--empty']}>Belum ada service type</p>
+            {ctrl.benefitTypes.length === 0 ? (
+              <p className={styles['mbc-station__config--empty']}>Belum ada benefit type</p>
             ) : (
               <ul className={styles['mbc-station__config-list']}>
-                {ctrl.serviceTypes.map((st) => (
+                {ctrl.benefitTypes.map((st) => (
                   <li key={st.id} className={styles['mbc-station__config-item']}>
                     <div>
                       <p className={styles['mbc-station__config-item-name']}>{st.displayName}</p>
@@ -126,7 +126,7 @@ const MbcStation: FC = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => ctrl.onRemoveServiceType(st.id)}
+                      onClick={() => ctrl.onRemoveBenefitType(st.id)}
                       className={styles['mbc-station__remove-button']}
                       aria-label={`Hapus ${st.displayName}`}
                     >

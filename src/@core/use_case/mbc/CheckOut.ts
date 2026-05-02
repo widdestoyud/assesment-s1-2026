@@ -17,7 +17,7 @@ export const CheckOutUseCase = (
     | 'cardDataService'
     | 'silentShieldService'
     | 'pricingService'
-    | 'serviceRegistryService'
+    | 'benefitRegistryService'
   >,
 ): CheckOutUseCaseInterface => {
   const {
@@ -25,7 +25,7 @@ export const CheckOutUseCase = (
     cardDataService,
     silentShieldService,
     pricingService,
-    serviceRegistryService,
+    benefitRegistryService,
   } = deps;
 
   const execute = async (input: CheckOutInput): Promise<CheckOutResult> => {
@@ -50,12 +50,12 @@ export const CheckOutUseCase = (
     }
 
     // Step 4: Lookup service type from registry
-    const serviceType = await serviceRegistryService.getById(
-      cardData.checkIn.serviceTypeId,
+    const serviceType = await benefitRegistryService.getById(
+      cardData.checkIn.benefitTypeId,
     );
     if (!serviceType) {
       throw new Error(
-        `Service type "${cardData.checkIn.serviceTypeId}" not found in registry. ` +
+        `Service type "${cardData.checkIn.benefitTypeId}" not found in registry. ` +
           'Please reconfigure service types at The Station.',
       );
     }
@@ -118,7 +118,7 @@ export const CheckOutUseCase = (
     const duration = formatDuration(cardData.checkIn.timestamp, exitTime);
 
     return {
-      serviceTypeName: serviceType.displayName,
+      benefitTypeName: serviceType.displayName,
       entryTime: cardData.checkIn.timestamp,
       exitTime,
       duration,

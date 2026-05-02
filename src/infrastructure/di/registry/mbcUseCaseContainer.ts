@@ -7,7 +7,7 @@ import type { CheckInUseCaseInterface } from '@core/use_case/mbc/CheckIn';
 import type { CheckOutUseCaseInterface } from '@core/use_case/mbc/CheckOut';
 import type { ReadCardUseCaseInterface } from '@core/use_case/mbc/ReadCard';
 import type { ManualCalculationUseCaseInterface } from '@core/use_case/mbc/ManualCalculation';
-import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/ManageServiceRegistry';
+import type { ManageBenefitRegistryUseCaseInterface } from '@core/use_case/mbc/ManageBenefitRegistry';
 
 import { RegisterMemberUseCase } from '@core/use_case/mbc/RegisterMember';
 import { TopUpBalanceUseCase } from '@core/use_case/mbc/TopUpBalance';
@@ -15,7 +15,7 @@ import { CheckInUseCase } from '@core/use_case/mbc/CheckIn';
 import { CheckOutUseCase } from '@core/use_case/mbc/CheckOut';
 import { ReadCardUseCase } from '@core/use_case/mbc/ReadCard';
 import { ManualCalculationUseCase } from '@core/use_case/mbc/ManualCalculation';
-import { ManageServiceRegistryUseCase } from '@core/use_case/mbc/ManageServiceRegistry';
+import { ManageBenefitRegistryUseCase } from '@core/use_case/mbc/ManageBenefitRegistry';
 
 export function registerMbcUseCaseModules(container: AwilixContainer) {
   container.register({
@@ -25,7 +25,7 @@ export function registerMbcUseCaseModules(container: AwilixContainer) {
     checkOutUseCase: asFunction(CheckOutUseCase),
     readCardUseCase: asFunction(ReadCardUseCase),
     manualCalculationUseCase: asFunction(ManualCalculationUseCase),
-    manageServiceRegistryUseCase: asFunction(ManageServiceRegistryUseCase).singleton(),
+    manageBenefitRegistryUseCase: asFunction(ManageBenefitRegistryUseCase).singleton(),
   });
 }
 
@@ -36,5 +36,5 @@ export interface MbcUseCaseContainerInterface {
   checkOutUseCase: CheckOutUseCaseInterface;
   readCardUseCase: ReadCardUseCaseInterface;
   manualCalculationUseCase: ManualCalculationUseCaseInterface;
-  manageServiceRegistryUseCase: ManageServiceRegistryUseCaseInterface;
+  manageBenefitRegistryUseCase: ManageBenefitRegistryUseCaseInterface;
 }

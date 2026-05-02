@@ -1,7 +1,7 @@
 export const MBC_KEYS = {
   // Storage keys
   MBC_DEVICE_ID: 'mbc-device-id',
-  MBC_SERVICE_REGISTRY: 'mbc-service-registry',
+  MBC_SERVICE_REGISTRY: 'mbc-benefit-registry',
 
   // Storage config
   MBC_STORE_NAME: 'mbc-config',

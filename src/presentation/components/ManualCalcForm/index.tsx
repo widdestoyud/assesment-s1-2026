@@ -1,35 +1,35 @@
 import type { FC, FormEvent } from 'react';
 import { useState } from 'react';
-import type { ServiceType } from '@core/services/mbc/models';
+import type { BenefitType } from '@core/services/mbc/models';
 import styles from './manual-calc-form.module.css';
 
 export interface ManualCalcFormData {
   checkInTimestamp: string;
-  serviceTypeId: string;
+  benefitTypeId: string;
 }
 
 export interface ManualCalcFormProps {
   onSubmit: (data: ManualCalcFormData) => void;
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
   isActive: boolean;
 }
 
 const ManualCalcForm: FC<ManualCalcFormProps> = ({
   onSubmit,
-  serviceTypes,
+  benefitTypes,
   isActive,
 }) => {
   const [checkInTimestamp, setCheckInTimestamp] = useState('');
-  const [serviceTypeId, setServiceTypeId] = useState('');
+  const [benefitTypeId, setBenefitTypeId] = useState('');
 
   if (!isActive) return null;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!checkInTimestamp || !serviceTypeId) return;
+    if (!checkInTimestamp || !benefitTypeId) return;
     onSubmit({
       checkInTimestamp: new Date(checkInTimestamp).toISOString(),
-      serviceTypeId,
+      benefitTypeId,
     });
   };
 
@@ -58,13 +58,13 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
           </label>
           <select
             id="mc-service"
-            value={serviceTypeId}
-            onChange={(e) => setServiceTypeId(e.target.value)}
+            value={benefitTypeId}
+            onChange={(e) => setBenefitTypeId(e.target.value)}
             required
             className={styles['manual-calc-form__select']}
           >
             <option value="" disabled>-- Pilih layanan --</option>
-            {serviceTypes.map((st) => (
+            {benefitTypes.map((st) => (
               <option key={st.id} value={st.id}>{st.displayName}</option>
             ))}
           </select>

@@ -13,8 +13,8 @@ const REGISTERED_CARD: CardData = {
   balance: 25000,
   checkIn: null,
   transactions: [
-    { amount: 50000, timestamp: '2024-01-01T09:00:00.000Z', activityType: 'top-up', serviceTypeId: 'top-up' },
-    { amount: -6000, timestamp: '2024-01-01T13:00:00.000Z', activityType: 'parking-fee', serviceTypeId: 'parking' },
+    { amount: 50000, timestamp: '2024-01-01T09:00:00.000Z', activityType: 'top-up', benefitTypeId: 'top-up' },
+    { amount: -6000, timestamp: '2024-01-01T13:00:00.000Z', activityType: 'parking-fee', benefitTypeId: 'parking' },
   ],
 };
 

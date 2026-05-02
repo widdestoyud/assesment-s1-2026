@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ServiceType } from '@core/services/mbc/models';
+import type { BenefitType } from '@core/services/mbc/models';
 import type { PricingServiceInterface } from '@core/services/mbc/pricing.service';
-import type { ServiceRegistryServiceInterface } from '@core/services/mbc/service-registry.service';
+import type { BenefitRegistryServiceInterface } from '@core/services/mbc/benefit-registry.service';
 
 import { ManualCalculationUseCase } from '../../mbc/ManualCalculation';
 
-const PARKING_SERVICE: ServiceType = {
+const PARKING_BENEFIT: BenefitType = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',
@@ -24,16 +24,16 @@ function createMocks() {
     }),
   };
 
-  const serviceRegistryService: ServiceRegistryServiceInterface = {
-    getAll: vi.fn().mockResolvedValue([PARKING_SERVICE]),
-    getById: vi.fn().mockResolvedValue(PARKING_SERVICE),
+  const benefitRegistryService: BenefitRegistryServiceInterface = {
+    getAll: vi.fn().mockResolvedValue([PARKING_BENEFIT]),
+    getById: vi.fn().mockResolvedValue(PARKING_BENEFIT),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     initializeDefaults: vi.fn().mockResolvedValue(undefined),
   };
 
-  return { pricingService, serviceRegistryService };
+  return { pricingService, benefitRegistryService };
 }
 
 describe('ManualCalculationUseCase', () => {
@@ -43,7 +43,7 @@ describe('ManualCalculationUseCase', () => {
 
     const result = await useCase.execute({
       checkInTimestamp: '2024-01-01T10:00:00.000Z',
-      serviceTypeId: 'parking',
+      benefitTypeId: 'parking',
     });
 
     expect(result.fee).toBe(4000);
@@ -54,13 +54,13 @@ describe('ManualCalculationUseCase', () => {
 
   it('rejects when service type not found', async () => {
     const mocks = createMocks();
-    (mocks.serviceRegistryService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+    (mocks.benefitRegistryService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
     const useCase = ManualCalculationUseCase(mocks);
 
     await expect(
       useCase.execute({
         checkInTimestamp: '2024-01-01T10:00:00.000Z',
-        serviceTypeId: 'nonexistent',
+        benefitTypeId: 'nonexistent',
       }),
     ).rejects.toThrow('not found in registry');
   });
@@ -72,7 +72,7 @@ describe('ManualCalculationUseCase', () => {
     await expect(
       useCase.execute({
         checkInTimestamp: 'not-a-date',
-        serviceTypeId: 'parking',
+        benefitTypeId: 'parking',
       }),
     ).rejects.toThrow('Invalid check-in timestamp');
   });
@@ -83,7 +83,7 @@ describe('ManualCalculationUseCase', () => {
 
     await useCase.execute({
       checkInTimestamp: '2024-01-01T10:00:00.000Z',
-      serviceTypeId: 'parking',
+      benefitTypeId: 'parking',
     });
 
     // ManualCalculation should never touch NFC

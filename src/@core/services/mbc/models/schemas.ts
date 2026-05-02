@@ -10,7 +10,7 @@ export const CardDataSchema = z.object({
   checkIn: z
     .object({
       timestamp: z.string().datetime(),
-      serviceTypeId: z.string().min(1),
+      benefitTypeId: z.string().min(1),
       deviceId: z.string().min(1),
     })
     .nullable(),
@@ -20,13 +20,13 @@ export const CardDataSchema = z.object({
         amount: z.number().int(),
         timestamp: z.string().datetime(),
         activityType: z.string().min(1),
-        serviceTypeId: z.string().min(1),
+        benefitTypeId: z.string().min(1),
       }),
     )
     .max(5),
 });
 
-export const ServiceTypeFormSchema = z.object({
+export const BenefitTypeFormSchema = z.object({
   id: z
     .string()
     .min(1)
@@ -56,11 +56,11 @@ export const TopUpFormSchema = z.object({
 
 export const ManualCalcFormSchema = z.object({
   checkInTimestamp: z.string().datetime(),
-  serviceTypeId: z.string().min(1),
+  benefitTypeId: z.string().min(1),
 });
 
 export type CardDataSchemaType = z.infer<typeof CardDataSchema>;
-export type ServiceTypeFormSchemaType = z.infer<typeof ServiceTypeFormSchema>;
+export type BenefitTypeFormSchemaType = z.infer<typeof BenefitTypeFormSchema>;
 export type RegistrationFormSchemaType = z.infer<typeof RegistrationFormSchema>;
 export type TopUpFormSchemaType = z.infer<typeof TopUpFormSchema>;
 export type ManualCalcFormSchemaType = z.infer<typeof ManualCalcFormSchema>;

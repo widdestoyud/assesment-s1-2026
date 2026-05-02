@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { KeyValueStoreProtocol } from '@core/protocols/key-value-store';
-import type { ServiceType } from '@core/services/mbc/models';
+import type { BenefitType } from '@core/services/mbc/models';
 
-import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
-import { ServiceRegistryService } from '../../mbc/service-registry.service';
+import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
+import { BenefitRegistryService } from '../../mbc/benefit-registry.service';
 import { MBC_KEYS } from '@utils/constants/mbc-keys';
 
 const STORE_NAME = MBC_KEYS.MBC_STORE_NAME;
 const REGISTRY_KEY = MBC_KEYS.MBC_SERVICE_REGISTRY;
 
-const BIKE_RENTAL: ServiceType = {
+const BIKE_RENTAL: BenefitType = {
   id: 'bike-rental',
   displayName: 'Sewa Sepeda',
   activityType: 'bike-rental',
@@ -22,15 +22,15 @@ const BIKE_RENTAL: ServiceType = {
 };
 
 function createMockStore(
-  initialData: ServiceType[] = [],
+  initialData: BenefitType[] = [],
 ): KeyValueStoreProtocol {
-  let stored: ServiceType[] = [...initialData];
+  let stored: BenefitType[] = [...initialData];
 
   return {
     get: vi.fn().mockImplementation((_s: string, _k: string) =>
       Promise.resolve(stored.length > 0 ? stored : undefined),
     ),
-    set: vi.fn().mockImplementation((_s: string, _k: string, value: ServiceType[]) => {
+    set: vi.fn().mockImplementation((_s: string, _k: string, value: BenefitType[]) => {
       stored = [...value];
       return Promise.resolve();
     }),
@@ -40,24 +40,24 @@ function createMockStore(
   };
 }
 
-describe('ServiceRegistryService', () => {
+describe('BenefitRegistryService', () => {
   describe('initializeDefaults', () => {
-    it('creates default parking service when registry is empty', async () => {
+    it('creates default parking benefit when registry is empty', async () => {
       const store = createMockStore([]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await service.initializeDefaults();
 
       expect(store.set).toHaveBeenCalledWith(
         STORE_NAME,
         REGISTRY_KEY,
-        [DEFAULT_PARKING_SERVICE],
+        [DEFAULT_PARKING_BENEFIT],
       );
     });
 
     it('does not overwrite existing registry', async () => {
       const store = createMockStore([BIKE_RENTAL]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await service.initializeDefaults();
 
@@ -66,9 +66,9 @@ describe('ServiceRegistryService', () => {
   });
 
   describe('getAll', () => {
-    it('returns all registered service types', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE, BIKE_RENTAL]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('returns all registered benefit types', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT, BIKE_RENTAL]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       const result = await service.getAll();
 
@@ -79,7 +79,7 @@ describe('ServiceRegistryService', () => {
 
     it('returns empty array when registry is empty', async () => {
       const store = createMockStore([]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       const result = await service.getAll();
 
@@ -87,22 +87,22 @@ describe('ServiceRegistryService', () => {
     });
 
     it('filters out corrupted entries', async () => {
-      const corruptedEntry = { id: '', displayName: '' } as unknown as ServiceType;
-      const store = createMockStore([DEFAULT_PARKING_SERVICE, corruptedEntry]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const corruptedEntry = { id: '', displayName: '' } as unknown as BenefitType;
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT, corruptedEntry]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       const result = await service.getAll();
 
-      // Only the valid parking service should remain
+      // Only the valid parking benefit should remain
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('parking');
     });
   });
 
   describe('getById', () => {
-    it('returns the service type when found', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE, BIKE_RENTAL]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('returns the benefit type when found', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT, BIKE_RENTAL]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       const result = await service.getById('bike-rental');
 
@@ -112,8 +112,8 @@ describe('ServiceRegistryService', () => {
     });
 
     it('returns undefined when not found', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       const result = await service.getById('nonexistent');
 
@@ -122,9 +122,9 @@ describe('ServiceRegistryService', () => {
   });
 
   describe('add', () => {
-    it('adds a valid service type to the registry', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('adds a valid benefit type to the registry', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await service.add(BIKE_RENTAL);
 
@@ -139,33 +139,33 @@ describe('ServiceRegistryService', () => {
     });
 
     it('throws on duplicate ID', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
-      await expect(service.add(DEFAULT_PARKING_SERVICE)).rejects.toThrow(
+      await expect(service.add(DEFAULT_PARKING_BENEFIT)).rejects.toThrow(
         'already exists',
       );
     });
 
-    it('throws on invalid service type data', async () => {
+    it('throws on invalid benefit type data', async () => {
       const store = createMockStore([]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       const invalid = {
         id: '',
         displayName: '',
         activityType: '',
         pricing: { ratePerUnit: -1, unitType: 'invalid', roundingStrategy: 'ceiling' },
-      } as unknown as ServiceType;
+      } as unknown as BenefitType;
 
-      await expect(service.add(invalid)).rejects.toThrow('Invalid service type');
+      await expect(service.add(invalid)).rejects.toThrow('Invalid benefit type');
     });
   });
 
   describe('update', () => {
-    it('updates an existing service type', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('updates an existing benefit type', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await service.update('parking', { displayName: 'Parkir Mobil' });
 
@@ -181,9 +181,9 @@ describe('ServiceRegistryService', () => {
       );
     });
 
-    it('throws when service type not found', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('throws when benefit type not found', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await expect(
         service.update('nonexistent', { displayName: 'Test' }),
@@ -191,10 +191,10 @@ describe('ServiceRegistryService', () => {
     });
 
     it('preserves the original ID even if updates try to change it', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
-      // The update method signature prevents changing ID via Omit<ServiceType, 'id'>
+      // The update method signature prevents changing ID via Omit<BenefitType, 'id'>
       await service.update('parking', { displayName: 'Updated Parkir' });
 
       expect(store.set).toHaveBeenCalledWith(
@@ -207,19 +207,19 @@ describe('ServiceRegistryService', () => {
     });
 
     it('validates the updated entry', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await expect(
         service.update('parking', { displayName: '' }),
-      ).rejects.toThrow('Invalid service type after update');
+      ).rejects.toThrow('Invalid benefit type after update');
     });
   });
 
   describe('remove', () => {
-    it('removes an existing service type', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE, BIKE_RENTAL]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('removes an existing benefit type', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT, BIKE_RENTAL]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await service.remove('bike-rental');
 
@@ -231,20 +231,20 @@ describe('ServiceRegistryService', () => {
         ]),
       );
       // Verify bike-rental is not in the saved array
-      const savedArg = (store.set as ReturnType<typeof vi.fn>).mock.calls[0][2] as ServiceType[];
+      const savedArg = (store.set as ReturnType<typeof vi.fn>).mock.calls[0][2] as BenefitType[];
       expect(savedArg.find(s => s.id === 'bike-rental')).toBeUndefined();
     });
 
-    it('throws when service type not found', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('throws when benefit type not found', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await expect(service.remove('nonexistent')).rejects.toThrow('not found');
     });
 
-    it('can remove the last service type leaving empty registry', async () => {
-      const store = createMockStore([DEFAULT_PARKING_SERVICE]);
-      const service = ServiceRegistryService({ keyValueStore: store });
+    it('can remove the last benefit type leaving empty registry', async () => {
+      const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
+      const service = BenefitRegistryService({ keyValueStore: store });
 
       await service.remove('parking');
 

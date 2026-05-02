@@ -3,7 +3,7 @@ import type {
   NfcCapabilityStatus,
   NfcStatus,
   OperationResult,
-  ServiceType,
+  BenefitType,
 } from '@core/services/mbc/models';
 
 export interface RegistrationFormData {
@@ -20,12 +20,12 @@ export interface StationControllerInterface {
   onRegister: (data: RegistrationFormData) => Promise<void>;
   // Top-up
   onTopUp: (data: TopUpFormData) => Promise<void>;
-  // Service config
-  serviceTypes: ServiceType[];
-  onAddServiceType: (serviceType: ServiceType) => Promise<void>;
-  onEditServiceType: (id: string, updates: Partial<Omit<ServiceType, 'id'>>) => Promise<void>;
-  onRemoveServiceType: (id: string) => Promise<void>;
-  onRefreshServiceTypes: () => Promise<void>;
+  // Benefit config
+  benefitTypes: BenefitType[];
+  onAddBenefitType: (benefitType: BenefitType) => Promise<void>;
+  onEditBenefitType: (id: string, updates: Partial<Omit<BenefitType, 'id'>>) => Promise<void>;
+  onRemoveBenefitType: (id: string) => Promise<void>;
+  onRefreshBenefitTypes: () => Promise<void>;
   // NFC state
   nfcStatus: NfcStatus;
   lastResult: OperationResult | null;
@@ -45,7 +45,7 @@ const StationController = (
     | 'useCallback'
     | 'registerMemberUseCase'
     | 'topUpBalanceUseCase'
-    | 'manageServiceRegistryUseCase'
+    | 'manageBenefitRegistryUseCase'
     | 'storageHealthService'
     | 'nfcService'
   >,
@@ -56,7 +56,7 @@ const StationController = (
     useCallback,
     registerMemberUseCase,
     topUpBalanceUseCase,
-    manageServiceRegistryUseCase,
+    manageBenefitRegistryUseCase,
     storageHealthService,
     nfcService,
   } = deps;
@@ -65,7 +65,7 @@ const StationController = (
   const [lastResult, setLastResult] = useState<OperationResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
@@ -81,9 +81,9 @@ const StationController = (
         setStorageWarning(health.error.message);
       }
 
-      // Load service types
-      const types = await manageServiceRegistryUseCase.getAll();
-      setServiceTypes(types);
+      // Load benefit types
+      const types = await manageBenefitRegistryUseCase.getAll();
+      setBenefitTypes(types);
     };
     init();
   }, []);
@@ -130,37 +130,37 @@ const StationController = (
     }
   }, [isProcessing]);
 
-  const onRefreshServiceTypes = useCallback(async () => {
-    const types = await manageServiceRegistryUseCase.getAll();
-    setServiceTypes(types);
+  const onRefreshBenefitTypes = useCallback(async () => {
+    const types = await manageBenefitRegistryUseCase.getAll();
+    setBenefitTypes(types);
   }, []);
 
-  const onAddServiceType = useCallback(async (serviceType: ServiceType) => {
-    await manageServiceRegistryUseCase.add(serviceType);
-    await onRefreshServiceTypes();
+  const onAddBenefitType = useCallback(async (benefitType: BenefitType) => {
+    await manageBenefitRegistryUseCase.add(benefitType);
+    await onRefreshBenefitTypes();
   }, []);
 
-  const onEditServiceType = useCallback(async (
+  const onEditBenefitType = useCallback(async (
     id: string,
-    updates: Partial<Omit<ServiceType, 'id'>>,
+    updates: Partial<Omit<BenefitType, 'id'>>,
   ) => {
-    await manageServiceRegistryUseCase.update(id, updates);
-    await onRefreshServiceTypes();
+    await manageBenefitRegistryUseCase.update(id, updates);
+    await onRefreshBenefitTypes();
   }, []);
 
-  const onRemoveServiceType = useCallback(async (id: string) => {
-    await manageServiceRegistryUseCase.remove(id);
-    await onRefreshServiceTypes();
+  const onRemoveBenefitType = useCallback(async (id: string) => {
+    await manageBenefitRegistryUseCase.remove(id);
+    await onRefreshBenefitTypes();
   }, []);
 
   return {
     onRegister,
     onTopUp,
-    serviceTypes,
-    onAddServiceType,
-    onEditServiceType,
-    onRemoveServiceType,
-    onRefreshServiceTypes,
+    benefitTypes,
+    onAddBenefitType,
+    onEditBenefitType,
+    onRemoveBenefitType,
+    onRefreshBenefitTypes,
     nfcStatus,
     lastResult,
     isProcessing,
