@@ -210,7 +210,7 @@ feat(mbc): Implement pricing.service with configurable strategies
 
 - Per-hour ceiling calculation
 - Per-visit flat fee
-- Configurable via ServiceType
+- Configurable via BenefitType
 
 Closes #1
 ```

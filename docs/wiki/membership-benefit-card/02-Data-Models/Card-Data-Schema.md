@@ -14,8 +14,8 @@ erDiagram
     CardData ||--|| MemberIdentity : contains
     CardData ||--o| CheckInStatus : "has optional"
     CardData ||--o{ TransactionLogEntry : "has 0..5"
-    CheckInStatus }o--|| ServiceType : "references by ID"
-    TransactionLogEntry }o--|| ServiceType : "references by ID"
+    CheckInStatus }o--|| BenefitType : "references by ID"
+    TransactionLogEntry }o--|| BenefitType : "references by ID"
 
     CardData {
         int version
@@ -27,14 +27,14 @@ erDiagram
     }
     CheckInStatus {
         string timestamp
-        string serviceTypeId
+        string benefitTypeId
         string deviceId
     }
     TransactionLogEntry {
         int amount
         string timestamp
         string activityType
-        string serviceTypeId
+        string benefitTypeId
     }
 ```
 
@@ -74,8 +74,8 @@ Present when a member is currently checked in to a service. Set to `null` when n
 export interface CheckInStatus {
   /** ISO 8601 timestamp of check-in */
   timestamp: string;
-  /** Service type identifier from Service Registry */
-  serviceTypeId: string;
+  /** Benefit type identifier from Benefit Registry */
+  benefitTypeId: string;
   /** Device_ID of the check-in device (for device binding) */
   deviceId: string;
 }
@@ -95,8 +95,8 @@ export interface TransactionLogEntry {
   timestamp: string;
   /** Activity type identifier (e.g., "top-up", "parking-fee") */
   activityType: string;
-  /** Service type identifier */
-  serviceTypeId: string;
+  /** Benefit type identifier */
+  benefitTypeId: string;
 }
 ```
 
@@ -110,7 +110,7 @@ export interface TransactionLogEntry {
 | `balance` | `number` | Non-negative integer (IDR) |
 | `checkIn` | `object \| null` | Null when not checked in |
 | `checkIn.timestamp` | `string` | ISO 8601 datetime |
-| `checkIn.serviceTypeId` | `string` | Non-empty |
+| `checkIn.benefitTypeId` | `string` | Non-empty |
 | `checkIn.deviceId` | `string` | Non-empty |
 | `transactions` | `array` | Max 5 entries |
 | `transactions[].amount` | `number` | Integer (positive or negative) |
@@ -126,13 +126,13 @@ The `CardDataService` provides pure mutation functions that return new `CardData
 |----------|--------|-----|
 | `applyRegistration(card, member)` | Sets member, balance=0, clears checkIn and transactions | Req 4 |
 | `applyTopUp(card, amount)` | Adds amount to balance, appends "top-up" transaction | Req 5 |
-| `applyCheckIn(card, serviceTypeId, deviceId, timestamp)` | Sets checkIn status. **Rejects if already checked in.** | Req 6 |
-| `applyCheckOut(card, fee, activityType, serviceTypeId, exitTimestamp)` | Deducts fee, clears checkIn, appends transaction. **Rejects if not checked in.** | Req 8 |
+| `applyCheckIn(card, benefitTypeId, deviceId, timestamp)` | Sets checkIn status. **Rejects if already checked in.** | Req 6 |
+| `applyCheckOut(card, fee, activityType, benefitTypeId, exitTimestamp)` | Deducts fee, clears checkIn, appends transaction. **Rejects if not checked in.** | Req 8 |
 | `appendTransactionLog(card, entry)` | Appends entry, trims to max 5 | Req 10 |
 
 ## Related Pages
 
-- [Service Type Model](Service-Type-Model) — ServiceType and PricingStrategy
+- [Benefit Type Model](Benefit-Type-Model) — BenefitType and PricingStrategy
 - [NFC Memory Layout](NFC-Card-Memory-Layout) — How CardData is serialized on the card
 - [Zod Validation Schemas](Zod-Validation-Schemas) — Validation rules
 - [Correctness Properties](../06-Testing/Correctness-Properties) — Properties 1, 3-7

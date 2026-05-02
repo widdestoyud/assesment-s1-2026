@@ -8,12 +8,12 @@ The application operates in four switchable role modes within a single installed
 
 | Mode | Role | Operations |
 |------|------|------------|
-| **The Station** | Admin | Member registration, balance top-up, service type configuration |
-| **The Gate** | Gate operator | Check-in recording with service type selection, simulation mode |
+| **The Station** | Admin | Member registration, balance top-up, benefit type configuration |
+| **The Gate** | Gate operator | Check-in recording with benefit type selection, simulation mode |
 | **The Terminal** | Terminal operator | Check-out processing, fee calculation & deduction, manual fallback |
 | **The Scout** | Member | Read-only card information display |
 
-The system supports an extensible service type architecture where different business scenarios (parking, bike rental, gym sessions, restaurant visits, VIP access) are configured through a Service Registry with pluggable pricing strategies (per-hour, per-visit, flat-fee).
+The system supports an extensible benefit type architecture where different business scenarios (parking, bike rental, gym sessions, restaurant visits, VIP access) are configured through a Benefit Registry with pluggable pricing strategies (per-hour, per-visit, flat-fee).
 
 ### Key Design Decisions
 
@@ -22,7 +22,7 @@ The system supports an extensible service type architecture where different busi
 3. **Atomic writes with verification** — Every NFC write captures a pre-operation snapshot, writes all changes as a unit, reads back for verification, and rolls back on any inconsistency.
 4. **Device binding** — A unique `Device_ID` generated on first launch ties each check-in session to a specific physical device, preventing cross-device check-out.
 5. **Silent Shield encryption** — Card data is encrypted/obfuscated before writing so third-party NFC readers cannot read member data in plain text. Uses AES-256-GCM via the existing `crypto-browserify` polyfill.
-6. **localStorage persistence** — Device_ID and Service Registry are persisted in localStorage with graceful error handling for unavailability and quota limits.
+6. **localStorage persistence** — Device_ID and Benefit Registry are persisted in localStorage with graceful error handling for unavailability and quota limits.
 7. **NFC capability gating** — On launch, the app detects Web NFC support and permission status. Unsupported browsers see a compatibility notice; supported browsers without permission see a permission prompt. Role modes that require NFC (Station, Gate, Terminal) are disabled until NFC is confirmed available.
 
 ### Technology Stack
@@ -50,8 +50,8 @@ Build Order (each layer only depends on layers below it):
 
   Layer 0 — Data Models & Schemas (pure types, zero dependencies)
   ├── CardData, MemberIdentity, CheckInStatus, TransactionLogEntry
-  ├── ServiceType, PricingStrategy
-  ├── Zod validation schemas (CardDataSchema, ServiceTypeFormSchema, etc.)
+  ├── BenefitType, PricingStrategy
+  ├── Zod validation schemas (CardDataSchema, BenefitTypeFormSchema, etc.)
   └── RoleMode, NfcStatus, FeeResult types
 
   Layer 1 — Pure Logic Bricks (stateless functions, no I/O)
@@ -67,11 +67,11 @@ Build Order (each layer only depends on layers below it):
   ├── nfc.service — read/write/verify using NfcProtocol + card-data + silent-shield
   ├── device.service — Device_ID lifecycle using KeyValueStoreProtocol
   ├── storage-health.service — localStorage availability and error detection
-  └── service-registry.service — CRUD using KeyValueStoreProtocol
+  └── benefit-registry.service — CRUD using KeyValueStoreProtocol
 
   Layer 4 — Use Cases (orchestrate Layer 3 services, single responsibility)
   ├── RegisterMember, TopUpBalance, CheckIn, CheckOut
-  ├── ReadCard, ManualCalculation, ManageServiceRegistry
+  ├── ReadCard, ManualCalculation, ManageBenefitRegistry
   └── Each use case is a single function: execute(input) → result
 
   Layer 5 — Controllers (compose use cases + React hooks, return view interface)
@@ -96,10 +96,10 @@ Each module does exactly one thing. No module mixes concerns.
 | `nfc.service` | Read/write/verify NFC tags | Fee calculation, card schema, storage |
 | `device.service` | Manage Device_ID lifecycle | NFC operations, pricing, UI |
 | `storage-health.service` | Detect storage availability and errors | Business logic, card data, NFC |
-| `service-registry.service` | CRUD service type configs | Pricing calculation, NFC, UI |
+| `benefit-registry.service` | CRUD benefit type configs | Pricing calculation, NFC, UI |
 | `NfcTapPrompt` component | Render tap animation + status | Fee calculation, card parsing |
 | `FeeBreakdown` component | Render fee details from props | NFC operations, data fetching |
-| `ServiceTypeSelector` component | Render service type list from props | Storage, registry management |
+| `BenefitTypeSelector` component | Render benefit type list from props | Storage, registry management |
 
 **Cohesion test:** If you can't describe what a module does in one sentence without "and", it needs to be split.
 
@@ -152,7 +152,7 @@ graph LR
         NfcSvc[nfc.service]
         DevSvc[device.service]
         HealthSvc[storage-health.service]
-        RegSvc[service-registry.service]
+        RegSvc[benefit-registry.service]
     end
 
     subgraph "Use Cases"
@@ -250,7 +250,7 @@ graph TB
             UCCheckOut[CheckOut]
             UCReadCard[ReadCard]
             UCManualCalc[ManualCalculation]
-            UCServiceCfg[ManageServiceRegistry]
+            UCServiceCfg[ManageBenefitRegistry]
         end
         subgraph Services["Services"]
             NfcSvc[nfc.service]
@@ -259,7 +259,7 @@ graph TB
             CryptoSvc[silent-shield.service]
             DeviceSvc[device.service]
             StorageSvc[storage-health.service]
-            ServiceRegSvc[service-registry.service]
+            ServiceRegSvc[benefit-registry.service]
         end
         subgraph Protocols["Protocols"]
             NfcProto[NfcProtocol]
@@ -441,15 +441,15 @@ export interface StorageError {
 }
 ```
 
-#### Service Registry Service
+#### Benefit Registry Service
 
 ```typescript
-// src/@core/services/service-registry.service.ts
-export interface ServiceRegistryServiceInterface {
-  getAll(): Promise<ServiceType[]>;
-  getById(id: string): Promise<ServiceType | undefined>;
-  add(serviceType: ServiceType): Promise<void>;
-  update(id: string, updates: Partial<ServiceType>): Promise<void>;
+// src/@core/services/benefit-registry.service.ts
+export interface BenefitRegistryServiceInterface {
+  getAll(): Promise<BenefitType[]>;
+  getById(id: string): Promise<BenefitType | undefined>;
+  add(benefitType: BenefitType): Promise<void>;
+  update(id: string, updates: Partial<BenefitType>): Promise<void>;
   remove(id: string): Promise<void>;
   initializeDefaults(): Promise<void>;
 }
@@ -475,11 +475,11 @@ export interface StationControllerInterface {
   // Top-up
   topUpForm: UseFormReturn;
   onTopUp: (data: TopUpFormData) => void;
-  // Service config
-  serviceTypes: ServiceType[];
-  onAddServiceType: (data: ServiceTypeFormData) => void;
-  onEditServiceType: (id: string, data: Partial<ServiceTypeFormData>) => void;
-  onRemoveServiceType: (id: string) => void;
+  // Benefit config
+  benefitTypes: BenefitType[];
+  onAddBenefitType: (data: BenefitTypeFormData) => void;
+  onEditBenefitType: (id: string, data: Partial<BenefitTypeFormData>) => void;
+  onRemoveBenefitType: (id: string) => void;
   // NFC state
   nfcStatus: NfcStatus;
   lastResult: OperationResult | null;
@@ -488,9 +488,9 @@ export interface StationControllerInterface {
 
 // src/controllers/mbc/gate.controller.ts
 export interface GateControllerInterface {
-  selectedServiceType: ServiceType | null;
-  serviceTypes: ServiceType[];
-  onSelectServiceType: (id: string) => void;
+  selectedBenefitType: BenefitType | null;
+  benefitTypes: BenefitType[];
+  onSelectBenefitType: (id: string) => void;
   simulationMode: boolean;
   onToggleSimulation: () => void;
   simulationTimestamp: string | null;
@@ -511,7 +511,7 @@ export interface TerminalControllerInterface {
   manualForm: UseFormReturn;
   onManualCalculate: (data: ManualCalcFormData) => void;
   manualResult: FeeResult | null;
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
 }
 
 // src/controllers/mbc/scout.controller.ts
@@ -529,8 +529,8 @@ export interface ScoutControllerInterface {
 | `NfcTapPrompt` | `@components/mbc/NfcTapPrompt/` | Animated tap prompt with status feedback |
 | `FeeBreakdown` | `@components/mbc/FeeBreakdown/` | Displays fee calculation details |
 | `TransactionLogList` | `@components/mbc/TransactionLogList/` | Renders rolling 5-entry transaction history |
-| `ServiceTypeSelector` | `@components/mbc/ServiceTypeSelector/` | Dropdown/list for selecting active service type |
-| `ServiceTypeForm` | `@components/mbc/ServiceTypeForm/` | Form for adding/editing service type config |
+| `BenefitTypeSelector` | `@components/mbc/BenefitTypeSelector/` | Dropdown/list for selecting active benefit type |
+| `BenefitTypeForm` | `@components/mbc/BenefitTypeForm/` | Form for adding/editing benefit type config |
 | `CardInfoDisplay` | `@components/mbc/CardInfoDisplay/` | Member identity, balance, status display |
 | `SimulationBanner` | `@components/mbc/SimulationBanner/` | Visual indicator when simulation mode is active |
 | `ManualCalcForm` | `@components/mbc/ManualCalcForm/` | Manual fee calculation input form |
@@ -591,7 +591,7 @@ export interface MemberIdentity {
 export interface CheckInStatus {
   /** ISO 8601 timestamp of check-in */
   timestamp: string;
-  /** Service type identifier from Service Registry */
+  /** Benefit type identifier from Benefit Registry */
   serviceTypeId: string;
   /** Device_ID of the check-in device */
   deviceId: string;
@@ -609,10 +609,10 @@ export interface TransactionLogEntry {
 }
 ```
 
-### Service Type Configuration
+### Benefit Type Configuration
 
 ```typescript
-export interface ServiceType {
+export interface BenefitType {
   /** Unique identifier (e.g., "parking", "bike-rental") */
   id: string;
   /** Display name (e.g., "Parkir", "Sewa Sepeda") */
@@ -632,8 +632,8 @@ export interface PricingStrategy {
   roundingStrategy: 'ceiling' | 'floor' | 'nearest';
 }
 
-/** Default parking service type */
-export const DEFAULT_PARKING_SERVICE: ServiceType = {
+/** Default parking benefit type */
+export const DEFAULT_PARKING_BENEFIT: BenefitType = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',
@@ -723,7 +723,7 @@ export const CardDataSchema = z.object({
 
 ```typescript
 // Service type form validation
-export const ServiceTypeFormSchema = z.object({
+export const BenefitTypeFormSchema = z.object({
   id: z.string().min(1).max(30).regex(/^[a-z0-9-]+$/),
   displayName: z.string().min(1).max(50),
   activityType: z.string().min(1).max(30).regex(/^[a-z0-9-]+$/),
@@ -872,7 +872,7 @@ sequenceDiagram
 │  │         localStorage                │ │
 │  │                                     │ │
 │  │ • mbc-config:device-id             │ │
-│  │ • mbc-config:service-registry      │ │
+│  │ • mbc-config:benefit-registry      │ │
 │  └─────────────────────────────────────┘ │
 └─────────────────────────────────────────┘
 ```
@@ -881,8 +881,8 @@ sequenceDiagram
 
 1. Check if localStorage is available (`isAvailable()`)
 2. If unavailable → display informative message, app runs in degraded mode
-3. If available → read Device_ID and Service Registry
-4. Validate Service Registry data integrity with Zod schema
+3. If available → read Device_ID and Benefit Registry
+4. Validate Benefit Registry data integrity with Zod schema
 5. If data missing or corrupted → re-initialize with defaults + show warning
 6. On write failure (quota exceeded) → display clear error message to operator
 
@@ -968,7 +968,7 @@ src/
 │   │   ├── pricing.service.ts                     # Fee calculation engine
 │   │   ├── device.service.ts                      # Device_ID management
 │   │   ├── storage-health.service.ts              # localStorage availability and error detection
-│   │   ├── service-registry.service.ts            # Service type CRUD
+│   │   ├── benefit-registry.service.ts            # Benefit type CRUD
 │   │   └── __tests__/
 │   │       ├── nfc.service.test.ts
 │   │       ├── card-data.service.test.ts
@@ -976,7 +976,7 @@ src/
 │   │       ├── pricing.service.test.ts
 │   │       ├── device.service.test.ts
 │   │       ├── storage-health.service.test.ts
-│   │       └── service-registry.service.test.ts
+│   │       └── benefit-registry.service.test.ts
 │   └── use_case/
 │       ├── mbc/
 │       │   ├── RegisterMember.ts
@@ -985,7 +985,7 @@ src/
 │       │   ├── CheckOut.ts
 │       │   ├── ReadCard.ts
 │       │   ├── ManualCalculation.ts
-│       │   ├── ManageServiceRegistry.ts
+│       │   ├── ManageBenefitRegistry.ts
 │       │   └── __tests__/
 │       │       ├── RegisterMember.test.ts
 │       │       ├── TopUpBalance.test.ts
@@ -993,7 +993,7 @@ src/
 │       │       ├── CheckOut.test.ts
 │       │       ├── ReadCard.test.ts
 │       │       ├── ManualCalculation.test.ts
-│       │       └── ManageServiceRegistry.test.ts
+│       │       └── ManageBenefitRegistry.test.ts
 ├── infrastructure/
 │   ├── di/
 │   │   └── registry/
@@ -1029,12 +1029,12 @@ src/
 │   │       ├── TransactionLogList/
 │   │       │   ├── index.tsx
 │   │       │   └── transaction-log-list.module.scss
-│   │       ├── ServiceTypeSelector/
+│   │       ├── BenefitTypeSelector/
 │   │       │   ├── index.tsx
-│   │       │   └── service-type-selector.module.scss
-│   │       ├── ServiceTypeForm/
+│   │       │   └── benefit-type-selector.module.scss
+│   │       ├── BenefitTypeForm/
 │   │       │   ├── index.tsx
-│   │       │   └── service-type-form.module.scss
+│   │       │   └── benefit-type-form.module.scss
 │   │       ├── CardInfoDisplay/
 │   │       │   ├── index.tsx
 │   │       │   └── card-info-display.module.scss
@@ -1055,7 +1055,7 @@ src/
 │   │               ├── NfcTapPrompt.test.tsx
 │   │               ├── FeeBreakdown.test.tsx
 │   │               ├── TransactionLogList.test.tsx
-│   │               ├── ServiceTypeSelector.test.tsx
+│   │               ├── BenefitTypeSelector.test.tsx
 │   │               ├── CardInfoDisplay.test.tsx
 │   │               ├── RoleCard.test.tsx
 │   │               └── BalanceDisplay.test.tsx
@@ -1219,7 +1219,7 @@ These properties define the formal correctness guarantees that the system must u
 | Req 3: NFC Card Writing | NfcService.writeAndVerify, AtomicWritePipeline |
 | Req 4: Member Registration | RegisterMember use case, StationController, MbcStation page |
 | Req 5: Balance Top-Up | TopUpBalance use case, StationController, BalanceDisplay component |
-| Req 6: Generic Check-In | CheckIn use case, GateController, MbcGate page, ServiceTypeSelector |
+| Req 6: Generic Check-In | CheckIn use case, GateController, MbcGate page, BenefitTypeSelector |
 | Req 7: Simulation Mode | GateController.simulationMode, SimulationBanner component |
 | Req 8: Generic Check-Out | CheckOut use case, TerminalController, MbcTerminal page, FeeBreakdown |
 | Req 9: Card Info Display | ReadCard use case, ScoutController, CardInfoDisplay, TransactionLogList |
@@ -1228,9 +1228,9 @@ These properties define the formal correctness guarantees that the system must u
 | Req 12: Pricing Engine | PricingService.calculateFee, PricingStrategy model, FeeResult |
 | Req 13: Schema Serialization | CardDataService.serialize/deserialize, CardDataSchema (Zod), CardData model |
 | Req 14: Offline-First PWA | Service Worker (vite-plugin-pwa), web app manifest, cache-first strategy |
-| Req 15: Service Config | ManageServiceRegistry use case, ServiceRegistryService, ServiceTypeForm |
-| Req 16: Extensible Service Types | ServiceType model, PricingStrategy with per-hour/per-visit/flat-fee |
-| Req 17: Service Selection | GateController.onSelectServiceType, ServiceTypeSelector component |
+| Req 15: Service Config | ManageBenefitRegistry use case, BenefitRegistryService, BenefitTypeForm |
+| Req 16: Extensible Benefit Types | BenefitType model, PricingStrategy with per-hour/per-visit/flat-fee |
+| Req 17: Benefit Selection | GateController.onSelectBenefitType, BenefitTypeSelector component |
 | Req 18: Atomic Integrity | AtomicWritePipeline, write-lock state, snapshot/rollback mechanism |
 | Req 19: Device Binding | DeviceService, Device_ID in CheckInStatus, device match validation |
 | Req 20: Data Persistence | StorageHealthService, localStorage via KeyValueStoreProtocol, error handling, Zod validation |

@@ -7,14 +7,14 @@
 
 ## Overview
 
-The Gate is the check-in interface. It shows a service type selector, NFC tap prompt, simulation mode toggle, and check-in results.
+The Gate is the check-in interface. It shows a benefit type selector, NFC tap prompt, simulation mode toggle, and check-in results.
 
 ## Layout
 
 ```mermaid
 flowchart TD
     subgraph Gate["MbcGate Page"]
-        SvcSelector["ServiceTypeSelector<br/>(from Service Registry)"]
+        SvcSelector["BenefitTypeSelector<br/>(from Benefit Registry)"]
         SimToggle["Simulation Mode Toggle<br/>(Req 7.1)"]
 
         subgraph SimMode["Simulation Mode (when active)"]
@@ -32,7 +32,7 @@ flowchart TD
 
 | Component | Purpose |
 |-----------|---------|
-| `ServiceTypeSelector` | Select active service type for check-in |
+| `BenefitTypeSelector` | Select active benefit type for check-in |
 | `NfcTapPrompt` | Animated tap prompt with status feedback |
 | `SimulationBanner` | Visual indicator when simulation mode is active |
 
@@ -40,9 +40,9 @@ flowchart TD
 
 ```typescript
 interface GateControllerInterface {
-  selectedServiceType: ServiceType | null;
-  serviceTypes: ServiceType[];
-  onSelectServiceType: (id: string) => void;
+  selectedBenefitType: BenefitType | null;
+  benefitTypes: BenefitType[];
+  onSelectBenefitType: (id: string) => void;
   simulationMode: boolean;
   onToggleSimulation: () => void;
   simulationTimestamp: string | null;
@@ -53,12 +53,12 @@ interface GateControllerInterface {
 }
 ```
 
-## Service Type Selection Logic
+## Benefit Type Selection Logic
 
 See [Check-In Flow](../03-Business-Flows/Check-In-Flow) for the auto-select and persistence behavior.
 
 ## Related Pages
 
 - [Check-In Flow](../03-Business-Flows/Check-In-Flow) — Full check-in business flow
-- [Service Type Configuration](../03-Business-Flows/Service-Type-Configuration) — Managing service types
+- [Benefit Type Configuration](../03-Business-Flows/Benefit-Type-Configuration) — Managing benefit types
 - [Role Picker](Role-Picker) — Navigation to Gate

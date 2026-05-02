@@ -1,26 +1,26 @@
-# Service Type Configuration
+# Benefit Type Configuration
 
 > Covers: Req 15, Req 16, Req 17
-> Use Case: `ManageServiceRegistry`
+> Use Case: `ManageBenefitRegistry`
 > Controller: `station.controller`
 > Page: `MbcStation`
 
 ## Overview
 
-Service type configuration allows admins to manage the Service Registry — adding, editing, and removing service types with their pricing strategies. Only available in **The Station** mode.
+Benefit type configuration allows admins to manage the Benefit Registry — adding, editing, and removing benefit types with their pricing strategies. Only available in **The Station** mode.
 
 ## CRUD Operations
 
 ```mermaid
 flowchart TD
-    A[Station — Service Config Tab] --> B{Action}
-    B -->|Add| C[ServiceTypeForm<br/>with empty fields]
-    B -->|Edit| D[ServiceTypeForm<br/>with existing values]
+    A[Station — Benefit Config Tab] --> B{Action}
+    B -->|Add| C[BenefitTypeForm<br/>with empty fields]
+    B -->|Edit| D[BenefitTypeForm<br/>with existing values]
     B -->|Remove| E[Confirm deletion]
 
-    C -->|Submit| F[Validate via<br/>ServiceTypeFormSchema]
+    C -->|Submit| F[Validate via<br/>BenefitTypeFormSchema]
     D -->|Submit| F
-    F -->|Valid| G[Save to Service Registry]
+    F -->|Valid| G[Save to Benefit Registry]
     G --> H[Persist to localStorage]
     E -->|Confirmed| I[Remove from registry]
     I --> H
@@ -28,21 +28,21 @@ flowchart TD
     style H fill:#dbeafe,stroke:#1e40af,color:#000
 ```
 
-## Service Registry Lifecycle
+## Benefit Registry Lifecycle
 
 ```mermaid
 stateDiagram-v2
     [*] --> CheckStorage: App launch
     CheckStorage --> HasData: Registry found
     CheckStorage --> InitDefaults: No registry data
-    InitDefaults --> HasData: Created with DEFAULT_PARKING_SERVICE
+    InitDefaults --> HasData: Created with DEFAULT_PARKING_BENEFIT
     HasData --> Ready: Validated
 
     state Ready {
         [*] --> Idle
-        Idle --> Adding: Add service type
-        Idle --> Editing: Edit service type
-        Idle --> Removing: Remove service type
+        Idle --> Adding: Add benefit type
+        Idle --> Editing: Edit benefit type
+        Idle --> Removing: Remove benefit type
         Adding --> Idle: Saved
         Editing --> Idle: Saved
         Removing --> Idle: Removed
@@ -54,7 +54,7 @@ stateDiagram-v2
 On first launch (no registry data in storage), the system initializes with:
 
 ```typescript
-DEFAULT_PARKING_SERVICE = {
+DEFAULT_PARKING_BENEFIT = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',
@@ -66,9 +66,9 @@ DEFAULT_PARKING_SERVICE = {
 };
 ```
 
-See [Service Type Model](../02-Data-Models/Service-Type-Model) for the full model definition.
+See [Benefit Type Model](../02-Data-Models/Benefit-Type-Model) for the full model definition.
 
-## Supported Service Categories (Req 16)
+## Supported Benefit Categories (Req 16)
 
 | Category | Examples | Unit Type |
 |----------|----------|-----------|
@@ -78,11 +78,11 @@ See [Service Type Model](../02-Data-Models/Service-Type-Model) for the full mode
 
 ## Persistence
 
-The Service Registry is persisted via [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — localStorage with Zod validation. Data integrity is validated on each app launch (Req 20.5).
+The Benefit Registry is persisted via [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — localStorage with Zod validation. Data integrity is validated on each app launch (Req 20.5).
 
 ## Form Validation
 
-Service type forms are validated by `ServiceTypeFormSchema` — see [Zod Validation Schemas](../02-Data-Models/Zod-Validation-Schemas).
+Benefit type forms are validated by `BenefitTypeFormSchema` — see [Zod Validation Schemas](../02-Data-Models/Zod-Validation-Schemas).
 
 | Field | Rule |
 |-------|------|
@@ -95,8 +95,8 @@ Service type forms are validated by `ServiceTypeFormSchema` — see [Zod Validat
 
 ## Related Pages
 
-- [Service Type Model](../02-Data-Models/Service-Type-Model) — Data model and examples
+- [Benefit Type Model](../02-Data-Models/Benefit-Type-Model) — Data model and examples
 - [Pricing Engine](../04-Technical-Flows/Pricing-Engine) — How pricing strategies are used
-- [Check-In Flow](Check-In-Flow) — Service type selection at The Gate (Req 17)
+- [Check-In Flow](Check-In-Flow) — Benefit type selection at The Gate (Req 17)
 - [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — Persistence mechanism
 - [Station Interface](../05-UI-Components/Station-Interface) — UI layout

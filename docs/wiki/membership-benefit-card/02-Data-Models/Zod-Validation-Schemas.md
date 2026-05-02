@@ -5,7 +5,7 @@
 
 ## Overview
 
-All data entering the system is validated with Zod schemas. This includes NFC card data (on deserialization), form inputs, and service type configuration.
+All data entering the system is validated with Zod schemas. This includes NFC card data (on deserialization), form inputs, and benefit type configuration.
 
 ## CardDataSchema
 
@@ -21,14 +21,14 @@ export const CardDataSchema = z.object({
   balance: z.number().int().nonnegative(),
   checkIn: z.object({
     timestamp: z.string().datetime(),
-    serviceTypeId: z.string().min(1),
+    benefitTypeId: z.string().min(1),
     deviceId: z.string().min(1),
   }).nullable(),
   transactions: z.array(z.object({
     amount: z.number().int(),
     timestamp: z.string().datetime(),
     activityType: z.string().min(1),
-    serviceTypeId: z.string().min(1),
+    benefitTypeId: z.string().min(1),
   })).max(5),
 });
 ```
@@ -42,12 +42,12 @@ export const CardDataSchema = z.object({
 | `checkIn` | Nullable object with datetime + non-empty strings |
 | `transactions` | Array of max 5 entries, each with int amount + datetime |
 
-## ServiceTypeFormSchema
+## BenefitTypeFormSchema
 
-Validates service type configuration form input (Req 15.2).
+Validates benefit type configuration form input (Req 15.2).
 
 ```typescript
-export const ServiceTypeFormSchema = z.object({
+export const BenefitTypeFormSchema = z.object({
   id: z.string().min(1).max(30).regex(/^[a-z0-9-]+$/),
   displayName: z.string().min(1).max(50),
   activityType: z.string().min(1).max(30).regex(/^[a-z0-9-]+$/),
@@ -96,7 +96,7 @@ Validates manual calculation form input (Req 21).
 ```typescript
 export const ManualCalcFormSchema = z.object({
   checkInTimestamp: z.string().datetime(),
-  serviceTypeId: z.string().min(1),
+  benefitTypeId: z.string().min(1),
 });
 ```
 
@@ -106,7 +106,7 @@ Each schema exports an inferred TypeScript type:
 
 ```typescript
 export type CardDataSchemaType = z.infer<typeof CardDataSchema>;
-export type ServiceTypeFormSchemaType = z.infer<typeof ServiceTypeFormSchema>;
+export type BenefitTypeFormSchemaType = z.infer<typeof BenefitTypeFormSchema>;
 export type RegistrationFormSchemaType = z.infer<typeof RegistrationFormSchema>;
 export type TopUpFormSchemaType = z.infer<typeof TopUpFormSchema>;
 export type ManualCalcFormSchemaType = z.infer<typeof ManualCalcFormSchema>;
@@ -122,5 +122,5 @@ Schemas are used in two contexts:
 ## Related Pages
 
 - [Card Data Schema](Card-Data-Schema) — The interfaces these schemas validate
-- [Service Type Model](Service-Type-Model) — ServiceType and PricingStrategy
+- [Benefit Type Model](Benefit-Type-Model) — BenefitType and PricingStrategy
 - [NFC Memory Layout](NFC-Card-Memory-Layout) — Where CardDataSchema is used in deserialization

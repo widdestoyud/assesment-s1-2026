@@ -61,7 +61,7 @@ src/@core/use_case/__tests__/mbc/
 ├── CheckOut.test.ts                 # Property 10
 ├── ReadCard.test.ts
 ├── ManualCalculation.test.ts
-└── ManageServiceRegistry.test.ts
+└── ManageBenefitRegistry.test.ts
 
 src/controllers/__tests__/mbc/
 ├── role-picker.controller.test.ts
@@ -74,7 +74,7 @@ src/presentation/components/__tests__/mbc/
 ├── NfcTapPrompt.test.tsx
 ├── FeeBreakdown.test.tsx
 ├── TransactionLogList.test.tsx
-├── ServiceTypeSelector.test.tsx
+├── BenefitTypeSelector.test.tsx
 ├── CardInfoDisplay.test.tsx
 ├── RoleCard.test.tsx
 └── BalanceDisplay.test.tsx

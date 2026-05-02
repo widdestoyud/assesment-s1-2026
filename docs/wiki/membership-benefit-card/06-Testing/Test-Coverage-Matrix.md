@@ -24,12 +24,12 @@ This matrix maps each requirement to its corresponding test files and correctnes
 | 12 | Pricing Engine | `pricing.service.test.ts` | P8, P9 | 🔄 In Progress |
 | 13 | Schema Serialization | `card-data.service.test.ts` | P1 | 🔄 In Progress |
 | 14 | Offline-First PWA | Integration test (offline capability) | — | 📋 Planned |
-| 15 | Service Config | `ManageServiceRegistry.test.ts`, `service-registry.service.test.ts` | — | 📋 Planned |
-| 16 | Extensible Service Types | `service-registry.service.test.ts` | — | 📋 Planned |
-| 17 | Service Selection | `gate.controller.test.ts`, `ServiceTypeSelector.test.tsx` | — | 📋 Planned |
+| 15 | Service Config | `ManageBenefitRegistry.test.ts`, `benefit-registry.service.test.ts` | — | 📋 Planned |
+| 16 | Extensible Benefit Types | `benefit-registry.service.test.ts` | — | 📋 Planned |
+| 17 | Service Selection | `gate.controller.test.ts`, `BenefitTypeSelector.test.tsx` | — | 📋 Planned |
 | 18 | Atomic Integrity | `CheckOut.test.ts`, `nfc.service.test.ts` | P4, P5 | 📋 Planned |
 | 19 | Device Binding | `CheckOut.test.ts`, `device.service.test.ts` | P10 | 📋 Planned |
-| 20 | Data Persistence | `storage-health.service.test.ts`, `service-registry.service.test.ts` | — | 📋 Planned |
+| 20 | Data Persistence | `storage-health.service.test.ts`, `benefit-registry.service.test.ts` | — | 📋 Planned |
 | 21 | Manual Fallback | `ManualCalculation.test.ts`, `terminal.controller.test.ts` | — | 📋 Planned |
 | 22 | NFC Capability Detection | `role-picker.controller.test.ts` | — | 📋 Planned |
 

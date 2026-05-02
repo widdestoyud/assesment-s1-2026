@@ -5,7 +5,7 @@
 
 ## Overview
 
-The Pricing Engine calculates fees based on a service type's `PricingStrategy`. It supports three unit types (`per-hour`, `per-visit`, `flat-fee`) and three rounding strategies (`ceiling`, `floor`, `nearest`). It is a pure function with no I/O dependencies.
+The Pricing Engine calculates fees based on a benefit type's `PricingStrategy`. It supports three unit types (`per-hour`, `per-visit`, `flat-fee`) and three rounding strategies (`ceiling`, `floor`, `nearest`). It is a pure function with no I/O dependencies.
 
 ## Calculation Logic
 
@@ -112,7 +112,7 @@ See [Correctness Properties](../06-Testing/Correctness-Properties) for formal de
 
 ## Related Pages
 
-- [Service Type Model](../02-Data-Models/Service-Type-Model) — PricingStrategy definition
+- [Benefit Type Model](../02-Data-Models/Benefit-Type-Model) — PricingStrategy definition
 - [Check-Out Flow](../03-Business-Flows/Check-Out-Flow) — Where pricing is used
 - [Manual Calculation](../03-Business-Flows/Manual-Calculation) — Pricing without NFC
 - [Correctness Properties](../06-Testing/Correctness-Properties) — Properties 8, 9

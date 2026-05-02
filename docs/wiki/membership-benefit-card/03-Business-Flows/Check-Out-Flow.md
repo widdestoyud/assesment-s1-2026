@@ -19,7 +19,7 @@ sequenceDiagram
     participant UC as CheckOut
     participant NFC as nfc.service
     participant Dev as device.service
-    participant Reg as service-registry.service
+    participant Reg as benefit-registry.service
     participant Price as pricing.service
     participant Card as card-data.service
 
@@ -108,7 +108,7 @@ The fee is calculated by the [Pricing Engine](../04-Technical-Flows/Pricing-Engi
 |-------|-------|-------------|-----|
 | Not checked in | `checkIn === null` | "Anggota belum check-in" | 8.8 |
 | Device mismatch | `card.deviceId !== local.deviceId` | "Kembali ke device check-in" | 8.3 |
-| Service type unknown | serviceTypeId not in registry | "Service type tidak dikenali" | 8.10 |
+| Service type unknown | serviceTypeId not in registry | "Benefit type tidak dikenali" | 8.10 |
 | Insufficient balance | `fee > balance` | "Saldo kurang Rp X, top-up di Station" | 8.7 |
 | NFC write failed | Connection lost | Rollback + "Gagal, tap ulang" | 8.11 |
 | Verification failed | Written data doesn't match | Rollback to snapshot | 18.6 |

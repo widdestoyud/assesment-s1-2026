@@ -66,7 +66,7 @@ Fase ini juga menghasilkan **property-based tests** menggunakan fast-check yang 
 
 ### pricing.service
 
-Menghitung tarif berdasarkan `PricingStrategy` yang dikonfigurasi per `ServiceType`.
+Menghitung tarif berdasarkan `PricingStrategy` yang dikonfigurasi per `BenefitType`.
 
 | Unit Type | Formula | Contoh |
 |-----------|---------|--------|

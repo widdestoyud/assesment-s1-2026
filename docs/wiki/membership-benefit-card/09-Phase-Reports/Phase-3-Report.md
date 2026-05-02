@@ -29,7 +29,7 @@ Fase ini juga menyelesaikan **DI wiring** — mendaftarkan semua MBC protocols d
 | 6.1 | nfc.service — readCard, writeCard, writeAndVerify | Layer 3 | ✅ Done |
 | 6.2 | storage-health.service — isAvailable, checkWriteCapacity | Layer 3 | ✅ Done |
 | 6.3 | device.service — getDeviceId, ensureDeviceId | Layer 3 | ✅ Done |
-| 6.4 | service-registry.service — CRUD + initializeDefaults | Layer 3 | ✅ Done |
+| 6.4 | benefit-registry.service — CRUD + initializeDefaults | Layer 3 | ✅ Done |
 | 6.5* | Unit tests untuk semua stateful services | Test | ✅ Done |
 | 7.1 | MBC protocol DI container | DI | ✅ Done |
 | 7.2 | MBC service DI container (7 services) | DI | ✅ Done |
@@ -53,7 +53,7 @@ Fase ini juga menyelesaikan **DI wiring** — mendaftarkan semua MBC protocols d
 | `src/@core/services/mbc/nfc.service.ts` | `NfcServiceInterface` | `nfcProtocol: NfcProtocol` |
 | `src/@core/services/mbc/storage-health.service.ts` | `StorageHealthServiceInterface` | `keyValueStore: KeyValueStoreProtocol` |
 | `src/@core/services/mbc/device.service.ts` | `DeviceServiceInterface` | `keyValueStore: KeyValueStoreProtocol` |
-| `src/@core/services/mbc/service-registry.service.ts` | `ServiceRegistryServiceInterface` | `keyValueStore: KeyValueStoreProtocol` |
+| `src/@core/services/mbc/benefit-registry.service.ts` | `BenefitRegistryServiceInterface` | `keyValueStore: KeyValueStoreProtocol` |
 
 ### DI Wiring
 
@@ -70,7 +70,7 @@ Fase ini juga menyelesaikan **DI wiring** — mendaftarkan semua MBC protocols d
 | `src/@core/services/__tests__/mbc/nfc.service.test.ts` | 14 |
 | `src/@core/services/__tests__/mbc/storage-health.service.test.ts` | 8 |
 | `src/@core/services/__tests__/mbc/device.service.test.ts` | 6 |
-| `src/@core/services/__tests__/mbc/service-registry.service.test.ts` | 17 |
+| `src/@core/services/__tests__/mbc/benefit-registry.service.test.ts` | 17 |
 
 **Total fase 3: 45 tests baru**
 **Total kumulatif: 61 tests (16 fase 2 + 45 fase 3), 7 test files**
@@ -148,20 +148,20 @@ Mengelola Device_ID lifecycle untuk device binding.
 
 **`wasRegenerated` flag:** Digunakan oleh UI untuk menampilkan warning bahwa check-in sessions dari device ID lama tidak bisa di-checkout di device ini.
 
-### 6.4 — service-registry.service
+### 6.4 — benefit-registry.service
 
-CRUD untuk konfigurasi Service Type yang di-persist di localStorage.
+CRUD untuk konfigurasi Benefit Type yang di-persist di localStorage.
 
 | Method | Behavior |
 |--------|----------|
 | `getAll()` | Read registry, validate setiap entry dengan Zod, filter corrupted entries |
 | `getById(id)` | Find by ID dari registry |
-| `add(serviceType)` | Validate → check duplicate ID → append → persist |
+| `add(benefitType)` | Validate → check duplicate ID → append → persist |
 | `update(id, updates)` | Find → merge updates (preserve ID) → validate result → persist |
 | `remove(id)` | Find → splice → persist |
-| `initializeDefaults()` | Jika registry kosong, seed dengan `DEFAULT_PARKING_SERVICE` |
+| `initializeDefaults()` | Jika registry kosong, seed dengan `DEFAULT_PARKING_BENEFIT` |
 
-**Defensive reading:** Setiap entry divalidasi dengan `ServiceTypeFormSchema.safeParse()` saat dibaca. Entries yang corrupted di-filter out tanpa crash.
+**Defensive reading:** Setiap entry divalidasi dengan `BenefitTypeFormSchema.safeParse()` saat dibaca. Entries yang corrupted di-filter out tanpa crash.
 
 ### 7.1-7.3 — DI Wiring
 
@@ -188,7 +188,7 @@ graph TB
         NS[nfcService ★]
         DS[deviceService ★]
         SHS[storageHealthService ★]
-        SRS[serviceRegistryService ★]
+        SRS[benefitRegistryService ★]
     end
 
     MSC --> PS
@@ -264,7 +264,7 @@ graph TB
 | 5 | ensureDeviceId is idempotent (wasRegenerated false on 2nd call) | 🔶 Edge | Unit |
 | 6 | ensureDeviceId propagates storage write errors | ❌ Negative | Unit |
 
-#### service-registry.service — 17 tests
+#### benefit-registry.service — 17 tests
 
 | # | Scenario | Category | Type |
 |---|----------|----------|------|
@@ -310,7 +310,7 @@ graph TB
         NS[nfc.service]
         DS[device.service]
         SHS[storage-health.service]
-        SRS[service-registry.service]
+        SRS[benefit-registry.service]
     end
 
     subgraph "Layer 1 — Pure Logic"
@@ -340,8 +340,8 @@ graph TB
 |-----------|--------|
 | **Base64 encoding untuk NFC** | NDEF text record hanya mendukung string. Base64 encoding memastikan binary data (encrypted card data) bisa disimpan sebagai text. |
 | **One-shot readCard pattern** | `readCard()` resolve pada first scan lalu abort. Mencegah multiple reads dan simplify Promise-based API untuk use cases. |
-| **Singleton untuk stateful services** | nfc, device, storage-health, service-registry di-register sebagai singleton karena mereka mengelola shared state atau cache. |
-| **Zod validation on read** | service-registry memvalidasi setiap entry saat membaca dari localStorage. Corrupted entries di-filter tanpa crash. Defensive programming. |
+| **Singleton untuk stateful services** | nfc, device, storage-health, benefit-registry di-register sebagai singleton karena mereka mengelola shared state atau cache. |
+| **Zod validation on read** | benefit-registry memvalidasi setiap entry saat membaca dari localStorage. Corrupted entries di-filter tanpa crash. Defensive programming. |
 | **QuotaExceededError cross-browser** | Deteksi via `DOMException.name` (modern) dan `DOMException.code` (Safari legacy). |
 | **crypto.randomUUID()** | Tersedia di semua browser modern. Menghasilkan UUID v4 yang cryptographically random untuk Device_ID. |
 | **Pick<AwilixRegistry, ...> untuk deps** | Services hanya menerima dependencies yang mereka butuhkan, bukan seluruh registry. Explicit dependency declaration. |
@@ -354,8 +354,8 @@ graph TB
 |-------------|-----------|---------|
 | Req 2.1, 2.2, 2.4, 3.1 | NFC read/write/permission | webNfcAdapter, nfc.service |
 | Req 3.4, 3.7 | Write verification | nfc.service |
-| Req 15.1-7 | Service type CRUD, defaults, persistence | service-registry.service |
+| Req 15.1-7 | Benefit type CRUD, defaults, persistence | benefit-registry.service |
 | Req 19.1, 19.6, 19.7 | Device_ID lifecycle, regeneration warning | device.service |
 | Req 20.2-4 | Storage availability, quota detection | storage-health.service |
-| Req 20.5-6 | Service registry validation, re-initialization | service-registry.service |
-| Req 20.8 | Graceful storage error handling | device.service, service-registry.service |
+| Req 20.5-6 | Benefit registry validation, re-initialization | benefit-registry.service |
+| Req 20.8 | Graceful storage error handling | device.service, benefit-registry.service |

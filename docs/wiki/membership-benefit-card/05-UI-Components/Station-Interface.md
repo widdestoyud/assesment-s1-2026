@@ -28,9 +28,9 @@ flowchart TD
             TopUpResult["BalanceDisplay<br/>(previous → new)"]
         end
 
-        subgraph ConfigTab["Service Config Tab"]
-            SvcForm["ServiceTypeForm<br/>(add/edit)"]
-            SvcList["Configured service types<br/>(edit/remove buttons)"]
+        subgraph ConfigTab["Benefit Config Tab"]
+            SvcForm["BenefitTypeForm<br/>(add/edit)"]
+            SvcList["Configured benefit types<br/>(edit/remove buttons)"]
         end
 
         StorageWarning["Storage health warning<br/>(if quota low — Req 20.4)"]
@@ -44,7 +44,7 @@ flowchart TD
 |-----------|-----|---------|
 | `NfcTapPrompt` | Registration, Top-Up | Animated tap prompt with status |
 | `BalanceDisplay` | Top-Up | Shows previous/new balance |
-| `ServiceTypeForm` | Service Config | Add/edit service type form |
+| `BenefitTypeForm` | Benefit Config | Add/edit benefit type form |
 
 ## Controller Interface
 
@@ -56,11 +56,11 @@ interface StationControllerInterface {
   // Top-up
   topUpForm: UseFormReturn;
   onTopUp: (data: TopUpFormData) => void;
-  // Service config
-  serviceTypes: ServiceType[];
-  onAddServiceType: (data: ServiceTypeFormData) => void;
-  onEditServiceType: (id: string, data: Partial<ServiceTypeFormData>) => void;
-  onRemoveServiceType: (id: string) => void;
+  // Benefit config
+  benefitTypes: BenefitType[];
+  onAddBenefitType: (data: BenefitTypeFormData) => void;
+  onEditBenefitType: (id: string, data: Partial<BenefitTypeFormData>) => void;
+  onRemoveBenefitType: (id: string) => void;
   // NFC state
   nfcStatus: NfcStatus;
   lastResult: OperationResult | null;
@@ -72,5 +72,5 @@ interface StationControllerInterface {
 
 - [Member Registration](../03-Business-Flows/Member-Registration) — Registration flow details
 - [Balance Top-Up](../03-Business-Flows/Balance-Top-Up) — Top-up flow details
-- [Service Type Configuration](../03-Business-Flows/Service-Type-Configuration) — Config flow details
+- [Benefit Type Configuration](../03-Business-Flows/Benefit-Type-Configuration) — Config flow details
 - [Storage Architecture](../04-Technical-Flows/Storage-Architecture) — Storage health monitoring

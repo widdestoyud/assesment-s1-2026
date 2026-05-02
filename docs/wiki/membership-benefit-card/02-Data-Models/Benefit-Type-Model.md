@@ -1,17 +1,17 @@
-# Service Type Model
+# Benefit Type Model
 
 > Covers: Req 12, Req 15, Req 16
-> Source: `src/@core/services/mbc/models/service-type.model.ts`
+> Source: `src/@core/services/mbc/models/benefit-type.model.ts`
 
 ## Overview
 
-A `ServiceType` defines a business scenario (parking, bike rental, gym, etc.) with its own pricing rules. Service types are stored in the [Service Registry](../04-Technical-Flows/Storage-Architecture) on the device and referenced by ID on the NFC card.
+A `BenefitType` defines a business scenario (parking, bike rental, gym, etc.) with its own pricing rules. Benefit types are stored in the [Benefit Registry](../04-Technical-Flows/Storage-Architecture) on the device and referenced by ID on the NFC card.
 
 ## Class Diagram
 
 ```mermaid
 classDiagram
-    class ServiceType {
+    class BenefitType {
         +string id
         +string displayName
         +string activityType
@@ -38,15 +38,15 @@ classDiagram
         nearest
     }
 
-    ServiceType *-- PricingStrategy : contains
+    BenefitType *-- PricingStrategy : contains
     PricingStrategy --> UnitType : uses
     PricingStrategy --> RoundingStrategy : uses
 ```
 
-## ServiceType Interface
+## BenefitType Interface
 
 ```typescript
-export interface ServiceType {
+export interface BenefitType {
   /** Unique identifier (e.g., "parking", "bike-rental") */
   id: string;
   /** Display name (e.g., "Parkir", "Sewa Sepeda") */
@@ -91,12 +91,12 @@ Only applies to `per-hour` unit type:
 
 See [Pricing Engine](../04-Technical-Flows/Pricing-Engine) for the full calculation logic.
 
-## Default Parking Service
+## Default Parking Benefit
 
-Pre-configured default that initializes the Service Registry on first launch:
+Pre-configured default that initializes the Benefit Registry on first launch:
 
 ```typescript
-export const DEFAULT_PARKING_SERVICE: ServiceType = {
+export const DEFAULT_PARKING_BENEFIT: BenefitType = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',
@@ -108,7 +108,7 @@ export const DEFAULT_PARKING_SERVICE: ServiceType = {
 };
 ```
 
-## Example Service Types
+## Example Benefit Types
 
 | ID | Display Name | Activity Type | Rate | Unit | Rounding |
 |----|-------------|---------------|------|------|----------|
@@ -120,7 +120,7 @@ export const DEFAULT_PARKING_SERVICE: ServiceType = {
 
 ## Related Pages
 
-- [Card Data Schema](Card-Data-Schema) — How serviceTypeId is stored on the card
+- [Card Data Schema](Card-Data-Schema) — How benefitTypeId is stored on the card
 - [Pricing Engine](../04-Technical-Flows/Pricing-Engine) — Fee calculation using PricingStrategy
-- [Service Type Configuration](../03-Business-Flows/Service-Type-Configuration) — CRUD operations
-- [Zod Validation Schemas](Zod-Validation-Schemas) — ServiceTypeFormSchema
+- [Benefit Type Configuration](../03-Business-Flows/Benefit-Type-Configuration) — CRUD operations
+- [Zod Validation Schemas](Zod-Validation-Schemas) — BenefitTypeFormSchema

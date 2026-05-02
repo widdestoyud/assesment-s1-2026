@@ -24,7 +24,7 @@ graph TB
     end
 
     subgraph L3["Layer 3 — Stateful Services"]
-        SS["Compose Layer 1 + Layer 2 via DI<br/>nfc, device, storage-health, service-registry"]
+        SS["Compose Layer 1 + Layer 2 via DI<br/>nfc, device, storage-health, benefit-registry"]
     end
 
     subgraph L2["Layer 2 — I/O Adapters"]
@@ -36,7 +36,7 @@ graph TB
     end
 
     subgraph L0["Layer 0 — Data Models & Schemas"]
-        DM["Pure types, zero dependencies<br/>CardData, ServiceType, Zod schemas"]
+        DM["Pure types, zero dependencies<br/>CardData, BenefitType, Zod schemas"]
     end
 
     L6 --> L5
@@ -67,7 +67,7 @@ The implementation follows strict bottom-up construction — **Start with Bricks
 | **0** | Data models, types, Zod schemas | None | Pure type checks |
 | **1** | pricing, card-data, silent-shield services | Layer 0 types only | Pure unit tests, property-based tests |
 | **2** | webNfcAdapter, webStorageAdapter | Browser APIs | Integration tests with mocks |
-| **3** | nfc, device, storage-health, service-registry | Layer 1 + Layer 2 via DI | Unit tests with mocked protocols |
+| **3** | nfc, device, storage-health, benefit-registry | Layer 1 + Layer 2 via DI | Unit tests with mocked protocols |
 | **4** | RegisterMember, TopUpBalance, CheckIn, CheckOut, etc. | Layer 3 services | Unit tests with mocked services |
 | **5** | station, gate, terminal, scout controllers | Layer 4 use cases | Unit tests with mocked use cases |
 | **6** | Pages + Components | Layer 5 controllers via DI | RTL component tests |
@@ -114,7 +114,7 @@ graph LR
         NfcSvc[nfc.service]
         DevSvc[device.service]
         HealthSvc[storage-health.service]
-        RegSvc[service-registry.service]
+        RegSvc[benefit-registry.service]
     end
 
     subgraph UC["Use Cases"]
@@ -145,7 +145,7 @@ All modules are wired via Awilix with typed `AwilixRegistry`:
 | Registry File | Registers | Pattern |
 |---------------|-----------|---------|
 | `mbcProtocolContainer.ts` | `nfcProtocol` | `asFunction` |
-| `mbcServiceContainer.ts` | All MBC services (pricing, card-data, silent-shield, nfc, device, storage-health, service-registry) | `asFunction().singleton()` for stateful |
+| `mbcServiceContainer.ts` | All MBC services (pricing, card-data, silent-shield, nfc, device, storage-health, benefit-registry) | `asFunction().singleton()` for stateful |
 | `mbcUseCaseContainer.ts` | All 7 use cases | `asFunction` |
 | `mbcControllerContainer.ts` | All 5 controllers | `asFunction` |
 

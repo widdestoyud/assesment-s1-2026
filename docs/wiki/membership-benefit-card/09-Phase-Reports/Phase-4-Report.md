@@ -28,7 +28,7 @@ Fase ini juga menyelesaikan DI wiring untuk use cases — mendaftarkan semua 7 u
 | 9.4 | CheckOut — kalkulasi tarif + potong saldo + rollback | ✅ Done |
 | 9.6 | ReadCard — baca isi kartu (read-only) | ✅ Done |
 | 9.7 | ManualCalculation — kalkulasi manual tanpa NFC | ✅ Done |
-| 9.8 | ManageServiceRegistry — CRUD service types | ✅ Done |
+| 9.8 | ManageBenefitRegistry — CRUD benefit types | ✅ Done |
 | 9.9* | Unit tests untuk semua use cases | ✅ Done |
 | 11.1 | MBC use case DI container | ✅ Done |
 
@@ -43,16 +43,16 @@ Fase ini juga menyelesaikan DI wiring untuk use cases — mendaftarkan semua 7 u
 | `src/@core/use_case/mbc/RegisterMember.ts` | nfcService, cardDataService, silentShieldService | Read → decrypt → check blank → register → serialize → encrypt → writeAndVerify |
 | `src/@core/use_case/mbc/TopUpBalance.ts` | nfcService, cardDataService, silentShieldService | Read → decrypt → deserialize → validate registered → applyTopUp → serialize → encrypt → writeAndVerify |
 | `src/@core/use_case/mbc/CheckIn.ts` | nfcService, cardDataService, silentShieldService | Read → decrypt → deserialize → validate no active check-in → applyCheckIn → serialize → encrypt → writeAndVerify |
-| `src/@core/use_case/mbc/CheckOut.ts` | nfcService, cardDataService, silentShieldService, pricingService, serviceRegistryService | Read → decrypt → deserialize → validate check-in → validate device → lookup service → calculate fee → validate balance → snapshot → applyCheckOut → serialize → encrypt → writeAndVerify → rollback on failure |
+| `src/@core/use_case/mbc/CheckOut.ts` | nfcService, cardDataService, silentShieldService, pricingService, benefitRegistryService | Read → decrypt → deserialize → validate check-in → validate device → lookup service → calculate fee → validate balance → snapshot → applyCheckOut → serialize → encrypt → writeAndVerify → rollback on failure |
 | `src/@core/use_case/mbc/ReadCard.ts` | nfcService, cardDataService, silentShieldService | Read → decrypt → deserialize → validate → return CardData |
-| `src/@core/use_case/mbc/ManualCalculation.ts` | pricingService, serviceRegistryService | Lookup service type → validate timestamp → calculateFee (no NFC) |
-| `src/@core/use_case/mbc/ManageServiceRegistry.ts` | serviceRegistryService | Lazy init → delegate CRUD operations |
+| `src/@core/use_case/mbc/ManualCalculation.ts` | pricingService, benefitRegistryService | Lookup benefit type → validate timestamp → calculateFee (no NFC) |
+| `src/@core/use_case/mbc/ManageBenefitRegistry.ts` | benefitRegistryService | Lazy init → delegate CRUD operations |
 
 ### DI Wiring
 
 | File | Fungsi |
 |------|--------|
-| `src/infrastructure/di/registry/mbcUseCaseContainer.ts` | Register 7 use cases. ManageServiceRegistry as singleton (lazy init state). |
+| `src/infrastructure/di/registry/mbcUseCaseContainer.ts` | Register 7 use cases. ManageBenefitRegistry as singleton (lazy init state). |
 | `src/infrastructure/di/container.ts` (modified) | Import `registerMbcUseCaseModules`, add `MbcUseCaseContainerInterface` to `AwilixRegistry` |
 
 ### Test Files
@@ -65,7 +65,7 @@ Fase ini juga menyelesaikan DI wiring untuk use cases — mendaftarkan semua 7 u
 | `src/@core/use_case/__tests__/mbc/CheckOut.test.ts` | 7 |
 | `src/@core/use_case/__tests__/mbc/ReadCard.test.ts` | 5 |
 | `src/@core/use_case/__tests__/mbc/ManualCalculation.test.ts` | 4 |
-| `src/@core/use_case/__tests__/mbc/ManageServiceRegistry.test.ts` | 6 |
+| `src/@core/use_case/__tests__/mbc/ManageBenefitRegistry.test.ts` | 6 |
 
 **Total fase 4: 36 tests baru**
 **Total kumulatif: 97 tests (61 fase 1-3 + 36 fase 4), 14 test files**
@@ -169,9 +169,9 @@ Kalkulasi tarif tanpa NFC — pure calculation.
 - Timestamp harus valid ISO 8601
 - Menggunakan waktu saat ini sebagai check-out time
 
-### ManageServiceRegistry
+### ManageBenefitRegistry
 
-Thin delegation layer ke `ServiceRegistryService` dengan lazy initialization.
+Thin delegation layer ke `BenefitRegistryService` dengan lazy initialization.
 
 **Lazy init pattern:** `initializeDefaults()` dipanggil sekali pada akses pertama (getAll, add, update, remove). Flag `initialized` mencegah re-initialization pada panggilan berikutnya.
 
@@ -252,7 +252,7 @@ Thin delegation layer ke `ServiceRegistryService` dengan lazy initialization.
 | 3 | Rejects invalid timestamp format | ❌ Negative |
 | 4 | Does not perform any NFC operations | 🔶 Edge |
 
-#### ManageServiceRegistry — 6 tests
+#### ManageBenefitRegistry — 6 tests
 
 | # | Scenario | Category |
 |---|----------|----------|
@@ -285,12 +285,12 @@ graph TB
         CO[CheckOut]
         RC[ReadCard]
         MC[ManualCalculation]
-        MSR[ManageServiceRegistry]
+        MSR[ManageBenefitRegistry]
     end
 
     subgraph "Layer 3 — Stateful Services"
         NS[nfc.service]
-        SRS[service-registry.service]
+        SRS[benefit-registry.service]
     end
 
     subgraph "Layer 1 — Pure Logic"
@@ -330,7 +330,7 @@ graph TB
 | **Snapshot + rollback (CheckOut)** | Sebelum write, simpan state kartu saat ini. Jika write gagal, restore snapshot. Mencegah partial state pada kartu. |
 | **Simulation mode via optional param** | CheckIn menerima `simulationTimestamp?` — jika ada, gunakan sebagai timestamp. Tidak perlu mode terpisah. |
 | **Blank card detection (RegisterMember)** | Try decrypt+deserialize. Jika gagal → kartu blank (aman untuk register). Jika berhasil dan ada member → reject. |
-| **Lazy initialization (ManageServiceRegistry)** | `initializeDefaults()` dipanggil sekali pada akses pertama. Mencegah race condition dan unnecessary writes. |
+| **Lazy initialization (ManageBenefitRegistry)** | `initializeDefaults()` dipanggil sekali pada akses pertama. Mencegah race condition dan unnecessary writes. |
 | **No NFC in ManualCalculation** | Pure calculation — hanya lookup service type dan hitung fee. Sesuai Req 21.5 (no card write). |
 | **Pick<AwilixRegistry, ...> untuk deps** | Setiap use case hanya menerima dependencies yang dibutuhkan. Explicit dan testable. |
 
@@ -345,7 +345,7 @@ graph TB
 | Req 6.1-8, 7.3 | Check-in, double tap prevention, simulation | CheckIn |
 | Req 8.1-12 | Check-out, fee calc, device binding, atomic write | CheckOut |
 | Req 9.1-4, 2.3 | Card reading, display | ReadCard |
-| Req 15.1-7, 16.1-3, 16.5 | Service type management | ManageServiceRegistry |
+| Req 15.1-7, 16.1-3, 16.5 | Benefit type management | ManageBenefitRegistry |
 | Req 18.1-7 | Atomic transaction integrity, rollback | CheckOut |
 | Req 19.3-5 | Device binding enforcement | CheckOut |
 | Req 21.2-5, 21.7 | Manual fee calculation | ManualCalculation |

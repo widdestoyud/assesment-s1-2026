@@ -33,11 +33,11 @@ Tidak ada test di fase ini karena seluruh output adalah type definitions dan int
 
 | File | Layer | Fungsi |
 |------|-------|--------|
-| `src/utils/constants/mbc-keys.ts` | 0 | Storage keys (`MBC_DEVICE_ID`, `MBC_SERVICE_REGISTRY`), Silent Shield config (algorithm, passphrase, salt, iterations, key/IV/tag lengths) |
+| `src/utils/constants/mbc-keys.ts` | 0 | Storage keys (`MBC_DEVICE_ID`, `MBC_BENEFIT_REGISTRY`), Silent Shield config (algorithm, passphrase, salt, iterations, key/IV/tag lengths) |
 | `src/@core/services/mbc/models/card-data.model.ts` | 0 | `CardData`, `MemberIdentity`, `CheckInStatus`, `TransactionLogEntry` interfaces |
-| `src/@core/services/mbc/models/service-type.model.ts` | 0 | `ServiceType`, `PricingStrategy` interfaces, `DEFAULT_PARKING_SERVICE` constant |
+| `src/@core/services/mbc/models/benefit-type.model.ts` | 0 | `BenefitType`, `PricingStrategy` interfaces, `DEFAULT_PARKING_BENEFIT` constant |
 | `src/@core/services/mbc/models/common.model.ts` | 0 | `RoleMode`, `NfcStatus`, `NfcError`, `FeeResult`, `CheckInResult`, `CheckOutResult`, `OperationResult`, `AtomicWriteResult`, `WriteVerifyResult`, `StorageError`, `NfcCapabilityStatus` |
-| `src/@core/services/mbc/models/schemas.ts` | 0 | Zod schemas: `CardDataSchema`, `ServiceTypeFormSchema`, `RegistrationFormSchema`, `TopUpFormSchema`, `ManualCalcFormSchema` |
+| `src/@core/services/mbc/models/schemas.ts` | 0 | Zod schemas: `CardDataSchema`, `BenefitTypeFormSchema`, `RegistrationFormSchema`, `TopUpFormSchema`, `ManualCalcFormSchema` |
 | `src/@core/services/mbc/models/index.ts` | 0 | Barrel export untuk semua models |
 | `src/utils/helpers/mbc.helper.ts` | 0 | `formatIDR()` — format angka ke Rupiah, `formatDuration()` — format durasi ke jam/menit |
 | `src/@core/protocols/nfc/index.ts` | 0 | `NfcProtocol` interface: `isSupported()`, `requestPermission()`, `startScan()`, `write()` |
@@ -69,7 +69,7 @@ classDiagram
         +string activityType
         +string serviceTypeId
     }
-    class ServiceType {
+    class BenefitType {
         +string id
         +string displayName
         +string activityType
@@ -84,7 +84,7 @@ classDiagram
     CardData --> MemberIdentity
     CardData --> CheckInStatus
     CardData --> TransactionLogEntry
-    ServiceType --> PricingStrategy
+    BenefitType --> PricingStrategy
 ```
 
 ---
@@ -93,7 +93,7 @@ classDiagram
 
 | Keputusan | Alasan |
 |-----------|--------|
-| **IndexedDB dihapus** → localStorage only | Data yang perlu di-persist hanya Device_ID dan Service Registry (kecil). IndexedDB overkill untuk use case ini. |
+| **IndexedDB dihapus** → localStorage only | Data yang perlu di-persist hanya Device_ID dan Benefit Registry (kecil). IndexedDB overkill untuk use case ini. |
 | **Zod untuk semua validasi** | Runtime validation untuk data dari NFC card dan localStorage. Compile-time types saja tidak cukup untuk data eksternal. |
 | **Barrel exports via index.ts** | Clean imports: `import { CardData, FeeResult } from '@core/services/mbc/models'` |
 | **Constants as const** | Type-safe constant values dengan `as const` untuk compile-time checking |
@@ -107,7 +107,7 @@ classDiagram
 | Req 1.1 | Role mode types | common.model.ts |
 | Req 2.1, 2.2, 2.4, 3.1 | NFC protocol interface | nfc/index.ts |
 | Req 8.9, 9.3 | IDR formatting, duration formatting | mbc.helper.ts |
-| Req 12.2-3 | Pricing strategy types | service-type.model.ts |
+| Req 12.2-3 | Pricing strategy types | benefit-type.model.ts |
 | Req 13.1 | Card data schema definition | card-data.model.ts, schemas.ts |
 | Req 15.2 | Service type form schema | schemas.ts |
 | Req 19.1, 19.6, 20.1 | Storage keys, device ID key | mbc-keys.ts |
