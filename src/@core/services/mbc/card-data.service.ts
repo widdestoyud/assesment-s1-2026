@@ -48,15 +48,12 @@ export const CardDataService = (
     try {
       parsed = JSON.parse(json);
     } catch {
-      throw new Error('Failed to parse card data: invalid JSON');
+      throw new Error('mbc_nfc_error_card_not_recognized');
     }
 
     const result = CardDataSchema.safeParse(parsed);
     if (!result.success) {
-      const messages = result.error.issues
-        .map(i => `${i.path.join('.')}: ${i.message}`)
-        .join('; ');
-      throw new Error(`Invalid card data: ${messages}`);
+      throw new Error('mbc_nfc_error_card_data_corrupted');
     }
 
     return result.data as CardData;
@@ -111,9 +108,7 @@ export const CardDataService = (
     timestamp: string,
   ): CardData => {
     if (card.checkIn !== null) {
-      throw new Error(
-        'Cannot check in: card already has an active check-in session',
-      );
+      throw new Error('mbc_error_already_checked_in');
     }
     return {
       ...card,
@@ -133,7 +128,7 @@ export const CardDataService = (
     exitTimestamp: string,
   ): CardData => {
     if (card.checkIn === null) {
-      throw new Error('Cannot check out: no active check-in session');
+      throw new Error('mbc_error_not_checked_in');
     }
     const newBalance = card.balance - fee;
     const entry: TransactionLogEntry = {

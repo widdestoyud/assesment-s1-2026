@@ -25,7 +25,7 @@ export const ReadCardUseCase = (
 
     // Step 4: Validate card is registered
     if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('Card is not registered or contains invalid data.');
+      throw new Error('mbc_error_not_registered');
     }
 
     return cardData;

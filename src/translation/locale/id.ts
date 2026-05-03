@@ -187,4 +187,32 @@ export default {
   // eSIM Registration
   web_register_personal_data_registrasi_sim_order_msisdn:
     'Nomor Telkomsel Anda',
+
+  /* MBC - Pesan Error NFC */
+  mbc_nfc_error_incompatible_card: 'Kartu tidak kompatibel. Gunakan kartu NTAG215 atau NTAG216.',
+  mbc_nfc_error_blank_card: 'Kartu ini kosong. Silakan daftarkan di The Station terlebih dahulu.',
+  mbc_nfc_error_card_not_recognized: 'Kartu ini tidak dikenali sebagai kartu MBC.',
+  mbc_nfc_error_card_data_corrupted: 'Data kartu rusak atau tidak valid. Silakan daftarkan ulang di The Station.',
+  mbc_nfc_error_permission_denied: 'Izin NFC ditolak. Silakan izinkan akses NFC di pengaturan browser.',
+  mbc_nfc_error_hardware_unavailable: 'NFC tidak tersedia di perangkat atau browser ini.',
+  mbc_nfc_error_connection_lost: 'Koneksi NFC terputus. Tahan kartu dengan stabil dan coba lagi.',
+  mbc_nfc_error_read_failed: 'Gagal membaca kartu NFC. Silakan coba lagi.',
+  mbc_nfc_error_write_failed: 'Gagal menulis ke kartu NFC. Silakan coba lagi.',
+  mbc_nfc_error_scan_failed: 'Pemindaian NFC gagal. Silakan coba lagi.',
+  mbc_error_not_registered: 'Kartu belum terdaftar. Silakan daftarkan di The Station terlebih dahulu.',
+  mbc_error_already_checked_in: 'Member sudah check-in. Silakan selesaikan check-out terlebih dahulu.',
+  mbc_error_not_checked_in: 'Member belum check-in. Tidak dapat memproses check-out.',
+  mbc_error_device_mismatch: 'Perangkat tidak cocok. Silakan kembali ke perangkat check-in awal.',
+  mbc_error_insufficient_balance: 'Saldo tidak cukup. Biaya: Rp {{fee}}, Saldo: Rp {{balance}}, Kekurangan: Rp {{shortage}}. Silakan top-up di The Station.',
+  mbc_error_benefit_type_not_found: 'Tipe layanan "{{id}}" tidak ditemukan. Silakan konfigurasi di The Station.',
+  mbc_error_benefit_type_duplicate: 'Tipe layanan "{{id}}" sudah ada.',
+  mbc_error_invalid_benefit_type: 'Konfigurasi tipe layanan tidak valid.',
+  mbc_error_card_already_registered: 'Kartu sudah terdaftar atas nama {{name}}.',
+  mbc_error_write_verification_failed: 'Verifikasi penulisan gagal. Kartu telah dikembalikan ke kondisi sebelumnya.',
+  mbc_error_critical_rollback_failed: 'KRITIS: Penulisan gagal dan pemulihan gagal. Kartu mungkin tidak konsisten. Hubungi dukungan.',
+  mbc_error_topup_amount_invalid: 'Jumlah top-up harus berupa angka positif.',
+  mbc_error_invalid_timestamp: 'Format waktu check-in tidak valid.',
+  mbc_error_encryption_failed: 'Enkripsi kartu gagal. Silakan coba lagi.',
+  mbc_error_decryption_failed: 'Gagal membaca data kartu. Kartu mungkin dari sistem lain.',
+  mbc_error_key_derivation_failed: 'Inisialisasi keamanan gagal. Silakan mulai ulang aplikasi.',
 };

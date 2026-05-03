@@ -51,7 +51,7 @@
 
 - [ ] 3. Implement NFC error messages i18n fix
 
-  - [ ] 3.1 Extend `NfcError` type and add locale key fields in `common.model.ts`
+  - [x] 3.1 Extend `NfcError` type and add locale key fields in `common.model.ts`
     - Add 4 new granular types to `NfcError.type` union: `'incompatible_card'`, `'blank_card'`, `'invalid_card_data'`, `'corrupted_card_data'`
     - Add `messageKey: string` field to `NfcError` interface for the i18n locale key
     - Add `messageParams?: Record<string, string | number>` field to `NfcError` interface for interpolation values
@@ -62,7 +62,7 @@
     - _Preservation: Existing NfcError.type values and NfcProtocol interface contract unchanged_
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [ ] 3.2 Add all MBC error locale keys to `en.ts` and `id.ts`
+  - [x] 3.2 Add all MBC error locale keys to `en.ts` and `id.ts`
     - Add 26 `mbc_`-prefixed locale keys to `src/translation/locale/en.ts` with English translations
     - Add matching 26 `mbc_`-prefixed locale keys to `src/translation/locale/id.ts` with Indonesian translations
     - Include interpolation placeholders (`{{fee}}`, `{{balance}}`, `{{shortage}}`, `{{id}}`, `{{name}}`, `{{error}}`) where needed
@@ -73,7 +73,7 @@
     - _Preservation: All existing non-MBC locale keys unchanged_
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.8_
 
-  - [ ] 3.3 Update `webNfcAdapter.ts` to use locale keys and granular error types
+  - [x] 3.3 Update `webNfcAdapter.ts` to use locale keys and granular error types
     - `onreadingerror`: Change type from `'read_failed'` to `'incompatible_card'`, set `messageKey: 'mbc_nfc_error_incompatible_card'`
     - `onreading` catch (extractPayload failure): Distinguish blank card vs invalid data:
       - If `extractPayload` throws "No text record" → type `'blank_card'`, messageKey `'mbc_nfc_error_blank_card'`
@@ -88,7 +88,7 @@
     - _Preservation: NfcProtocol interface contract unchanged, successful read/write paths unchanged_
     - _Requirements: 2.1, 2.2, 2.3, 2.5, 2.6, 3.1, 3.2, 3.3, 3.4_
 
-  - [ ] 3.4 Update `card-data.service.ts` to use locale keys for deserialization errors
+  - [x] 3.4 Update `card-data.service.ts` to use locale keys for deserialization errors
     - JSON parse failure: Throw error with locale key `mbc_nfc_error_card_not_recognized` instead of `'Failed to parse card data: invalid JSON'`
     - Zod validation failure: Throw error with locale key `mbc_nfc_error_card_data_corrupted` instead of `'Invalid card data: ...'` with raw Zod paths
     - Use a structured error or encode the locale key in the error message for downstream consumers
@@ -98,7 +98,7 @@
     - _Preservation: serialize, validate, applyRegistration, applyTopUp behavior unchanged for valid inputs_
     - _Requirements: 2.3, 2.4, 2.5, 3.1_
 
-  - [ ] 3.5 Update `nfc.service.ts` to preserve locale keys from adapter errors
+  - [x] 3.5 Update `nfc.service.ts` to preserve locale keys from adapter errors
     - `readCard` `onError` handler: Preserve `NfcError.type` and `messageKey` from the adapter instead of constructing `'NFC read failed [${err.type}]: ${err.message}'`
     - Propagate `messageKey` and `messageParams` through the error chain
     - `writeAndVerify` verification failure message: Use locale key `mbc_error_write_verification_failed`
@@ -107,7 +107,7 @@
     - _Preservation: isAvailable, requestPermission, writeCard behavior unchanged_
     - _Requirements: 2.5, 3.1, 3.2, 3.3, 3.4_
 
-  - [ ] 3.6 Update `silent-shield.service.ts` to use locale keys
+  - [x] 3.6 Update `silent-shield.service.ts` to use locale keys
     - Key derivation failure: Use locale key `mbc_error_key_derivation_failed` instead of `'Key derivation failed: ...'`
     - Encryption failure: Use locale key `mbc_error_encryption_failed` instead of `'Encryption failed: ...'`
     - Decryption failure: Use locale key `mbc_error_decryption_failed` instead of `'Decryption failed: ...'`
@@ -116,7 +116,7 @@
     - _Preservation: Successful encrypt/decrypt behavior unchanged_
     - _Requirements: 2.5, 3.1_
 
-  - [ ] 3.7 Update `benefit-registry.service.ts` to use locale keys
+  - [x] 3.7 Update `benefit-registry.service.ts` to use locale keys
     - `add` validation failure: Use locale key `mbc_error_invalid_benefit_type` instead of `'Invalid benefit type: ...'`
     - `add` duplicate ID: Use locale key `mbc_error_benefit_type_duplicate` with `messageParams: { id }` instead of `'Benefit type with id "..." already exists'`
     - `update` not found: Use locale key `mbc_error_benefit_type_not_found` with `messageParams: { id }` instead of `'Benefit type with id "..." not found'`
@@ -127,7 +127,7 @@
     - _Preservation: getAll, getById, initializeDefaults behavior unchanged for valid inputs_
     - _Requirements: 2.5, 3.1_
 
-  - [ ] 3.8 Update use cases (`CheckIn.ts`, `CheckOut.ts`, `ReadCard.ts`, `RegisterMember.ts`, `TopUpBalance.ts`, `ManualCalculation.ts`) to use locale keys
+  - [x] 3.8 Update use cases (`CheckIn.ts`, `CheckOut.ts`, `ReadCard.ts`, `RegisterMember.ts`, `TopUpBalance.ts`, `ManualCalculation.ts`) to use locale keys
     - **CheckIn.ts**:
       - Unregistered card: `mbc_error_not_registered`
       - Already checked in: `mbc_error_already_checked_in`

@@ -17,8 +17,14 @@ export interface NfcError {
     | 'hardware_unavailable'
     | 'read_failed'
     | 'write_failed'
-    | 'connection_lost';
+    | 'connection_lost'
+    | 'incompatible_card'
+    | 'blank_card'
+    | 'invalid_card_data'
+    | 'corrupted_card_data';
   message: string;
+  messageKey: string;
+  messageParams?: Record<string, string | number>;
 }
 
 export type NfcPermissionResult = 'granted' | 'denied' | 'unsupported';

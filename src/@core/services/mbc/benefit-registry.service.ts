@@ -61,19 +61,14 @@ export const BenefitRegistryService = (
     // Validate the new benefit type
     const validation = BenefitTypeFormSchema.safeParse(benefitType);
     if (!validation.success) {
-      const messages = validation.error.issues
-        .map((i) => `${i.path.join('.')}: ${i.message}`)
-        .join('; ');
-      throw new Error(`Invalid benefit type: ${messages}`);
+      throw new Error('mbc_error_invalid_benefit_type');
     }
 
     const registry = await readRegistry();
 
     // Check for duplicate ID
     if (registry.some((st) => st.id === benefitType.id)) {
-      throw new Error(
-        `Benefit type with id "${benefitType.id}" already exists`,
-      );
+      throw new Error('mbc_error_benefit_type_duplicate');
     }
 
     registry.push(benefitType);
@@ -88,7 +83,7 @@ export const BenefitRegistryService = (
     const index = registry.findIndex((st) => st.id === id);
 
     if (index === -1) {
-      throw new Error(`Benefit type with id "${id}" not found`);
+      throw new Error('mbc_error_benefit_type_not_found');
     }
 
     const updated: BenefitType = { ...registry[index], ...updates, id };
@@ -96,10 +91,7 @@ export const BenefitRegistryService = (
     // Validate the updated entry
     const validation = BenefitTypeFormSchema.safeParse(updated);
     if (!validation.success) {
-      const messages = validation.error.issues
-        .map((i) => `${i.path.join('.')}: ${i.message}`)
-        .join('; ');
-      throw new Error(`Invalid benefit type after update: ${messages}`);
+      throw new Error('mbc_error_invalid_benefit_type');
     }
 
     registry[index] = updated;
@@ -111,7 +103,7 @@ export const BenefitRegistryService = (
     const index = registry.findIndex((st) => st.id === id);
 
     if (index === -1) {
-      throw new Error(`Benefit type with id "${id}" not found`);
+      throw new Error('mbc_error_benefit_type_not_found');
     }
 
     registry.splice(index, 1);

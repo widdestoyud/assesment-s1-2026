@@ -29,14 +29,12 @@ export const CheckInUseCase = (
 
     // Step 2: Validate card is registered
     if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('Card is not registered. Please register at The Station first.');
+      throw new Error('mbc_error_not_registered');
     }
 
     // Step 3: Validate no active check-in (double tap-in prevention)
     if (cardData.checkIn !== null) {
-      throw new Error(
-        'Member already checked in. Cannot check in again until check-out is completed.',
-      );
+      throw new Error('mbc_error_already_checked_in');
     }
 
     // Step 4: Determine timestamp (real or simulation)
@@ -56,9 +54,7 @@ export const CheckInUseCase = (
     const writeResult = await nfcService.writeAndVerify(encrypted);
 
     if (!writeResult.success) {
-      throw new Error(
-        `Check-in failed: write verification error — ${writeResult.error}`,
-      );
+      throw new Error('mbc_error_write_verification_failed');
     }
 
     return {

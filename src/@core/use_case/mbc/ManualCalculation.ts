@@ -23,16 +23,13 @@ export const ManualCalculationUseCase = (
       input.benefitTypeId,
     );
     if (!serviceType) {
-      throw new Error(
-        `Service type "${input.benefitTypeId}" not found in registry. ` +
-          'Please configure service types at The Station.',
-      );
+      throw new Error('mbc_error_benefit_type_not_found');
     }
 
     // Step 2: Validate check-in timestamp
     const checkInDate = new Date(input.checkInTimestamp);
     if (Number.isNaN(checkInDate.getTime())) {
-      throw new TypeError('Invalid check-in timestamp format. Expected ISO 8601.');
+      throw new TypeError('mbc_error_invalid_timestamp');
     }
 
     // Step 3: Calculate fee using current time as check-out

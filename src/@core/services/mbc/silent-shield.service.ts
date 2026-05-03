@@ -50,10 +50,8 @@ export const SilentShieldService = (
 
         cachedKey = derivedKey;
         return derivedKey;
-      } catch (error: unknown) {
-        const message =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new Error(`Key derivation failed: ${message}`);
+      } catch {
+        throw new Error('mbc_error_key_derivation_failed');
       }
     })();
 
@@ -86,12 +84,10 @@ export const SilentShieldService = (
 
       return result;
     } catch (error: unknown) {
-      if (error instanceof Error && error.message.startsWith('Key derivation failed:')) {
+      if (error instanceof Error && error.message === 'mbc_error_key_derivation_failed') {
         throw error;
       }
-      const message =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Encryption failed: ${message}`);
+      throw new Error('mbc_error_encryption_failed');
     }
   };
 
@@ -116,12 +112,10 @@ export const SilentShieldService = (
 
       return new Uint8Array(decryptedBuffer);
     } catch (error: unknown) {
-      if (error instanceof Error && error.message.startsWith('Key derivation failed:')) {
+      if (error instanceof Error && error.message === 'mbc_error_key_derivation_failed') {
         throw error;
       }
-      const message =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Decryption failed: ${message}`);
+      throw new Error('mbc_error_decryption_failed');
     }
   };
 

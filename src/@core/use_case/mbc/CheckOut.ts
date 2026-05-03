@@ -36,17 +36,12 @@ export const CheckOutUseCase = (
 
     // Step 2: Validate active check-in exists (double tap-out prevention)
     if (cardData.checkIn === null) {
-      throw new Error(
-        'Member has not checked in. Cannot process check-out without an active check-in session.',
-      );
+      throw new Error('mbc_error_not_checked_in');
     }
 
     // Step 3: Validate device ID match
     if (cardData.checkIn.deviceId !== input.currentDeviceId) {
-      throw new Error(
-        'Device mismatch. This member checked in on a different device. ' +
-          'Please return to the original check-in device to process check-out.',
-      );
+      throw new Error('mbc_error_device_mismatch');
     }
 
     // Step 4: Lookup service type from registry
@@ -54,10 +49,7 @@ export const CheckOutUseCase = (
       cardData.checkIn.benefitTypeId,
     );
     if (!serviceType) {
-      throw new Error(
-        `Service type "${cardData.checkIn.benefitTypeId}" not found in registry. ` +
-          'Please reconfigure service types at The Station.',
-      );
+      throw new Error('mbc_error_benefit_type_not_found');
     }
 
     // Step 5: Calculate fee
@@ -70,13 +62,7 @@ export const CheckOutUseCase = (
 
     // Step 6: Validate sufficient balance
     if (feeResult.fee > cardData.balance) {
-      const shortage = feeResult.fee - cardData.balance;
-      throw new Error(
-        `Insufficient balance. Fee: Rp ${feeResult.fee.toLocaleString('id-ID')}, ` +
-          `Balance: Rp ${cardData.balance.toLocaleString('id-ID')}, ` +
-          `Shortage: Rp ${shortage.toLocaleString('id-ID')}. ` +
-          'Please top-up at The Station.',
-      );
+      throw new Error('mbc_error_insufficient_balance');
     }
 
     // Step 7: Snapshot current state (for potential rollback)
@@ -103,15 +89,9 @@ export const CheckOutUseCase = (
         await nfcService.writeCard(snapshotEncrypted);
       } catch {
         // Rollback failed — card may be in inconsistent state
-        throw new Error(
-          'CRITICAL: Check-out write failed AND rollback failed. ' +
-            'Card may be in an inconsistent state. Please contact support.',
-        );
+        throw new Error('mbc_error_critical_rollback_failed');
       }
-      throw new Error(
-        `Check-out failed: write verification error — ${writeResult.error}. ` +
-          'Card has been rolled back to pre-checkout state.',
-      );
+      throw new Error('mbc_error_write_verification_failed');
     }
 
     // Step 10: Calculate duration for display

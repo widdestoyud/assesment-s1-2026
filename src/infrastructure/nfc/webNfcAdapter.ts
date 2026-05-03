@@ -51,6 +51,7 @@ export const webNfcAdapter: NfcProtocol = {
       onError({
         type: 'hardware_unavailable',
         message: 'Web NFC is not supported on this device or browser',
+        messageKey: 'mbc_nfc_error_hardware_unavailable',
       });
       return { abort: () => controller.abort() };
     }
@@ -64,18 +65,30 @@ export const webNfcAdapter: NfcProtocol = {
           try {
             const data = extractPayload(event.message);
             onRead(data);
-          } catch {
-            onError({
-              type: 'read_failed',
-              message: 'Failed to extract data from NFC tag',
-            });
+          } catch (error: unknown) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            if (errorMessage.includes('No text record')) {
+              onError({
+                type: 'blank_card',
+                message: 'This card is blank — no text record found',
+                messageKey: 'mbc_nfc_error_blank_card',
+              });
+            } else {
+              onError({
+                type: 'invalid_card_data',
+                message: 'Card data is not recognized as valid MBC data',
+                messageKey: 'mbc_nfc_error_card_not_recognized',
+              });
+            }
           }
         };
 
         ndef.onreadingerror = () => {
           onError({
-            type: 'read_failed',
+            type: 'incompatible_card',
             message: 'Error reading NFC tag — tag may be incompatible',
+            messageKey: 'mbc_nfc_error_incompatible_card',
           });
         };
       })
@@ -86,24 +99,28 @@ export const webNfcAdapter: NfcProtocol = {
               onError({
                 type: 'permission_denied',
                 message: 'NFC permission was denied by the user',
+                messageKey: 'mbc_nfc_error_permission_denied',
               });
               break;
             case 'NotSupportedError':
               onError({
                 type: 'hardware_unavailable',
                 message: 'NFC hardware is not available on this device',
+                messageKey: 'mbc_nfc_error_hardware_unavailable',
               });
               break;
             default:
               onError({
                 type: 'read_failed',
                 message: `NFC scan failed: ${error.message}`,
+                messageKey: 'mbc_nfc_error_scan_failed',
               });
           }
         } else {
           onError({
             type: 'read_failed',
             message: 'An unexpected error occurred during NFC scan',
+            messageKey: 'mbc_nfc_error_scan_failed',
           });
         }
       });
@@ -118,6 +135,7 @@ export const webNfcAdapter: NfcProtocol = {
       throw createNfcError(
         'hardware_unavailable',
         'Web NFC is not supported on this device or browser',
+        'mbc_nfc_error_hardware_unavailable',
       );
     }
 
@@ -135,27 +153,32 @@ export const webNfcAdapter: NfcProtocol = {
             throw createNfcError(
               'permission_denied',
               'NFC permission was denied by the user',
+              'mbc_nfc_error_permission_denied',
             );
           case 'NotSupportedError':
             throw createNfcError(
               'hardware_unavailable',
               'NFC hardware is not available on this device',
+              'mbc_nfc_error_hardware_unavailable',
             );
           case 'NetworkError':
             throw createNfcError(
               'connection_lost',
               'NFC connection lost during write — tag may have been removed',
+              'mbc_nfc_error_connection_lost',
             );
           default:
             throw createNfcError(
               'write_failed',
               `NFC write failed: ${error.message}`,
+              'mbc_nfc_error_write_failed',
             );
         }
       }
       throw createNfcError(
         'write_failed',
         'An unexpected error occurred during NFC write',
+        'mbc_nfc_error_write_failed',
       );
     }
   },
@@ -164,13 +187,21 @@ export const webNfcAdapter: NfcProtocol = {
 /**
  * Extract the payload bytes from an NDEF message.
  * Expects a single text record containing base64-encoded data.
+ *
+ * Throws distinguishable errors:
+ * - "No text record found in NFC tag" when no text record exists (blank card)
+ * - "Failed to decode base64 data from NFC tag" when base64 decoding fails (non-MBC data)
  */
 function extractPayload(message: NDEFMessage): Uint8Array {
   for (const record of message.records) {
     if (record.recordType === 'text' && record.data) {
       const decoder = new TextDecoder();
       const base64 = decoder.decode(record.data);
-      return base64ToUint8Array(base64);
+      try {
+        return base64ToUint8Array(base64);
+      } catch {
+        throw new Error('Failed to decode base64 data from NFC tag');
+      }
     }
   }
   throw new Error('No text record found in NFC tag');
@@ -195,7 +226,12 @@ function base64ToUint8Array(base64: string): Uint8Array {
   return bytes;
 }
 
-/** Helper to create a typed NfcError */
-function createNfcError(type: NfcError['type'], message: string): NfcError {
-  return { type, message };
+/** Helper to create a typed NfcError with locale key */
+function createNfcError(
+  type: NfcError['type'],
+  message: string,
+  messageKey: string,
+  messageParams?: Record<string, string | number>,
+): NfcError {
+  return { type, message, messageKey, ...(messageParams && { messageParams }) };
 }

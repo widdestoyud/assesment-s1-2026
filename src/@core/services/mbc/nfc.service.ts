@@ -7,6 +7,20 @@ import type {
   WriteVerifyResult,
 } from '@core/services/mbc/models';
 
+export class NfcServiceError extends Error {
+  readonly type: NfcError['type'];
+  readonly messageKey: string;
+  readonly messageParams?: Record<string, string | number>;
+
+  constructor(nfcError: NfcError) {
+    super(nfcError.messageKey);
+    this.name = 'NfcServiceError';
+    this.type = nfcError.type;
+    this.messageKey = nfcError.messageKey;
+    this.messageParams = nfcError.messageParams;
+  }
+}
+
 export interface NfcServiceInterface {
   /** Check if NFC hardware is available */
   isAvailable(): boolean;
@@ -44,7 +58,7 @@ export const NfcService = (
 
       const onError = (err: NfcError): void => {
         session?.abort();
-        reject(new Error(`NFC read failed [${err.type}]: ${err.message}`));
+        reject(new NfcServiceError(err));
       };
 
       session = nfcProtocol.startScan(onRead, onError);
@@ -69,8 +83,7 @@ export const NfcService = (
       if (!arraysEqual(data, readBack)) {
         return {
           success: false,
-          error:
-            'Verification failed: data read back from card does not match written data',
+          error: 'mbc_error_write_verification_failed',
         };
       }
 
@@ -81,7 +94,7 @@ export const NfcService = (
         error:
           error instanceof Error
             ? error.message
-            : 'Write and verify failed due to an unknown error',
+            : 'mbc_error_write_verification_failed',
       };
     }
   };

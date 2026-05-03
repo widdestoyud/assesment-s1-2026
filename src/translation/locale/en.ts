@@ -189,4 +189,32 @@ export default {
   // eSIM Registration
   web_register_personal_data_registrasi_sim_order_msisdn:
     'Your Telkomsel Number',
+
+  /* MBC - NFC Error Messages */
+  mbc_nfc_error_incompatible_card: 'Incompatible card. Please use an NTAG215 or NTAG216 card.',
+  mbc_nfc_error_blank_card: 'This card is blank. Please register it at The Station first.',
+  mbc_nfc_error_card_not_recognized: 'This card is not recognized as an MBC card.',
+  mbc_nfc_error_card_data_corrupted: 'Card data is damaged or invalid. Please re-register at The Station.',
+  mbc_nfc_error_permission_denied: 'NFC permission was denied. Please allow NFC access in browser settings.',
+  mbc_nfc_error_hardware_unavailable: 'NFC is not available on this device or browser.',
+  mbc_nfc_error_connection_lost: 'NFC connection lost. Please keep the card steady and try again.',
+  mbc_nfc_error_read_failed: 'Failed to read NFC card. Please try again.',
+  mbc_nfc_error_write_failed: 'Failed to write to NFC card. Please try again.',
+  mbc_nfc_error_scan_failed: 'NFC scan failed. Please try again.',
+  mbc_error_not_registered: 'Card is not registered. Please register at The Station first.',
+  mbc_error_already_checked_in: 'Member already checked in. Please complete check-out first.',
+  mbc_error_not_checked_in: 'Member has not checked in. Cannot process check-out.',
+  mbc_error_device_mismatch: 'Device mismatch. Please return to the original check-in device.',
+  mbc_error_insufficient_balance: 'Insufficient balance. Fee: Rp {{fee}}, Balance: Rp {{balance}}, Shortage: Rp {{shortage}}. Please top-up at The Station.',
+  mbc_error_benefit_type_not_found: 'Benefit type "{{id}}" not found. Please configure at The Station.',
+  mbc_error_benefit_type_duplicate: 'Benefit type "{{id}}" already exists.',
+  mbc_error_invalid_benefit_type: 'Invalid benefit type configuration.',
+  mbc_error_card_already_registered: 'Card already registered to {{name}}.',
+  mbc_error_write_verification_failed: 'Write verification failed. Card has been rolled back.',
+  mbc_error_critical_rollback_failed: 'CRITICAL: Write failed and rollback failed. Card may be inconsistent. Contact support.',
+  mbc_error_topup_amount_invalid: 'Top-up amount must be a positive number.',
+  mbc_error_invalid_timestamp: 'Invalid check-in timestamp format.',
+  mbc_error_encryption_failed: 'Card encryption failed. Please try again.',
+  mbc_error_decryption_failed: 'Failed to read card data. Card may be from a different system.',
+  mbc_error_key_derivation_failed: 'Security initialization failed. Please restart the app.',
 };

@@ -28,16 +28,13 @@ export const RegisterMemberUseCase = (
 
       // If we get here, card already has valid member data
       if (existingCard.member.name.length > 0) {
-        throw new Error(
-          'Card already registered. This card belongs to: ' +
-            existingCard.member.name,
-        );
+        throw new Error('mbc_error_card_already_registered');
       }
     } catch (error: unknown) {
       // If decryption/deserialization fails, card is blank — proceed with registration
       if (
         error instanceof Error &&
-        error.message.startsWith('Card already registered')
+        error.message === 'mbc_error_card_already_registered'
       ) {
         throw error;
       }
@@ -63,9 +60,7 @@ export const RegisterMemberUseCase = (
     const writeResult = await nfcService.writeAndVerify(encrypted);
 
     if (!writeResult.success) {
-      throw new Error(
-        `Registration failed: write verification error — ${writeResult.error}`,
-      );
+      throw new Error('mbc_error_write_verification_failed');
     }
 
     return {

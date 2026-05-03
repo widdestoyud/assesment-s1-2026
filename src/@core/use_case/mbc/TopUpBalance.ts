@@ -19,7 +19,7 @@ export const TopUpBalanceUseCase = (
 
   const execute = async (input: TopUpBalanceInput): Promise<OperationResult> => {
     if (input.amount <= 0) {
-      throw new Error('Top-up amount must be a positive number');
+      throw new Error('mbc_error_topup_amount_invalid');
     }
 
     // Step 1: Read card → decrypt → deserialize
@@ -29,7 +29,7 @@ export const TopUpBalanceUseCase = (
 
     // Step 2: Validate card is registered
     if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('Card is not registered. Please register at The Station first.');
+      throw new Error('mbc_error_not_registered');
     }
 
     const previousBalance = cardData.balance;
@@ -43,9 +43,7 @@ export const TopUpBalanceUseCase = (
     const writeResult = await nfcService.writeAndVerify(encrypted);
 
     if (!writeResult.success) {
-      throw new Error(
-        `Top-up failed: write verification error — ${writeResult.error}`,
-      );
+      throw new Error('mbc_error_write_verification_failed');
     }
 
     return {
