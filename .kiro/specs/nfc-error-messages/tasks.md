@@ -1,0 +1,189 @@
+# Implementation Plan
+
+- [ ] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - MBC Error Messages Are Hardcoded English Strings
+  - **CRITICAL**: This test MUST FAIL on unfixed code — failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **NOTE**: This test encodes the expected behavior — it will validate the fix when it passes after implementation
+  - **GOAL**: Surface counterexamples that demonstrate error messages are hardcoded English strings instead of i18n locale keys
+  - **Scoped PBT Approach**: Scope the property to concrete failing cases across the MBC error surface:
+    - `card-data.service.deserialize` with invalid JSON bytes → currently throws `'Failed to parse card data: invalid JSON'`
+    - `card-data.service.deserialize` with invalid CardData JSON (fails Zod) → currently throws `'Invalid card data: ...'` with raw Zod paths
+    - `webNfcAdapter.startScan` `onreadingerror` callback → currently reports `{ type: 'read_failed', message: 'Error reading NFC tag — tag may be incompatible' }`
+    - `webNfcAdapter.startScan` `onreading` catch (blank card / extract failure) → currently reports `{ type: 'read_failed', message: 'Failed to extract data from NFC tag' }`
+    - `CheckIn.execute` with unregistered card → currently throws `'Card is not registered. Please register at The Station first.'`
+    - `CheckIn.execute` with already checked-in card → currently throws `'Member already checked in...'`
+    - `CheckOut.execute` with no active check-in → currently throws `'Member has not checked in...'`
+    - `CheckOut.execute` with insufficient balance → currently throws `'Insufficient balance. Fee: Rp ...'`
+    - `TopUpBalance.execute` with amount <= 0 → currently throws `'Top-up amount must be a positive number'`
+    - `benefit-registry.service.add` with duplicate ID → currently throws `'Benefit type with id "..." already exists'`
+  - Create test file: `src/@core/services/__tests__/mbc/nfc-error-messages.bug-condition.test.ts`
+  - Use `vitest` + `fast-check` — generate random invalid byte arrays for `deserialize`, assert error messages start with `mbc_` prefix
+  - For deterministic error paths (use cases, adapter), write concrete test cases asserting the error message is an i18n locale key (starts with `mbc_`)
+  - The test assertions should match the Expected Behavior: every error message is a `mbc_`-prefixed locale key
+  - Run test on UNFIXED code
+  - **EXPECTED OUTCOME**: Test FAILS (this is correct — it proves the bug exists because messages are hardcoded English, not locale keys)
+  - Document counterexamples found: all error messages are plain English strings, none start with `mbc_`
+  - Mark task complete when test is written, run, and failure is documented
+  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
+
+- [ ] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - Non-Error Behavior Unchanged
+  - **IMPORTANT**: Follow observation-first methodology
+  - **Observe on UNFIXED code**:
+    - `CardDataService.serialize` → `deserialize` round-trip produces identical `CardData` for all valid inputs
+    - `CardDataService.applyTopUp(card, amount).balance === card.balance + amount` for all valid cards and positive amounts
+    - `CardDataService.applyCheckIn` on not-checked-in card succeeds and sets `checkIn` fields correctly
+    - `CardDataService.applyCheckOut` on checked-in card with sufficient balance succeeds and clears `checkIn`, deducts fee
+    - `NfcService.readCard` resolves with data from protocol when scan succeeds (non-error path)
+    - `NfcService.writeAndVerify` returns `{ success: true }` when written data matches read-back
+    - Existing non-MBC locale keys in `en.ts` and `id.ts` resolve to the same values (no keys removed or modified)
+  - Create test file: `src/@core/services/__tests__/mbc/nfc-error-messages.preservation.test.ts`
+  - Write property-based tests using `fast-check` with the existing `CardData` arbitraries pattern from `card-data.service.test.ts`:
+    - **Serialization round-trip**: `fc.property(cardDataArb, card => deserialize(serialize(card)) deepEquals card)`
+    - **Top-up balance conservation**: `fc.property(cardDataArb, positiveInt, (card, amt) => applyTopUp(card, amt).balance === card.balance + amt)`
+    - **Check-in/check-out state transitions**: verify `applyCheckIn` sets `checkIn` and `applyCheckOut` clears it
+    - **Existing locale keys unchanged**: snapshot all current non-MBC keys from `en.ts` and `id.ts`, assert they remain identical after fix
+  - Verify tests pass on UNFIXED code
+  - **EXPECTED OUTCOME**: Tests PASS (this confirms baseline behavior to preserve)
+  - Mark task complete when tests are written, run, and passing on unfixed code
+  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
+
+- [ ] 3. Implement NFC error messages i18n fix
+
+  - [ ] 3.1 Extend `NfcError` type and add locale key fields in `common.model.ts`
+    - Add 4 new granular types to `NfcError.type` union: `'incompatible_card'`, `'blank_card'`, `'invalid_card_data'`, `'corrupted_card_data'`
+    - Add `messageKey: string` field to `NfcError` interface for the i18n locale key
+    - Add `messageParams?: Record<string, string | number>` field to `NfcError` interface for interpolation values
+    - Keep existing `message: string` field as fallback/debug string
+    - Keep existing `type` values (`permission_denied`, `hardware_unavailable`, `read_failed`, `write_failed`, `connection_lost`) unchanged
+    - _Bug_Condition: isBugCondition(input) where error messages are hardcoded English strings_
+    - _Expected_Behavior: NfcError carries messageKey (mbc_-prefixed locale key) and optional messageParams_
+    - _Preservation: Existing NfcError.type values and NfcProtocol interface contract unchanged_
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
+  - [ ] 3.2 Add all MBC error locale keys to `en.ts` and `id.ts`
+    - Add 26 `mbc_`-prefixed locale keys to `src/translation/locale/en.ts` with English translations
+    - Add matching 26 `mbc_`-prefixed locale keys to `src/translation/locale/id.ts` with Indonesian translations
+    - Include interpolation placeholders (`{{fee}}`, `{{balance}}`, `{{shortage}}`, `{{id}}`, `{{name}}`, `{{error}}`) where needed
+    - Follow the Error Key Catalog from the design document exactly
+    - Do NOT modify any existing non-MBC locale keys
+    - _Bug_Condition: No mbc_ locale keys exist in en.ts or id.ts_
+    - _Expected_Behavior: All 26 mbc_ keys present in both locale files with correct translations_
+    - _Preservation: All existing non-MBC locale keys unchanged_
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.8_
+
+  - [ ] 3.3 Update `webNfcAdapter.ts` to use locale keys and granular error types
+    - `onreadingerror`: Change type from `'read_failed'` to `'incompatible_card'`, set `messageKey: 'mbc_nfc_error_incompatible_card'`
+    - `onreading` catch (extractPayload failure): Distinguish blank card vs invalid data:
+      - If `extractPayload` throws "No text record" → type `'blank_card'`, messageKey `'mbc_nfc_error_blank_card'`
+      - If `extractPayload` throws base64 decode error → type `'invalid_card_data'`, messageKey `'mbc_nfc_error_card_not_recognized'`
+    - Update `extractPayload` to throw distinguishable errors for "no text record" vs "base64 decode failure"
+    - `startScan` → `scan().catch`: Replace all hardcoded messages with locale keys (`mbc_nfc_error_permission_denied`, `mbc_nfc_error_hardware_unavailable`, `mbc_nfc_error_scan_failed`)
+    - `write` method: Replace all hardcoded messages with locale keys (`mbc_nfc_error_permission_denied`, `mbc_nfc_error_hardware_unavailable`, `mbc_nfc_error_connection_lost`, `mbc_nfc_error_write_failed`)
+    - Hardware unavailable check in `startScan` and `write`: Use `mbc_nfc_error_hardware_unavailable`
+    - Update `createNfcError` helper to accept `messageKey` and optional `messageParams`
+    - _Bug_Condition: All adapter error messages are hardcoded English strings_
+    - _Expected_Behavior: All adapter errors carry mbc_-prefixed messageKey_
+    - _Preservation: NfcProtocol interface contract unchanged, successful read/write paths unchanged_
+    - _Requirements: 2.1, 2.2, 2.3, 2.5, 2.6, 3.1, 3.2, 3.3, 3.4_
+
+  - [ ] 3.4 Update `card-data.service.ts` to use locale keys for deserialization errors
+    - JSON parse failure: Throw error with locale key `mbc_nfc_error_card_not_recognized` instead of `'Failed to parse card data: invalid JSON'`
+    - Zod validation failure: Throw error with locale key `mbc_nfc_error_card_data_corrupted` instead of `'Invalid card data: ...'` with raw Zod paths
+    - Use a structured error or encode the locale key in the error message for downstream consumers
+    - Keep `applyCheckIn` and `applyCheckOut` internal validation errors with locale keys (`mbc_error_already_checked_in`, `mbc_error_not_checked_in`)
+    - _Bug_Condition: deserialize throws hardcoded English strings for parse/validation failures_
+    - _Expected_Behavior: deserialize throws errors with mbc_-prefixed locale keys_
+    - _Preservation: serialize, validate, applyRegistration, applyTopUp behavior unchanged for valid inputs_
+    - _Requirements: 2.3, 2.4, 2.5, 3.1_
+
+  - [ ] 3.5 Update `nfc.service.ts` to preserve locale keys from adapter errors
+    - `readCard` `onError` handler: Preserve `NfcError.type` and `messageKey` from the adapter instead of constructing `'NFC read failed [${err.type}]: ${err.message}'`
+    - Propagate `messageKey` and `messageParams` through the error chain
+    - `writeAndVerify` verification failure message: Use locale key `mbc_error_write_verification_failed`
+    - _Bug_Condition: nfc.service wraps adapter errors with new hardcoded English strings, losing the original locale key_
+    - _Expected_Behavior: nfc.service preserves messageKey from adapter errors_
+    - _Preservation: isAvailable, requestPermission, writeCard behavior unchanged_
+    - _Requirements: 2.5, 3.1, 3.2, 3.3, 3.4_
+
+  - [ ] 3.6 Update `silent-shield.service.ts` to use locale keys
+    - Key derivation failure: Use locale key `mbc_error_key_derivation_failed` instead of `'Key derivation failed: ...'`
+    - Encryption failure: Use locale key `mbc_error_encryption_failed` instead of `'Encryption failed: ...'`
+    - Decryption failure: Use locale key `mbc_error_decryption_failed` instead of `'Decryption failed: ...'`
+    - _Bug_Condition: All SilentShield error messages are hardcoded English strings_
+    - _Expected_Behavior: All SilentShield errors use mbc_-prefixed locale keys_
+    - _Preservation: Successful encrypt/decrypt behavior unchanged_
+    - _Requirements: 2.5, 3.1_
+
+  - [ ] 3.7 Update `benefit-registry.service.ts` to use locale keys
+    - `add` validation failure: Use locale key `mbc_error_invalid_benefit_type` instead of `'Invalid benefit type: ...'`
+    - `add` duplicate ID: Use locale key `mbc_error_benefit_type_duplicate` with `messageParams: { id }` instead of `'Benefit type with id "..." already exists'`
+    - `update` not found: Use locale key `mbc_error_benefit_type_not_found` with `messageParams: { id }` instead of `'Benefit type with id "..." not found'`
+    - `update` validation failure: Use locale key `mbc_error_invalid_benefit_type`
+    - `remove` not found: Use locale key `mbc_error_benefit_type_not_found` with `messageParams: { id }`
+    - _Bug_Condition: All BenefitRegistry error messages are hardcoded English strings_
+    - _Expected_Behavior: All BenefitRegistry errors use mbc_-prefixed locale keys with interpolation params_
+    - _Preservation: getAll, getById, initializeDefaults behavior unchanged for valid inputs_
+    - _Requirements: 2.5, 3.1_
+
+  - [ ] 3.8 Update use cases (`CheckIn.ts`, `CheckOut.ts`, `ReadCard.ts`, `RegisterMember.ts`, `TopUpBalance.ts`, `ManualCalculation.ts`) to use locale keys
+    - **CheckIn.ts**:
+      - Unregistered card: `mbc_error_not_registered`
+      - Already checked in: `mbc_error_already_checked_in`
+      - Write verification failure: `mbc_error_write_verification_failed` with `messageParams: { error }`
+    - **CheckOut.ts**:
+      - Not checked in: `mbc_error_not_checked_in`
+      - Device mismatch: `mbc_error_device_mismatch`
+      - Benefit type not found: `mbc_error_benefit_type_not_found` with `messageParams: { id }`
+      - Insufficient balance: `mbc_error_insufficient_balance` with `messageParams: { fee, balance, shortage }`
+      - Write verification failure: `mbc_error_write_verification_failed` with `messageParams: { error }`
+      - Critical rollback failure: `mbc_error_critical_rollback_failed`
+    - **ReadCard.ts**:
+      - Unregistered card: `mbc_error_not_registered`
+    - **RegisterMember.ts**:
+      - Already registered: `mbc_error_card_already_registered` with `messageParams: { name }`
+      - Write verification failure: `mbc_error_write_verification_failed` with `messageParams: { error }`
+    - **TopUpBalance.ts**:
+      - Invalid amount: `mbc_error_topup_amount_invalid`
+      - Unregistered card: `mbc_error_not_registered`
+      - Write verification failure: `mbc_error_write_verification_failed` with `messageParams: { error }`
+    - **ManualCalculation.ts**:
+      - Benefit type not found: `mbc_error_benefit_type_not_found` with `messageParams: { id }`
+      - Invalid timestamp: `mbc_error_invalid_timestamp`
+    - _Bug_Condition: All use case throw new Error(...) calls use hardcoded English strings_
+    - _Expected_Behavior: All use case errors use mbc_-prefixed locale keys with interpolation params where needed_
+    - _Preservation: Successful operation paths (card read, write, fee calculation) unchanged_
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 3.5, 3.6, 3.7_
+
+  - [ ] 3.9 Update existing tests to match new error message format
+    - Update `nfc.service.test.ts`: Adjust error message assertions to expect locale keys instead of hardcoded English
+    - Update `card-data.service.test.ts`: Adjust Property 5 and Property 6 error message assertions to expect locale keys
+    - Update any other test files that assert on hardcoded MBC error strings
+    - Ensure all existing test suites pass with the new locale key–based error messages
+    - _Requirements: 2.5, 3.1, 3.5, 3.6_
+
+  - [ ] 3.10 Verify bug condition exploration test now passes
+    - **Property 1: Expected Behavior** - All MBC Error Messages Use i18n Locale Keys
+    - **IMPORTANT**: Re-run the SAME test from task 1 — do NOT write a new test
+    - The test from task 1 encodes the expected behavior: every error message is a `mbc_`-prefixed locale key
+    - When this test passes, it confirms the expected behavior is satisfied
+    - Run bug condition exploration test from step 1
+    - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed)
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
+
+  - [ ] 3.11 Verify preservation tests still pass
+    - **Property 2: Preservation** - Non-Error Behavior Unchanged
+    - **IMPORTANT**: Re-run the SAME tests from task 2 — do NOT write new tests
+    - Run preservation property tests from step 2
+    - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
+    - Confirm all tests still pass after fix (no regressions)
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
+
+- [ ] 4. Checkpoint - Ensure all tests pass
+  - Run `npm test` to execute the full test suite
+  - Verify all bug condition exploration tests pass (task 1 tests)
+  - Verify all preservation property tests pass (task 2 tests)
+  - Verify all existing tests pass (no regressions from task 3.9 updates)
+  - Verify TypeScript compilation succeeds with `tsc -b`
+  - Ensure all tests pass, ask the user if questions arise.
