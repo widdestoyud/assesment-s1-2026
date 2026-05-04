@@ -100,7 +100,7 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('has not checked in');
+    ).rejects.toThrow('mbc_error_not_checked_in');
   });
 
   it('rejects on device ID mismatch', async () => {
@@ -109,7 +109,7 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'wrong-device' }),
-    ).rejects.toThrow('Device mismatch');
+    ).rejects.toThrow('mbc_error_device_mismatch');
   });
 
   it('rejects when service type not found', async () => {
@@ -119,7 +119,7 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('not found in registry');
+    ).rejects.toThrow('mbc_error_benefit_type_not_found');
   });
 
   it('rejects when balance is insufficient', async () => {
@@ -129,7 +129,7 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('Insufficient balance');
+    ).rejects.toThrow('mbc_error_insufficient_balance');
   });
 
   it('attempts rollback when write verification fails', async () => {
@@ -142,7 +142,7 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('rolled back');
+    ).rejects.toThrow('mbc_error_write_verification_failed');
     // Verify rollback was attempted
     expect(mocks.nfcService.writeCard).toHaveBeenCalledOnce();
   });
@@ -160,6 +160,6 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('CRITICAL');
+    ).rejects.toThrow('mbc_error_critical_rollback_failed');
   });
 });

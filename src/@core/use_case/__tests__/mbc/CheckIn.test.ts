@@ -103,7 +103,7 @@ describe('CheckInUseCase', () => {
         benefitTypeName: 'Parkir',
         deviceId: 'device-abc',
       }),
-    ).rejects.toThrow('already checked in');
+    ).rejects.toThrow('mbc_error_already_checked_in');
   });
 
   it('rejects unregistered card', async () => {
@@ -123,7 +123,7 @@ describe('CheckInUseCase', () => {
         benefitTypeName: 'Parkir',
         deviceId: 'device-abc',
       }),
-    ).rejects.toThrow('not registered');
+    ).rejects.toThrow('mbc_error_not_registered');
   });
 
   it('throws when write verification fails', async () => {
@@ -140,6 +140,6 @@ describe('CheckInUseCase', () => {
         benefitTypeName: 'Parkir',
         deviceId: 'device-abc',
       }),
-    ).rejects.toThrow('Check-in failed');
+    ).rejects.toThrow('mbc_error_write_verification_failed');
   });
 });

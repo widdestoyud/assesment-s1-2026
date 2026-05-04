@@ -143,7 +143,7 @@ describe('BenefitRegistryService', () => {
       const service = BenefitRegistryService({ keyValueStore: store });
 
       await expect(service.add(DEFAULT_PARKING_BENEFIT)).rejects.toThrow(
-        'already exists',
+        'mbc_error_benefit_type_duplicate',
       );
     });
 
@@ -158,7 +158,7 @@ describe('BenefitRegistryService', () => {
         pricing: { ratePerUnit: -1, unitType: 'invalid', roundingStrategy: 'ceiling' },
       } as unknown as BenefitType;
 
-      await expect(service.add(invalid)).rejects.toThrow('Invalid benefit type');
+      await expect(service.add(invalid)).rejects.toThrow('mbc_error_invalid_benefit_type');
     });
   });
 
@@ -187,7 +187,7 @@ describe('BenefitRegistryService', () => {
 
       await expect(
         service.update('nonexistent', { displayName: 'Test' }),
-      ).rejects.toThrow('not found');
+      ).rejects.toThrow('mbc_error_benefit_type_not_found');
     });
 
     it('preserves the original ID even if updates try to change it', async () => {
@@ -212,7 +212,7 @@ describe('BenefitRegistryService', () => {
 
       await expect(
         service.update('parking', { displayName: '' }),
-      ).rejects.toThrow('Invalid benefit type after update');
+      ).rejects.toThrow('mbc_error_invalid_benefit_type');
     });
   });
 
@@ -239,7 +239,7 @@ describe('BenefitRegistryService', () => {
       const store = createMockStore([DEFAULT_PARKING_BENEFIT]);
       const service = BenefitRegistryService({ keyValueStore: store });
 
-      await expect(service.remove('nonexistent')).rejects.toThrow('not found');
+      await expect(service.remove('nonexistent')).rejects.toThrow('mbc_error_benefit_type_not_found');
     });
 
     it('can remove the last benefit type leaving empty registry', async () => {

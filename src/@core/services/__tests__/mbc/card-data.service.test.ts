@@ -176,7 +176,7 @@ describe('CardDataService', () => {
                 'parking',
                 exitTimestamp,
               ),
-            ).toThrow('Cannot check out: no active check-in session');
+            ).toThrow('mbc_error_not_checked_in');
           },
         ),
         { numRuns: 200 },
@@ -202,7 +202,7 @@ describe('CardDataService', () => {
             expect(() =>
               service.applyCheckIn(card, benefitTypeId, deviceId, timestamp),
             ).toThrow(
-              'Cannot check in: card already has an active check-in session',
+              'mbc_error_already_checked_in',
             );
           },
         ),
@@ -224,7 +224,7 @@ describe('CardDataService', () => {
                 'parking',
                 exitTimestamp,
               ),
-            ).toThrow('Cannot check out: no active check-in session');
+            ).toThrow('mbc_error_not_checked_in');
           },
         ),
         { numRuns: 200 },

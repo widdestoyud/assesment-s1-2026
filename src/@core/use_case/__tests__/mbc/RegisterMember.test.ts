@@ -75,7 +75,7 @@ describe('RegisterMemberUseCase', () => {
 
     await expect(
       useCase.execute({ member: { name: 'New User', memberId: 'M002' } }),
-    ).rejects.toThrow('Card already registered');
+    ).rejects.toThrow('mbc_error_card_already_registered');
   });
 
   it('throws when write verification fails', async () => {
@@ -92,7 +92,7 @@ describe('RegisterMemberUseCase', () => {
 
     await expect(
       useCase.execute({ member: { name: 'Test', memberId: 'M003' } }),
-    ).rejects.toThrow('Registration failed');
+    ).rejects.toThrow('mbc_error_write_verification_failed');
   });
 
   it('throws when NFC read fails', async () => {

@@ -62,7 +62,7 @@ describe('ManualCalculationUseCase', () => {
         checkInTimestamp: '2024-01-01T10:00:00.000Z',
         benefitTypeId: 'nonexistent',
       }),
-    ).rejects.toThrow('not found in registry');
+    ).rejects.toThrow('mbc_error_benefit_type_not_found');
   });
 
   it('rejects invalid timestamp format', async () => {
@@ -74,7 +74,7 @@ describe('ManualCalculationUseCase', () => {
         checkInTimestamp: 'not-a-date',
         benefitTypeId: 'parking',
       }),
-    ).rejects.toThrow('Invalid check-in timestamp');
+    ).rejects.toThrow('mbc_error_invalid_timestamp');
   });
 
   it('does not perform any NFC operations', async () => {

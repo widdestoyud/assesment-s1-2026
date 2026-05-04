@@ -64,14 +64,14 @@ describe('TopUpBalanceUseCase', () => {
     const mocks = createMocks();
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: 0 })).rejects.toThrow('positive number');
+    await expect(useCase.execute({ amount: 0 })).rejects.toThrow('mbc_error_topup_amount_invalid');
   });
 
   it('rejects negative amount', async () => {
     const mocks = createMocks();
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: -1000 })).rejects.toThrow('positive number');
+    await expect(useCase.execute({ amount: -1000 })).rejects.toThrow('mbc_error_topup_amount_invalid');
   });
 
   it('rejects unregistered card', async () => {
@@ -85,7 +85,7 @@ describe('TopUpBalanceUseCase', () => {
     const mocks = createMocks(unregistered);
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('not registered');
+    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('mbc_error_not_registered');
   });
 
   it('throws when write verification fails', async () => {
@@ -96,6 +96,6 @@ describe('TopUpBalanceUseCase', () => {
     });
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('Top-up failed');
+    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('mbc_error_write_verification_failed');
   });
 });

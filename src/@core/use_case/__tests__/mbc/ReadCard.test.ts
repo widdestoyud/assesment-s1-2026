@@ -72,7 +72,7 @@ describe('ReadCardUseCase', () => {
     const mocks = createMocks(unregistered);
     const useCase = ReadCardUseCase(mocks);
 
-    await expect(useCase.execute()).rejects.toThrow('not registered');
+    await expect(useCase.execute()).rejects.toThrow('mbc_error_not_registered');
   });
 
   it('throws when NFC read fails', async () => {

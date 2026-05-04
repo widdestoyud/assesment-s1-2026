@@ -97,7 +97,7 @@ describe('SilentShieldService', () => {
       crypto.getRandomValues(corruptData);
 
       await expect(service.decrypt(corruptData)).rejects.toThrow(
-        'Decryption failed:',
+        'mbc_error_decryption_failed',
       );
     });
 
@@ -106,7 +106,7 @@ describe('SilentShieldService', () => {
       const shortData = new Uint8Array(10);
 
       await expect(service.decrypt(shortData)).rejects.toThrow(
-        'Decryption failed:',
+        'mbc_error_decryption_failed',
       );
     });
   });
