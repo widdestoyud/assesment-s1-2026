@@ -217,4 +217,125 @@ export default {
   mbc_error_encryption_failed: 'Card encryption failed. Please try again.',
   mbc_error_decryption_failed: 'Failed to read card data. Card may be from a different system.',
   mbc_error_key_derivation_failed: 'Security initialization failed. Please restart the app.',
+
+  /* MBC - UI Labels */
+  mbc_role_picker_title: 'Membership Benefit Card',
+  mbc_role_picker_subtitle: 'Select operation mode',
+  mbc_role_station_description: 'Card registration, balance top-up, service type configuration',
+  mbc_role_gate_description: 'Check-in with timestamp and service type recording',
+  mbc_role_terminal_description: 'Check-out, fee calculation, balance deduction',
+  mbc_role_scout_description: 'View card contents: balance, status, transaction history',
+
+  /* MBC - Gate */
+  mbc_gate_title: '🚪 The Gate',
+  mbc_gate_subtitle: 'Check-in member with NFC',
+  mbc_gate_simulation_mode: 'Simulation Mode',
+  mbc_gate_simulation_time_label: 'Check-In Time (Simulation)',
+  mbc_gate_checkin_button: 'Check-In',
+  mbc_gate_checkin_success: '✅ Check-in successful',
+  mbc_gate_member_label: 'Member:',
+  mbc_gate_service_label: 'Service:',
+  mbc_gate_entry_time_label: 'Entry time:',
+
+  /* MBC - Terminal */
+  mbc_terminal_title: '💳 The Terminal',
+  mbc_terminal_subtitle: 'Check-out and fee calculation',
+  mbc_terminal_manual_calc_label: 'Manual Calculation',
+  mbc_terminal_manual_result_heading: 'Manual Calculation Result',
+  mbc_terminal_checkout_button: 'Check-Out',
+  mbc_terminal_checkout_success: '✅ Check-out successful — {{benefitTypeName}}',
+
+  /* MBC - Scout */
+  mbc_scout_title: '🔍 The Scout',
+  mbc_scout_subtitle: 'View member card contents',
+  mbc_scout_read_button: 'Read Card',
+
+  /* MBC - Station */
+  mbc_station_title: '🏢 The Station',
+  mbc_station_subtitle: 'Admin: Registration, Top-Up, Configuration',
+  mbc_station_tab_register: 'Registration',
+  mbc_station_tab_topup: 'Top-Up',
+  mbc_station_tab_config: 'Service Config',
+  mbc_station_name_label: 'Name',
+  mbc_station_member_id_label: 'Member ID',
+  mbc_station_register_button: 'Register Card',
+  mbc_station_topup_amount_label: 'Amount (Rp)',
+  mbc_station_topup_button: 'Top-Up Balance',
+  mbc_station_config_heading: 'Registered Service Types',
+  mbc_station_config_empty: 'No benefit types yet',
+  mbc_station_registration_success: '✅ Registration successful — {{memberName}}',
+  mbc_station_topup_success: '✅ Top-up successful — {{memberName}}',
+  mbc_station_remove_label: 'Remove {{name}}',
+
+  /* MBC - Card Info Display */
+  mbc_card_member_identity: 'Member Identity',
+  mbc_card_member_id_prefix: 'ID:',
+  mbc_card_checkin_active: 'Active Check-In Status',
+  mbc_card_service_label: 'Service:',
+  mbc_card_entry_time_label: 'Entry time:',
+
+  /* MBC - Balance Display */
+  mbc_balance_label: 'Balance',
+
+  /* MBC - Fee Breakdown */
+  mbc_fee_title: 'Fee Breakdown',
+  mbc_fee_service_label: 'Service',
+  mbc_fee_usage_label: 'Usage',
+  mbc_fee_rate_label: 'Rate',
+  mbc_fee_rounding_label: 'Rounding',
+  mbc_fee_total_label: 'Total',
+
+  /* MBC - Transaction Log */
+  mbc_transaction_heading: 'Transaction History',
+  mbc_transaction_empty: 'No transaction history yet',
+
+  /* MBC - NFC Tap Prompt */
+  mbc_nfc_status_idle: 'Tap NFC card',
+  mbc_nfc_status_scanning: 'Waiting for card...',
+  mbc_nfc_status_reading: 'Reading card...',
+  mbc_nfc_status_writing: 'Writing to card...',
+  mbc_nfc_status_verifying: 'Verifying...',
+  mbc_nfc_status_success: 'Success!',
+  mbc_nfc_status_error: 'Failed. Try again.',
+  mbc_nfc_processing: 'Processing...',
+
+  /* MBC - NFC Capability Notice */
+  mbc_nfc_unsupported_title: '⚠️ NFC Not Available',
+  mbc_nfc_unsupported_message: 'This device does not support NFC. Features requiring NFC cannot be used.',
+  mbc_nfc_permission_pending_title: '🔒 NFC Permission Required',
+  mbc_nfc_permission_pending_message: 'NFC permission has not been granted. Some features may require NFC permission.',
+  mbc_nfc_permission_denied_title: '🚫 NFC Permission Denied',
+  mbc_nfc_permission_denied_message: 'NFC permission was denied. Enable NFC permission in device settings to use this feature.',
+
+  /* MBC - Benefit Type Selector */
+  mbc_benefit_selector_empty: 'No benefit types configured. Please configure at The Station.',
+  mbc_benefit_selector_label: 'Select Service',
+  mbc_benefit_selector_placeholder: '-- Select service --',
+
+  /* MBC - Benefit Type Form */
+  mbc_benefit_form_id_label: 'ID',
+  mbc_benefit_form_name_label: 'Name',
+  mbc_benefit_form_activity_label: 'Activity Type',
+  mbc_benefit_form_rate_label: 'Rate (Rp)',
+  mbc_benefit_form_unit_label: 'Unit Type',
+  mbc_benefit_form_unit_per_hour: 'Per Hour',
+  mbc_benefit_form_unit_per_visit: 'Per Visit',
+  mbc_benefit_form_unit_flat_fee: 'Flat Fee',
+  mbc_benefit_form_rounding_label: 'Rounding',
+  mbc_benefit_form_rounding_ceiling: 'Up (Ceiling)',
+  mbc_benefit_form_rounding_floor: 'Down (Floor)',
+  mbc_benefit_form_rounding_nearest: 'Nearest',
+  mbc_benefit_form_submit_edit: 'Save Changes',
+  mbc_benefit_form_submit_add: 'Add Benefit Type',
+
+  /* MBC - Manual Calc Form */
+  mbc_manual_calc_heading: 'Manual / Offline Calculation',
+  mbc_manual_calc_timestamp_label: 'Check-In Time',
+  mbc_manual_calc_service_label: 'Service',
+  mbc_manual_calc_service_placeholder: '-- Select service --',
+  mbc_manual_calc_submit: 'Calculate Fee',
+
+  /* MBC - Simulation Banner */
+  mbc_simulation_active: '⚠️ Simulation Mode Active',
+  mbc_simulation_checkin_time: '— Check-in time:',
 };

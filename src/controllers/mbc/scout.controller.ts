@@ -1,4 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
+import type { TFunction } from 'i18next';
 import type {
   CardData,
   NfcCapabilityStatus,
@@ -14,6 +15,7 @@ export interface ScoutControllerInterface {
   benefitTypes: BenefitType[];
   nfcCapability: NfcCapabilityStatus;
   onReadCard: () => Promise<void>;
+  t: TFunction;
 }
 
 const ScoutController = (
@@ -22,6 +24,7 @@ const ScoutController = (
     | 'useState'
     | 'useEffect'
     | 'useCallback'
+    | 'useTranslation'
     | 'readCardUseCase'
     | 'manageBenefitRegistryUseCase'
     | 'nfcService'
@@ -31,10 +34,13 @@ const ScoutController = (
     useState,
     useEffect,
     useCallback,
+    useTranslation,
     readCardUseCase,
     manageBenefitRegistryUseCase,
     nfcService,
   } = deps;
+
+  const { t } = useTranslation();
 
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
   const [cardData, setCardData] = useState<CardData | null>(null);
@@ -82,6 +88,7 @@ const ScoutController = (
     benefitTypes,
     nfcCapability,
     onReadCard,
+    t,
   };
 };
 

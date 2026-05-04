@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { useState, useCallback } from 'react';
 import { renderHook, act } from '@testing-library/react';
+import { useTranslation } from 'react-i18next';
 
 import RolePickerController from '../../mbc/role-picker.controller';
 
 function createController() {
   return renderHook(() =>
-    RolePickerController({ useState, useCallback }),
+    RolePickerController({ useState, useCallback, useTranslation }),
   );
 }
 
@@ -48,12 +49,12 @@ describe('RolePickerController', () => {
     expect(result.current.activeRole).toBe('terminal');
   });
 
-  it('each role has label, description, and icon', () => {
+  it('each role has label, descriptionKey, and icon', () => {
     const { result } = createController();
 
     for (const role of result.current.roles) {
       expect(role.label).toBeTruthy();
-      expect(role.description).toBeTruthy();
+      expect(role.descriptionKey).toBeTruthy();
       expect(role.icon).toBeTruthy();
     }
   });

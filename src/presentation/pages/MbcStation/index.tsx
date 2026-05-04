@@ -13,6 +13,7 @@ type Tab = 'register' | 'topup' | 'config';
 
 const MbcStation: FC = () => {
   const ctrl = container.resolve<StationControllerInterface>('stationController');
+  const { t } = ctrl;
   const [activeTab, setActiveTab] = useState<Tab>('register');
   const [regName, setRegName] = useState('');
   const [regMemberId, setRegMemberId] = useState('');
@@ -20,15 +21,15 @@ const MbcStation: FC = () => {
   const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'register', label: 'Registrasi' },
-    { id: 'topup', label: 'Top-Up' },
-    { id: 'config', label: 'Service Config' },
+    { id: 'register', label: t('mbc_station_tab_register') },
+    { id: 'topup', label: t('mbc_station_tab_topup') },
+    { id: 'config', label: t('mbc_station_tab_config') },
   ];
 
   return (
     <main className={styles['mbc-station']}>
-      <h1 className={styles['mbc-station__title']}>🏢 The Station</h1>
-      <p className={styles['mbc-station__subtitle']}>Admin: Registrasi, Top-Up, Konfigurasi</p>
+      <h1 className={styles['mbc-station__title']}>{t('mbc_station_title')}</h1>
+      <p className={styles['mbc-station__subtitle']}>{t('mbc_station_subtitle')}</p>
 
       {ctrl.storageWarning && (
         <div role="alert" className={styles['mbc-station__storage-warning']}>
@@ -51,7 +52,7 @@ const MbcStation: FC = () => {
         ))}
       </div>
 
-      {activeTab !== 'config' && <NfcCapabilityNotice status={ctrl.nfcCapability} />}
+      {activeTab !== 'config' && <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />}
 
       {/* Registration Tab */}
       {activeTab === 'register' && nfcAvailable && (
@@ -64,18 +65,18 @@ const MbcStation: FC = () => {
             className={styles['mbc-station__form-group']}
           >
             <div>
-              <label htmlFor="reg-name" className={styles['mbc-station__label']}>Nama</label>
+              <label htmlFor="reg-name" className={styles['mbc-station__label']}>{t('mbc_station_name_label')}</label>
               <input id="reg-name" type="text" value={regName} onChange={(e) => setRegName(e.target.value)} required className={styles['mbc-station__input']} />
             </div>
             <div>
-              <label htmlFor="reg-id" className={styles['mbc-station__label']}>Member ID</label>
+              <label htmlFor="reg-id" className={styles['mbc-station__label']}>{t('mbc_station_member_id_label')}</label>
               <input id="reg-id" type="text" value={regMemberId} onChange={(e) => setRegMemberId(e.target.value)} required className={styles['mbc-station__input']} />
             </div>
             <button type="submit" disabled={ctrl.isProcessing} className={styles['mbc-station__primary-button']}>
-              Registrasi Kartu
+              {t('mbc_station_register_button')}
             </button>
           </form>
-          <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} />
+          <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} t={t} />
         </div>
       )}
 
@@ -90,19 +91,20 @@ const MbcStation: FC = () => {
             className={styles['mbc-station__form-group']}
           >
             <div>
-              <label htmlFor="topup-amount" className={styles['mbc-station__label']}>Jumlah (Rp)</label>
+              <label htmlFor="topup-amount" className={styles['mbc-station__label']}>{t('mbc_station_topup_amount_label')}</label>
               <input id="topup-amount" type="number" value={topUpAmount} onChange={(e) => setTopUpAmount(e.target.value)} min="1" required className={styles['mbc-station__input']} />
             </div>
             <button type="submit" disabled={ctrl.isProcessing} className={styles['mbc-station__secondary-button']}>
-              Top-Up Saldo
+              {t('mbc_station_topup_button')}
             </button>
           </form>
-          <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} />
+          <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} t={t} />
           {ctrl.lastResult?.type === 'top-up' && (
             <BalanceDisplay
               balance={ctrl.lastResult.newBalance}
               previousBalance={ctrl.lastResult.previousBalance}
               changeAmount={ctrl.lastResult.amount}
+              t={t}
             />
           )}
         </div>
@@ -111,11 +113,11 @@ const MbcStation: FC = () => {
       {/* Service Config Tab */}
       {activeTab === 'config' && (
         <div className={styles['mbc-station__section']}>
-          <BenefitTypeForm onSubmit={(data) => ctrl.onAddBenefitType(data)} />
+          <BenefitTypeForm onSubmit={(data) => ctrl.onAddBenefitType(data)} t={t} />
           <div className={styles['mbc-station__config-list']}>
-            <h3 className={styles['mbc-station__config-heading']}>Service Types Terdaftar</h3>
+            <h3 className={styles['mbc-station__config-heading']}>{t('mbc_station_config_heading')}</h3>
             {ctrl.benefitTypes.length === 0 ? (
-              <p className={styles['mbc-station__config--empty']}>Belum ada benefit type</p>
+              <p className={styles['mbc-station__config--empty']}>{t('mbc_station_config_empty')}</p>
             ) : (
               <ul className={styles['mbc-station__config-list']}>
                 {ctrl.benefitTypes.map((st) => (
@@ -128,7 +130,7 @@ const MbcStation: FC = () => {
                       type="button"
                       onClick={() => ctrl.onRemoveBenefitType(st.id)}
                       className={styles['mbc-station__remove-button']}
-                      aria-label={`Hapus ${st.displayName}`}
+                      aria-label={t('mbc_station_remove_label', { name: st.displayName })}
                     >
                       ✕
                     </button>
@@ -148,7 +150,9 @@ const MbcStation: FC = () => {
       )}
       {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
         <output className={styles['mbc-station__success-output']}>
-          ✅ {ctrl.lastResult.type === 'registration' ? 'Registrasi berhasil' : 'Top-up berhasil'} — {ctrl.lastResult.memberName}
+          {ctrl.lastResult.type === 'registration'
+            ? t('mbc_station_registration_success', { memberName: ctrl.lastResult.memberName })
+            : t('mbc_station_topup_success', { memberName: ctrl.lastResult.memberName })}
         </output>
       )}
     </main>

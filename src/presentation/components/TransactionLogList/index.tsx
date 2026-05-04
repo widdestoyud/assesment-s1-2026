@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TFunction } from 'i18next';
 import type { TransactionLogEntry, BenefitType } from '@core/services/mbc/models';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './transaction-log-list.module.css';
@@ -6,12 +7,15 @@ import styles from './transaction-log-list.module.css';
 export interface TransactionLogListProps {
   transactions: TransactionLogEntry[];
   benefitTypes: BenefitType[];
+  t: TFunction;
 }
 
 const TransactionLogList: FC<TransactionLogListProps> = ({
   transactions,
   benefitTypes,
+  t,
 }) => {
+
   const resolveServiceName = (benefitTypeId: string): string => {
     const found = benefitTypes.find((st) => st.id === benefitTypeId);
     return found?.displayName ?? benefitTypeId;
@@ -31,14 +35,14 @@ const TransactionLogList: FC<TransactionLogListProps> = ({
   if (transactions.length === 0) {
     return (
       <div data-testid="transaction-log" className={styles['transaction-log-list--empty']}>
-        Belum ada riwayat transaksi
+        {t('mbc_transaction_empty')}
       </div>
     );
   }
 
   return (
     <div data-testid="transaction-log">
-      <h3 className={styles['transaction-log-list__heading']}>Riwayat Transaksi</h3>
+      <h3 className={styles['transaction-log-list__heading']}>{t('mbc_transaction_heading')}</h3>
       <ul className={styles['transaction-log-list__list']}>
         {transactions.map((tx, index) => (
           <li

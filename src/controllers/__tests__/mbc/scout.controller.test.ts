@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { useState, useEffect, useCallback } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { useTranslation } from 'react-i18next';
 
 import type { CardData } from '@core/services/mbc/models';
 import type { ReadCardUseCaseInterface } from '@core/use_case/mbc/ReadCard';
@@ -47,6 +48,7 @@ function createController(mocks = createMocks()) {
       useState,
       useEffect,
       useCallback,
+      useTranslation,
       ...mocks,
     }),
   );

@@ -1,4 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
+import type { TFunction } from 'i18next';
 import type {
   NfcCapabilityStatus,
   NfcStatus,
@@ -35,6 +36,7 @@ export interface StationControllerInterface {
   storageWarning: string | null;
   // NFC capability
   nfcCapability: NfcCapabilityStatus;
+  t: TFunction;
 }
 
 const StationController = (
@@ -43,6 +45,7 @@ const StationController = (
     | 'useState'
     | 'useEffect'
     | 'useCallback'
+    | 'useTranslation'
     | 'registerMemberUseCase'
     | 'topUpBalanceUseCase'
     | 'manageBenefitRegistryUseCase'
@@ -54,12 +57,15 @@ const StationController = (
     useState,
     useEffect,
     useCallback,
+    useTranslation,
     registerMemberUseCase,
     topUpBalanceUseCase,
     manageBenefitRegistryUseCase,
     storageHealthService,
     nfcService,
   } = deps;
+
+  const { t } = useTranslation();
 
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
   const [lastResult, setLastResult] = useState<OperationResult | null>(null);
@@ -167,6 +173,7 @@ const StationController = (
     error,
     storageWarning,
     nfcCapability,
+    t,
   };
 };
 

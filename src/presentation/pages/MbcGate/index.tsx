@@ -9,20 +9,22 @@ import styles from './mbc-gate.module.css';
 
 const MbcGate: FC = () => {
   const ctrl = container.resolve<GateControllerInterface>('gateController');
+  const { t } = ctrl;
   const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
 
   return (
     <main className={styles['mbc-gate']}>
-      <h1 className={styles['mbc-gate__title']}>🚪 The Gate</h1>
-      <p className={styles['mbc-gate__subtitle']}>Check-in member dengan NFC</p>
+      <h1 className={styles['mbc-gate__title']}>{t('mbc_gate_title')}</h1>
+      <p className={styles['mbc-gate__subtitle']}>{t('mbc_gate_subtitle')}</p>
 
-      <NfcCapabilityNotice status={ctrl.nfcCapability} />
+      <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
       {nfcAvailable && (
         <>
           <SimulationBanner
             isActive={ctrl.simulationMode}
             timestamp={ctrl.simulationTimestamp}
+            t={t}
           />
 
           <div className={styles['mbc-gate__content']}>
@@ -31,12 +33,13 @@ const MbcGate: FC = () => {
           selectedId={ctrl.selectedBenefitType?.id ?? null}
           onSelect={ctrl.onSelectBenefitType}
           disabled={ctrl.isProcessing}
+          t={t}
         />
 
         {/* Simulation Mode Toggle */}
         <div className={styles['mbc-gate__toggle-row']}>
           <label htmlFor="sim-toggle" className={styles['mbc-gate__toggle-label']}>
-            Mode Simulasi
+            {t('mbc_gate_simulation_mode')}
           </label>
           <button
             id="sim-toggle"
@@ -55,7 +58,7 @@ const MbcGate: FC = () => {
         {ctrl.simulationMode && (
           <div>
             <label htmlFor="sim-time" className={styles['mbc-gate__label']}>
-              Waktu Check-In (Simulasi)
+              {t('mbc_gate_simulation_time_label')}
             </label>
             <input
               id="sim-time"
@@ -73,10 +76,10 @@ const MbcGate: FC = () => {
           disabled={ctrl.isProcessing || !ctrl.selectedBenefitType}
           className={styles['mbc-gate__primary-button']}
         >
-          Check-In
+          {t('mbc_gate_checkin_button')}
         </button>
 
-        <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} />
+        <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} t={t} />
 
         {ctrl.error && (
           <div role="alert" className={styles['mbc-gate__error-alert']}>
@@ -86,10 +89,10 @@ const MbcGate: FC = () => {
 
         {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
           <output className={styles['mbc-gate__success-output']}>
-            <p className={styles['mbc-gate__success-title']}>✅ Check-in berhasil</p>
-            <p>Member: <strong>{ctrl.lastResult.memberName}</strong></p>
-            <p>Layanan: <strong>{ctrl.lastResult.benefitTypeName}</strong></p>
-            <p>Waktu masuk: <strong>{new Date(ctrl.lastResult.entryTime).toLocaleString('id-ID')}</strong></p>
+            <p className={styles['mbc-gate__success-title']}>{t('mbc_gate_checkin_success')}</p>
+            <p>{t('mbc_gate_member_label')} <strong>{ctrl.lastResult.memberName}</strong></p>
+            <p>{t('mbc_gate_service_label')} <strong>{ctrl.lastResult.benefitTypeName}</strong></p>
+            <p>{t('mbc_gate_entry_time_label')} <strong>{new Date(ctrl.lastResult.entryTime).toLocaleString('id-ID')}</strong></p>
           </output>
         )}
       </div>

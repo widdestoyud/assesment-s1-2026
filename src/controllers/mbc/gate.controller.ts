@@ -1,4 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
+import type { TFunction } from 'i18next';
 import type {
   CheckInResult,
   NfcCapabilityStatus,
@@ -21,6 +22,7 @@ export interface GateControllerInterface {
   deviceId: string | null;
   nfcCapability: NfcCapabilityStatus;
   onCheckIn: () => Promise<void>;
+  t: TFunction;
 }
 
 const GateController = (
@@ -29,6 +31,7 @@ const GateController = (
     | 'useState'
     | 'useEffect'
     | 'useCallback'
+    | 'useTranslation'
     | 'checkInUseCase'
     | 'manageBenefitRegistryUseCase'
     | 'deviceService'
@@ -39,11 +42,14 @@ const GateController = (
     useState,
     useEffect,
     useCallback,
+    useTranslation,
     checkInUseCase,
     manageBenefitRegistryUseCase,
     deviceService,
     nfcService,
   } = deps;
+
+  const { t } = useTranslation();
 
   const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
   const [selectedBenefitType, setSelectedBenefitType] = useState<BenefitType | null>(null);
@@ -135,6 +141,7 @@ const GateController = (
     deviceId,
     nfcCapability,
     onCheckIn,
+    t,
   };
 };
 

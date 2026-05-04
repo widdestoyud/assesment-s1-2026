@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TFunction } from 'i18next';
 import type { RoleOption } from '@controllers/mbc/role-picker.controller';
 import styles from './role-card.module.css';
 
@@ -6,9 +7,11 @@ export interface RoleCardProps {
   role: RoleOption;
   isActive: boolean;
   onSelect: () => void;
+  t: TFunction;
 }
 
-const RoleCard: FC<RoleCardProps> = ({ role, isActive, onSelect }) => {
+const RoleCard: FC<RoleCardProps> = ({ role, isActive, onSelect, t }) => {
+
   return (
     <button
       type="button"
@@ -21,7 +24,7 @@ const RoleCard: FC<RoleCardProps> = ({ role, isActive, onSelect }) => {
         {role.icon}
       </span>
       <h3 className={styles['role-card__label']}>{role.label}</h3>
-      <p className={styles['role-card__description']}>{role.description}</p>
+      <p className={styles['role-card__description']}>{String(t(role.descriptionKey as never))}</p>
     </button>
   );
 };

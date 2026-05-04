@@ -215,4 +215,125 @@ export default {
   mbc_error_encryption_failed: 'Enkripsi kartu gagal. Silakan coba lagi.',
   mbc_error_decryption_failed: 'Gagal membaca data kartu. Kartu mungkin dari sistem lain.',
   mbc_error_key_derivation_failed: 'Inisialisasi keamanan gagal. Silakan mulai ulang aplikasi.',
+
+  /* MBC - UI Labels */
+  mbc_role_picker_title: 'Membership Benefit Card',
+  mbc_role_picker_subtitle: 'Pilih mode operasi',
+  mbc_role_station_description: 'Registrasi kartu, top-up saldo, konfigurasi service type',
+  mbc_role_gate_description: 'Check-in dengan pencatatan timestamp dan service type',
+  mbc_role_terminal_description: 'Check-out, kalkulasi tarif, potong saldo',
+  mbc_role_scout_description: 'Lihat isi kartu: saldo, status, riwayat transaksi',
+
+  /* MBC - Gate */
+  mbc_gate_title: '🚪 The Gate',
+  mbc_gate_subtitle: 'Check-in member dengan NFC',
+  mbc_gate_simulation_mode: 'Mode Simulasi',
+  mbc_gate_simulation_time_label: 'Waktu Check-In (Simulasi)',
+  mbc_gate_checkin_button: 'Check-In',
+  mbc_gate_checkin_success: '✅ Check-in berhasil',
+  mbc_gate_member_label: 'Member:',
+  mbc_gate_service_label: 'Layanan:',
+  mbc_gate_entry_time_label: 'Waktu masuk:',
+
+  /* MBC - Terminal */
+  mbc_terminal_title: '💳 The Terminal',
+  mbc_terminal_subtitle: 'Check-out dan kalkulasi tarif',
+  mbc_terminal_manual_calc_label: 'Kalkulasi Manual',
+  mbc_terminal_manual_result_heading: 'Hasil Kalkulasi Manual',
+  mbc_terminal_checkout_button: 'Check-Out',
+  mbc_terminal_checkout_success: '✅ Check-out berhasil — {{benefitTypeName}}',
+
+  /* MBC - Scout */
+  mbc_scout_title: '🔍 The Scout',
+  mbc_scout_subtitle: 'Lihat isi kartu member',
+  mbc_scout_read_button: 'Baca Kartu',
+
+  /* MBC - Station */
+  mbc_station_title: '🏢 The Station',
+  mbc_station_subtitle: 'Admin: Registrasi, Top-Up, Konfigurasi',
+  mbc_station_tab_register: 'Registrasi',
+  mbc_station_tab_topup: 'Top-Up',
+  mbc_station_tab_config: 'Service Config',
+  mbc_station_name_label: 'Nama',
+  mbc_station_member_id_label: 'Member ID',
+  mbc_station_register_button: 'Registrasi Kartu',
+  mbc_station_topup_amount_label: 'Jumlah (Rp)',
+  mbc_station_topup_button: 'Top-Up Saldo',
+  mbc_station_config_heading: 'Service Types Terdaftar',
+  mbc_station_config_empty: 'Belum ada benefit type',
+  mbc_station_registration_success: '✅ Registrasi berhasil — {{memberName}}',
+  mbc_station_topup_success: '✅ Top-up berhasil — {{memberName}}',
+  mbc_station_remove_label: 'Hapus {{name}}',
+
+  /* MBC - Card Info Display */
+  mbc_card_member_identity: 'Identitas Member',
+  mbc_card_member_id_prefix: 'ID:',
+  mbc_card_checkin_active: 'Status Check-In Aktif',
+  mbc_card_service_label: 'Layanan:',
+  mbc_card_entry_time_label: 'Waktu masuk:',
+
+  /* MBC - Balance Display */
+  mbc_balance_label: 'Saldo',
+
+  /* MBC - Fee Breakdown */
+  mbc_fee_title: 'Rincian Biaya',
+  mbc_fee_service_label: 'Layanan',
+  mbc_fee_usage_label: 'Penggunaan',
+  mbc_fee_rate_label: 'Tarif',
+  mbc_fee_rounding_label: 'Pembulatan',
+  mbc_fee_total_label: 'Total',
+
+  /* MBC - Transaction Log */
+  mbc_transaction_heading: 'Riwayat Transaksi',
+  mbc_transaction_empty: 'Belum ada riwayat transaksi',
+
+  /* MBC - NFC Tap Prompt */
+  mbc_nfc_status_idle: 'Tempelkan kartu NFC',
+  mbc_nfc_status_scanning: 'Menunggu kartu...',
+  mbc_nfc_status_reading: 'Membaca kartu...',
+  mbc_nfc_status_writing: 'Menulis ke kartu...',
+  mbc_nfc_status_verifying: 'Memverifikasi...',
+  mbc_nfc_status_success: 'Berhasil!',
+  mbc_nfc_status_error: 'Gagal. Coba lagi.',
+  mbc_nfc_processing: 'Sedang memproses...',
+
+  /* MBC - NFC Capability Notice */
+  mbc_nfc_unsupported_title: '⚠️ NFC Tidak Tersedia',
+  mbc_nfc_unsupported_message: 'Perangkat ini tidak mendukung NFC. Fitur yang memerlukan NFC tidak dapat digunakan.',
+  mbc_nfc_permission_pending_title: '🔒 Izin NFC Diperlukan',
+  mbc_nfc_permission_pending_message: 'Izin NFC belum diberikan. Beberapa fitur mungkin memerlukan izin NFC.',
+  mbc_nfc_permission_denied_title: '🚫 Izin NFC Ditolak',
+  mbc_nfc_permission_denied_message: 'Izin NFC ditolak. Aktifkan izin NFC di pengaturan perangkat untuk menggunakan fitur ini.',
+
+  /* MBC - Benefit Type Selector */
+  mbc_benefit_selector_empty: 'Belum ada benefit type yang dikonfigurasi. Silakan konfigurasi di The Station.',
+  mbc_benefit_selector_label: 'Pilih Layanan',
+  mbc_benefit_selector_placeholder: '-- Pilih layanan --',
+
+  /* MBC - Benefit Type Form */
+  mbc_benefit_form_id_label: 'ID',
+  mbc_benefit_form_name_label: 'Nama',
+  mbc_benefit_form_activity_label: 'Activity Type',
+  mbc_benefit_form_rate_label: 'Tarif (Rp)',
+  mbc_benefit_form_unit_label: 'Tipe Unit',
+  mbc_benefit_form_unit_per_hour: 'Per Jam',
+  mbc_benefit_form_unit_per_visit: 'Per Kunjungan',
+  mbc_benefit_form_unit_flat_fee: 'Flat Fee',
+  mbc_benefit_form_rounding_label: 'Pembulatan',
+  mbc_benefit_form_rounding_ceiling: 'Ke Atas (Ceiling)',
+  mbc_benefit_form_rounding_floor: 'Ke Bawah (Floor)',
+  mbc_benefit_form_rounding_nearest: 'Terdekat (Nearest)',
+  mbc_benefit_form_submit_edit: 'Simpan Perubahan',
+  mbc_benefit_form_submit_add: 'Tambah Benefit Type',
+
+  /* MBC - Manual Calc Form */
+  mbc_manual_calc_heading: 'Manual / Offline Calculation',
+  mbc_manual_calc_timestamp_label: 'Waktu Check-In',
+  mbc_manual_calc_service_label: 'Layanan',
+  mbc_manual_calc_service_placeholder: '-- Pilih layanan --',
+  mbc_manual_calc_submit: 'Hitung Tarif',
+
+  /* MBC - Simulation Banner */
+  mbc_simulation_active: '⚠️ Mode Simulasi Aktif',
+  mbc_simulation_checkin_time: '— Waktu check-in:',
 };

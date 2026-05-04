@@ -1,5 +1,6 @@
 import type { FC, FormEvent } from 'react';
 import { useState } from 'react';
+import type { TFunction } from 'i18next';
 import type { BenefitType } from '@core/services/mbc/models';
 import styles from './manual-calc-form.module.css';
 
@@ -12,12 +13,14 @@ export interface ManualCalcFormProps {
   onSubmit: (data: ManualCalcFormData) => void;
   benefitTypes: BenefitType[];
   isActive: boolean;
+  t: TFunction;
 }
 
 const ManualCalcForm: FC<ManualCalcFormProps> = ({
   onSubmit,
   benefitTypes,
   isActive,
+  t,
 }) => {
   const [checkInTimestamp, setCheckInTimestamp] = useState('');
   const [benefitTypeId, setBenefitTypeId] = useState('');
@@ -36,12 +39,12 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
   return (
     <div data-testid="manual-calc-form" className={styles['manual-calc-form']}>
       <h3 className={styles['manual-calc-form__heading']}>
-        Manual / Offline Calculation
+        {t('mbc_manual_calc_heading')}
       </h3>
       <form onSubmit={handleSubmit} className={styles['manual-calc-form__form']}>
         <div>
           <label htmlFor="mc-timestamp" className={styles['manual-calc-form__label']}>
-            Waktu Check-In
+            {t('mbc_manual_calc_timestamp_label')}
           </label>
           <input
             id="mc-timestamp"
@@ -54,7 +57,7 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
         </div>
         <div>
           <label htmlFor="mc-service" className={styles['manual-calc-form__label']}>
-            Layanan
+            {t('mbc_manual_calc_service_label')}
           </label>
           <select
             id="mc-service"
@@ -63,7 +66,7 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
             required
             className={styles['manual-calc-form__select']}
           >
-            <option value="" disabled>-- Pilih layanan --</option>
+            <option value="" disabled>{t('mbc_manual_calc_service_placeholder')}</option>
             {benefitTypes.map((st) => (
               <option key={st.id} value={st.id}>{st.displayName}</option>
             ))}
@@ -73,7 +76,7 @@ const ManualCalcForm: FC<ManualCalcFormProps> = ({
           type="submit"
           className={styles['manual-calc-form__submit-button']}
         >
-          Hitung Tarif
+          {t('mbc_manual_calc_submit')}
         </button>
       </form>
     </div>

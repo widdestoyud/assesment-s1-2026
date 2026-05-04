@@ -1,4 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
+import type { TFunction } from 'i18next';
 import type {
   CheckOutResult,
   FeeResult,
@@ -27,6 +28,7 @@ export interface TerminalControllerInterface {
   nfcCapability: NfcCapabilityStatus;
   // Actions
   onCheckOut: () => Promise<void>;
+  t: TFunction;
 }
 
 const TerminalController = (
@@ -35,6 +37,7 @@ const TerminalController = (
     | 'useState'
     | 'useEffect'
     | 'useCallback'
+    | 'useTranslation'
     | 'checkOutUseCase'
     | 'manualCalculationUseCase'
     | 'manageBenefitRegistryUseCase'
@@ -46,12 +49,15 @@ const TerminalController = (
     useState,
     useEffect,
     useCallback,
+    useTranslation,
     checkOutUseCase,
     manualCalculationUseCase,
     manageBenefitRegistryUseCase,
     deviceService,
     nfcService,
   } = deps;
+
+  const { t } = useTranslation();
 
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
   const [lastResult, setLastResult] = useState<CheckOutResult | null>(null);
@@ -131,6 +137,7 @@ const TerminalController = (
     benefitTypes,
     nfcCapability,
     onCheckOut,
+    t,
   };
 };
 

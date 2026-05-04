@@ -1,12 +1,15 @@
 import type { FC } from 'react';
+import type { TFunction } from 'i18next';
 import styles from './simulation-banner.module.css';
 
 export interface SimulationBannerProps {
   isActive: boolean;
   timestamp: string | null;
+  t: TFunction;
 }
 
-const SimulationBanner: FC<SimulationBannerProps> = ({ isActive, timestamp }) => {
+const SimulationBanner: FC<SimulationBannerProps> = ({ isActive, timestamp, t }) => {
+
   if (!isActive) return null;
 
   return (
@@ -15,10 +18,10 @@ const SimulationBanner: FC<SimulationBannerProps> = ({ isActive, timestamp }) =>
       data-testid="simulation-banner"
       className={styles['simulation-banner']}
     >
-      <strong>⚠️ Mode Simulasi Aktif</strong>
+      <strong>{t('mbc_simulation_active')}</strong>
       {timestamp && (
         <span className={styles['simulation-banner__timestamp']}>
-          — Waktu check-in: {new Date(timestamp).toLocaleString('id-ID')}
+          {t('mbc_simulation_checkin_time')} {new Date(timestamp).toLocaleString('id-ID')}
         </span>
       )}
     </div>

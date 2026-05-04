@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TFunction } from 'i18next';
 import type { NfcStatus } from '@core/services/mbc/models';
 import styles from './nfc-tap-prompt.module.css';
 
@@ -6,24 +7,27 @@ export interface NfcTapPromptProps {
   nfcStatus: NfcStatus;
   isProcessing: boolean;
   label?: string;
+  t: TFunction;
 }
-
-const STATUS_CONFIG: Record<NfcStatus, { emoji: string; text: string }> = {
-  idle: { emoji: '📱', text: 'Tempelkan kartu NFC' },
-  scanning: { emoji: '🔍', text: 'Menunggu kartu...' },
-  reading: { emoji: '📖', text: 'Membaca kartu...' },
-  writing: { emoji: '✍️', text: 'Menulis ke kartu...' },
-  verifying: { emoji: '🔄', text: 'Memverifikasi...' },
-  success: { emoji: '✅', text: 'Berhasil!' },
-  error: { emoji: '❌', text: 'Gagal. Coba lagi.' },
-};
 
 const NfcTapPrompt: FC<NfcTapPromptProps> = ({
   nfcStatus,
   isProcessing,
   label,
+  t,
 }) => {
-  const config = STATUS_CONFIG[nfcStatus];
+
+  const statusMap: Record<NfcStatus, { emoji: string; text: string }> = {
+    idle: { emoji: '📱', text: t('mbc_nfc_status_idle') },
+    scanning: { emoji: '🔍', text: t('mbc_nfc_status_scanning') },
+    reading: { emoji: '📖', text: t('mbc_nfc_status_reading') },
+    writing: { emoji: '✍️', text: t('mbc_nfc_status_writing') },
+    verifying: { emoji: '🔄', text: t('mbc_nfc_status_verifying') },
+    success: { emoji: '✅', text: t('mbc_nfc_status_success') },
+    error: { emoji: '❌', text: t('mbc_nfc_status_error') },
+  };
+
+  const config = statusMap[nfcStatus];
 
   return (
     <div
@@ -41,7 +45,7 @@ const NfcTapPrompt: FC<NfcTapPromptProps> = ({
         {label ?? config.text}
       </p>
       {isProcessing && (
-        <p className={styles['nfc-tap-prompt__processing-text']}>Sedang memproses...</p>
+        <p className={styles['nfc-tap-prompt__processing-text']}>{t('mbc_nfc_processing')}</p>
       )}
     </div>
   );

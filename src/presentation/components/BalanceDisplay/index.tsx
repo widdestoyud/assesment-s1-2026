@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TFunction } from 'i18next';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './balance-display.module.css';
 
@@ -6,16 +7,18 @@ export interface BalanceDisplayProps {
   balance: number;
   previousBalance?: number;
   changeAmount?: number;
+  t: TFunction;
 }
 
 const BalanceDisplay: FC<BalanceDisplayProps> = ({
   balance,
   previousBalance,
   changeAmount,
+  t,
 }) => {
   return (
     <div data-testid="balance-display" className={styles['balance-display']}>
-      <p className={styles['balance-display__label']}>Saldo</p>
+      <p className={styles['balance-display__label']}>{t('mbc_balance_label')}</p>
       <p className={styles['balance-display__amount']}>{formatIDR(balance)}</p>
       {previousBalance !== undefined && changeAmount !== undefined && (
         <div className={styles['balance-display__change-row']}>

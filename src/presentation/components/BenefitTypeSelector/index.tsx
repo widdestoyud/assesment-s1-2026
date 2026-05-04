@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TFunction } from 'i18next';
 import type { BenefitType } from '@core/services/mbc/models';
 import styles from './benefit-type-selector.module.css';
 
@@ -7,6 +8,7 @@ export interface BenefitTypeSelectorProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   disabled?: boolean;
+  t: TFunction;
 }
 
 const BenefitTypeSelector: FC<BenefitTypeSelectorProps> = ({
@@ -14,11 +16,13 @@ const BenefitTypeSelector: FC<BenefitTypeSelectorProps> = ({
   selectedId,
   onSelect,
   disabled = false,
+  t,
 }) => {
+
   if (benefitTypes.length === 0) {
     return (
       <div data-testid="benefit-type-selector" className={styles['benefit-type-selector--empty']}>
-        Belum ada benefit type yang dikonfigurasi. Silakan konfigurasi di The Station.
+        {t('mbc_benefit_selector_empty')}
       </div>
     );
   }
@@ -26,7 +30,7 @@ const BenefitTypeSelector: FC<BenefitTypeSelectorProps> = ({
   return (
     <div data-testid="benefit-type-selector">
       <label htmlFor="benefit-type-select" className={styles['benefit-type-selector__label']}>
-        Pilih Layanan
+        {t('mbc_benefit_selector_label')}
       </label>
       <select
         id="benefit-type-select"
@@ -36,7 +40,7 @@ const BenefitTypeSelector: FC<BenefitTypeSelectorProps> = ({
         className={styles['benefit-type-selector__select']}
       >
         <option value="" disabled>
-          -- Pilih layanan --
+          {t('mbc_benefit_selector_placeholder')}
         </option>
         {benefitTypes.map((st) => (
           <option key={st.id} value={st.id}>
