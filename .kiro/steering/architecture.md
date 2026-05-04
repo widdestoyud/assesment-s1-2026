@@ -1,22 +1,92 @@
 ---
-description: Clean Architecture layer separation, Awilix DI, controller pattern, service and protocol rules
+description: Clean Architecture 5-layer separation, Awilix DI, controller pattern, service and protocol rules
 inclusion: auto
 ---
 
 # Clean Architecture Standards
 
-This project follows Clean Architecture with strict layer separation. All code changes must respect these boundaries.
+This project follows Clean Architecture with **5 layers**. Dependencies flow inward only. All code changes must respect these boundaries.
 
-## Layer Hierarchy (dependencies flow inward only)
+## 5-Layer Architecture
 
 ```
-Presentation → Controllers → Core (@core) → Infrastructure
+┌─────────────────────────────────────────────┐
+│  Layer 5: Presentation                      │
+│  Pages (thin views) + Components (UI only)  │
+├─────────────────────────────────────────────┤
+│  Layer 4: Controllers                       │
+│  State orchestration, validation, expose t  │
+├─────────────────────────────────────────────┤
+│  Layer 3: Use Cases                         │
+│  Business orchestration across services     │
+├─────────────────────────────────────────────┤
+│  Layer 2: Services                          │
+│  Pure logic + adapters (NFC, storage, etc.) │
+├─────────────────────────────────────────────┤
+│  Layer 1: Core                              │
+│  Protocols (interfaces) + Domain models     │
+└─────────────────────────────────────────────┘
+         ↕ Infrastructure (DI, config, adapters)
 ```
 
-- **Core (`@core/`)**: Protocols (interfaces), services, use cases. Framework-agnostic — no React, no Axios, no browser APIs.
-- **Infrastructure**: DI container (Awilix), HTTP adapter, storage adapter, config. Implements core protocols.
-- **Controllers**: Pure factory functions receiving all dependencies via DI. Contain business logic, state orchestration, form validation.
-- **Presentation**: Pages and components. Pages are thin — resolve a controller from DI and render UI. Zero business logic.
+### Layer 1: Core — Protocols & Domain Models
+
+- **Location**: `src/@core/protocols/`, `src/@core/services/mbc/models.ts`
+- Protocols (interfaces) define contracts — framework-agnostic, no implementation.
+- Domain models: entities, types, Zod schemas, constants.
+- No React, no Axios, no browser APIs. Zero runtime dependencies.
+
+### Layer 2: Services — Pure Logic & Adapters
+
+- **Location**: `src/@core/services/`, `src/infrastructure/`
+- Pure services: pricing engine, card-data serialization, silent-shield encryption.
+- Adapter services: NFC, storage, device binding — implement core protocols.
+- Services depend only on protocols and other services, never on use cases or controllers.
+
+### Layer 3: Use Cases — Business Orchestration
+
+- **Location**: `src/@core/use_case/mbc/`
+- Orchestrate multi-service flows: CheckIn, CheckOut, TopUp, Register, ReadCard, ManualCalculation.
+- Each use case calls multiple services in sequence (e.g., CheckOut: NFC read → pricing → card-data → NFC write → verify).
+- Use cases depend on services and protocols, never on controllers or presentation.
+
+### Layer 4: Controllers — State & DI Bridge
+
+- **Location**: `src/controllers/mbc/`
+- Pure factory functions receiving all dependencies via Awilix DI.
+- Orchestrate React state, call use cases, handle loading/error states.
+- Expose `t: TFunction` from i18n (injected via `useTranslation` from DI).
+- Export the controller as `default`, its interface as a named export.
+- Controllers use **only `import type`** statements. Every runtime value comes from `AwilixRegistry` destructuring.
+- Return interface must be minimal — only what the view needs.
+
+### Layer 5: Presentation — Pages & Components
+
+- **Location**: `src/presentation/pages/`, `src/presentation/components/`
+- Pages are thin: resolve a controller from DI, destructure `t` from controller, render UI.
+- Components receive `t: TFunction` as a prop — never call `useTranslation()` directly.
+- Zero business logic in presentation. All logic lives in controllers or use cases.
+- Use `FC<Props>` for all functional components.
+- Use `data-testid` for test selectors.
+
+### Infrastructure — Cross-cutting
+
+- **Location**: `src/infrastructure/`
+- DI container (Awilix), HTTP adapter, storage adapter, config.
+- Implements core protocols from Layer 1.
+- Not a layer in the dependency chain — it wires everything together.
+
+## Dependency Rules
+
+```
+Presentation → Controllers → Use Cases → Services → Core
+                                            ↑
+                                      Infrastructure
+```
+
+- Each layer may only depend on layers below it (inward).
+- Never import upward: a service must not import a controller, a use case must not import presentation.
+- Infrastructure implements Core protocols and is injected via DI — it sits outside the main chain.
 
 ## Dependency Injection (Awilix)
 
@@ -32,10 +102,11 @@ Presentation → Controllers → Core (@core) → Infrastructure
 - Export the controller as `default`, its interface as a named export.
 - Return interface must be minimal — only what the view needs.
 - Handle loading and error states inside the controller.
+- Inject `useTranslation` via deps, expose `t: TFunction` in return interface.
 
 ## Service Rules
 
-- Services depend only on `http` (and optionally `config`) from the registry.
+- Services depend only on protocols (and optionally `config`) from the registry.
 - Type all generic parameters: `http.post<Response, Request, Config>`.
 - Define request/response interfaces in the same service file.
 - Use `HttpResponse<T>` wrapper for consistent typing.
@@ -49,10 +120,11 @@ Presentation → Controllers → Core (@core) → Infrastructure
 ## Presentation Rules
 
 - Pages resolve controllers via `awilix.resolve<Interface>('controllerName')`.
+- Pages get `t` from `ctrl.t`, pass `t` as prop to child components.
+- Components receive `t: TFunction` as a prop — never import `useTranslation` directly.
 - Components extend native HTML element attributes and spread `...otherProps`.
 - Use `FC<Props>` for all functional components.
 - Use `data-testid` for test selectors, `loading="lazy"` on images.
-- Components that don't use DI may import React hooks directly.
 
 ## TanStack Query & Storage Persister
 

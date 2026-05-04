@@ -1,5 +1,7 @@
 # Laporan Fase 1: Layer 0 — Data Models & Protocols
 
+> ⚠️ **Catatan arsitektur:** Dokumen ini menggunakan penomoran layer lama (Layer 0-6, 7 layer). Arsitektur saat ini menggunakan **5 layer** — lihat [Clean Architecture](../01-Architecture/Clean-Architecture.md). Layer 0 (Data Models & Protocols) sekarang menjadi **Layer 1 — Core**.
+
 > Tanggal selesai: April 2026
 > Status: ✅ Complete
 > Milestone: [Phase 1: Layer 0 - Foundation](https://github.com/widdestoyud/assesment-s1-2026/milestone/1) (Closed)

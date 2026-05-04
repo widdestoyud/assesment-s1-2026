@@ -14,7 +14,7 @@
 graph TB
     subgraph PWA["MBC Progressive Web App"]
         direction TB
-        subgraph Presentation["Layer 6 — Presentation"]
+        subgraph Presentation["Layer 5 — Presentation"]
             RP[Role Picker]
             ST[Station]
             GT[Gate]
@@ -22,7 +22,7 @@ graph TB
             SC[Scout]
         end
 
-        subgraph Controllers["Layer 5 — Controllers"]
+        subgraph Controllers["Layer 4 — Controllers"]
             C1[role-picker]
             C2[station]
             C3[gate]
@@ -30,7 +30,7 @@ graph TB
             C5[scout]
         end
 
-        subgraph UseCases["Layer 4 — Use Cases"]
+        subgraph UseCases["Layer 3 — Use Cases"]
             UC1[RegisterMember]
             UC2[TopUpBalance]
             UC3[CheckIn]
@@ -40,7 +40,7 @@ graph TB
             UC7[BenefitRegistry]
         end
 
-        subgraph Services["Layer 1-3 — Services"]
+        subgraph Services["Layer 2 — Services"]
             S1[pricing]
             S2[card-data]
             S3[silent-shield]
@@ -50,10 +50,15 @@ graph TB
             S7[benefit-registry]
         end
 
-        subgraph Infra["Layer 2 — Infrastructure"]
-            A1[webNfcAdapter]
-            A3[webStorageAdapter]
+        subgraph Core["Layer 1 — Core"]
+            P1[Protocols]
+            P2[Domain Models]
         end
+    end
+
+    subgraph Infra["Infrastructure"]
+        A1[webNfcAdapter]
+        A3[webStorageAdapter]
     end
 
     subgraph External["External"]
@@ -64,9 +69,9 @@ graph TB
     Presentation --> Controllers
     Controllers --> UseCases
     UseCases --> Services
-    Services --> Infra
+    Services --> Core
+    Infra -.->|implements| Core
     A1 --> NFC
-    A2 --> IDB
     A3 --> LS
 ```
 

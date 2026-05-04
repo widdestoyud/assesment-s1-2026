@@ -1,5 +1,7 @@
 # Laporan Fase 4: Layer 4 — Use Cases
 
+> ⚠️ **Catatan arsitektur:** Dokumen ini menggunakan penomoran layer lama (Layer 0-6, 7 layer). Arsitektur saat ini menggunakan **5 layer** — lihat [Clean Architecture](../01-Architecture/Clean-Architecture.md). Layer 4 (Use Cases) sekarang menjadi **Layer 3 — Use Cases**.
+
 > Tanggal selesai: April 30, 2026
 > Status: ✅ Complete
 > Milestone: [Phase 4: Layer 4 - Use Cases](https://github.com/widdestoyud/assesment-s1-2026/milestone/4) (Closed)

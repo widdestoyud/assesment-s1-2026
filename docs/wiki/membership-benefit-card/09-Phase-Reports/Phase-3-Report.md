@@ -1,5 +1,7 @@
 # Laporan Fase 3: Layer 2-3 — I/O Adapters & Stateful Services
 
+> ⚠️ **Catatan arsitektur:** Dokumen ini menggunakan penomoran layer lama (Layer 0-6, 7 layer). Arsitektur saat ini menggunakan **5 layer** — lihat [Clean Architecture](../01-Architecture/Clean-Architecture.md). Layer 2-3 (Adapters & Stateful Services) sekarang digabung menjadi **Layer 2 — Services** + **Infrastructure**.
+
 > Tanggal selesai: April 30, 2026
 > Status: ✅ Complete
 > Milestone: [Phase 3: Layer 2-3 - Adapters & Stateful Services](https://github.com/widdestoyud/assesment-s1-2026/milestone/3)

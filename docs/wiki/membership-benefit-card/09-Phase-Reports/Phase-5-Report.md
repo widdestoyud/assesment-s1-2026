@@ -1,5 +1,7 @@
 # Laporan Fase 5: Layer 5 — Controllers
 
+> ⚠️ **Catatan arsitektur:** Dokumen ini menggunakan penomoran layer lama (Layer 0-6, 7 layer). Arsitektur saat ini menggunakan **5 layer** — lihat [Clean Architecture](../01-Architecture/Clean-Architecture.md). Layer 5 (Controllers) sekarang menjadi **Layer 4 — Controllers**.
+
 > Tanggal selesai: April 30, 2026
 > Status: ✅ Complete
 > Milestone: [Phase 5: Layer 5 - Controllers](https://github.com/widdestoyud/assesment-s1-2026/milestone/5) (Closed)

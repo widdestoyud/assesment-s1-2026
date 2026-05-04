@@ -1,5 +1,7 @@
 # Laporan Fase 2: Layer 1 — Pure Logic Services
 
+> ⚠️ **Catatan arsitektur:** Dokumen ini menggunakan penomoran layer lama (Layer 0-6, 7 layer). Arsitektur saat ini menggunakan **5 layer** — lihat [Clean Architecture](../01-Architecture/Clean-Architecture.md). Layer 1 (Pure Logic) sekarang menjadi bagian dari **Layer 2 — Services**.
+
 > Tanggal selesai: April 2026
 > Status: ✅ Complete
 > Milestone: [Phase 2: Layer 1 - Pure Logic Services](https://github.com/widdestoyud/assesment-s1-2026/milestone/2) (Closed)

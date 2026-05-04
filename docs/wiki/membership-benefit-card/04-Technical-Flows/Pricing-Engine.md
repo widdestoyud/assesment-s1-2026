@@ -86,7 +86,7 @@ interface FeeResult {
 
 ## Implementation
 
-The `PricingService` is a Layer 1 pure logic service — no DI dependencies beyond types:
+The `PricingService` is a Layer 2 (Services) pure logic service — no DI dependencies beyond types:
 
 ```typescript
 export const PricingService = (_deps: AwilixRegistry): PricingServiceInterface => {
