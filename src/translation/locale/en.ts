@@ -358,4 +358,19 @@ export default {
   /* MBC - Simulation Banner */
   mbc_simulation_active: '⚠️ Simulation Mode Active',
   mbc_simulation_checkin_time: '— Check-in time:',
+
+  /* MBC - Top-Up Result Modal */
+  mbc_station_topup_result_success_title: 'Top-up successful',
+  mbc_station_topup_result_success_subtitle: 'Card has been registered and written.',
+  mbc_station_topup_result_error_title: 'Top-up failed',
+  mbc_station_topup_result_error_subtitle: 'An error occurred while writing to the card.',
+  mbc_station_topup_result_nominal_label: 'Amount',
+  mbc_station_topup_result_done_button: 'Done',
+  mbc_station_topup_result_retry_button: 'Try Again',
+
+  /* MBC - Register Confirmation Dialog */
+  mbc_station_register_confirm_title: 'Card Cannot Be Read',
+  mbc_station_register_confirm_message: 'This card cannot be recognized by the system. Possible causes:\n\n• New card that has never been registered\n• Card from another incompatible system\n• Card data is corrupted or invalid\n\nIf you re-register, any previous data (including balance) will be lost and the card will start from Rp 0 balance.',
+  mbc_station_register_confirm_button: 'Register as New Card',
+  mbc_station_register_cancel_button: 'Cancel',
 };

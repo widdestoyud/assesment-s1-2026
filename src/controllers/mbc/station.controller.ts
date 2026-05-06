@@ -17,10 +17,16 @@ export interface StationControllerInterface {
   isProcessing: boolean;
   error: string | null;
   nfcCapability: NfcCapabilityStatus;
+  /** Whether a card needs registration confirmation from user */
+  pendingRegister: boolean;
   onTapCard: () => Promise<void>;
   onTopUp: (amount: number) => Promise<void>;
   onGoToTopUp: () => void;
   onCancelScan: () => void;
+  /** User confirms to register the incompatible/blank card */
+  onConfirmRegister: () => void;
+  /** User declines registration */
+  onCancelRegister: () => void;
   t: TFunction;
 }
 
@@ -53,6 +59,7 @@ const StationController = (
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
+  const [pendingRegister, setPendingRegister] = useState(false);
 
   useEffect(() => {
     const isNfcAvailable = nfcService.isAvailable();
@@ -63,6 +70,7 @@ const StationController = (
     setIsProcessing(true);
     setNfcStatus('scanning');
     setError(null);
+    setPendingRegister(false);
 
     try {
       const result = await validateCardUseCase.execute();
@@ -72,8 +80,20 @@ const StationController = (
       setCardData({ v: 2, b: result.balance, s: 0, t: null });
       setPhase('topup');
     } catch (err: unknown) {
-      setNfcStatus('error');
-      setError(err instanceof Error ? err.message : String(err));
+      const errorMessage = err instanceof Error ? err.message : String(err);
+
+      // Incompatible, blank, or decryption-failed card → ask user for registration confirmation
+      if (
+        errorMessage === 'mbc_nfc_error_incompatible_card' ||
+        errorMessage === 'mbc_nfc_error_blank_card' ||
+        errorMessage === 'mbc_error_decryption_failed'
+      ) {
+        setNfcStatus('idle');
+        setPendingRegister(true);
+      } else {
+        setNfcStatus('error');
+        setError(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -110,6 +130,16 @@ const StationController = (
     setError(null);
   };
 
+  const onConfirmRegister = () => {
+    setPendingRegister(false);
+    setCardData({ v: 2, b: 0, s: 0, t: null });
+    setPhase('topup');
+  };
+
+  const onCancelRegister = () => {
+    setPendingRegister(false);
+  };
+
   return {
     phase,
     cardData,
@@ -119,10 +149,13 @@ const StationController = (
     isProcessing,
     error,
     nfcCapability,
+    pendingRegister,
     onTapCard,
     onTopUp,
     onGoToTopUp,
     onCancelScan,
+    onConfirmRegister,
+    onCancelRegister,
     t,
   };
 };

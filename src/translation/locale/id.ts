@@ -356,4 +356,19 @@ export default {
   /* MBC - Simulation Banner */
   mbc_simulation_active: '⚠️ Mode Simulasi Aktif',
   mbc_simulation_checkin_time: '— Waktu check-in:',
+
+  /* MBC - Top-Up Result Modal */
+  mbc_station_topup_result_success_title: 'Top-up berhasil',
+  mbc_station_topup_result_success_subtitle: 'Kartu sudah terdaftar dan tertulis.',
+  mbc_station_topup_result_error_title: 'Top-up gagal',
+  mbc_station_topup_result_error_subtitle: 'Terjadi kesalahan saat menulis ke kartu.',
+  mbc_station_topup_result_nominal_label: 'Nominal',
+  mbc_station_topup_result_done_button: 'Selesai',
+  mbc_station_topup_result_retry_button: 'Coba Lagi',
+
+  /* MBC - Register Confirmation Dialog */
+  mbc_station_register_confirm_title: 'Kartu Tidak Dapat Dibaca',
+  mbc_station_register_confirm_message: 'Kartu ini tidak dapat dikenali oleh sistem. Kemungkinan penyebab:\n\n• Kartu baru yang belum pernah didaftarkan\n• Kartu dari sistem lain yang tidak kompatibel\n• Data kartu rusak atau tidak valid\n\nJika Anda mendaftarkan ulang, data sebelumnya (termasuk saldo) akan hilang dan kartu akan dimulai dari saldo Rp 0.',
+  mbc_station_register_confirm_button: 'Daftarkan Sebagai Kartu Baru',
+  mbc_station_register_cancel_button: 'Batalkan',
 };

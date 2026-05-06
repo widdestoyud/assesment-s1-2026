@@ -61,7 +61,15 @@ export const webNfcAdapter: NfcProtocol = {
     ndef
       .scan({ signal: controller.signal })
       .then(() => {
+        let readSucceeded = false;
+        let readErrorTimeout: ReturnType<typeof setTimeout> | null = null;
+
         ndef.onreading = (event: NDEFReadingEvent) => {
+          readSucceeded = true;
+          if (readErrorTimeout) {
+            clearTimeout(readErrorTimeout);
+            readErrorTimeout = null;
+          }
           try {
             const data = extractPayload(event.message);
             onRead(data);
@@ -91,14 +99,23 @@ export const webNfcAdapter: NfcProtocol = {
 
         ndef.onreadingerror = () => {
           // onreadingerror fires when tag is detected but cannot be read.
-          // This can happen with non-NDEF formatted tags or brief contact.
-          // Don't abort — wait for another tap that might succeed.
-          // Only report error if this is the only event we get.
-          onError({
-            type: 'incompatible_card',
-            message: 'Error reading NFC tag — tag may not be NDEF formatted. Try holding the card steady for 2-3 seconds.',
-            messageKey: 'mbc_nfc_error_incompatible_card',
-          });
+          // This commonly happens due to brief contact (card lifted too fast),
+          // not necessarily because the card is truly incompatible.
+          // Only report error if no successful read occurs within 3 seconds.
+          if (readSucceeded) return;
+
+          if (readErrorTimeout) {
+            clearTimeout(readErrorTimeout);
+          }
+          readErrorTimeout = setTimeout(() => {
+            if (!readSucceeded) {
+              onError({
+                type: 'incompatible_card',
+                message: 'Error reading NFC tag — tag may not be NDEF formatted. Try holding the card steady for 2-3 seconds.',
+                messageKey: 'mbc_nfc_error_incompatible_card',
+              });
+            }
+          }, 1000);
         };
       })
       .catch((error: unknown) => {

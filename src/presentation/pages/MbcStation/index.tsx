@@ -4,7 +4,9 @@ import container from '@di/container';
 import type { StationControllerInterface } from '@controllers/mbc/station.controller';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
-import { formatIDR } from '@utils/helpers/mbc.helper';
+import ResultStatusModal from '@components/ResultStatusModal';
+import ConfirmDialog from '@components/ConfirmDialog';
+import { formatIDR, formatThousands, stripThousands } from '@utils/helpers/mbc.helper';
 import styles from './mbc-station.module.css';
 
 const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
@@ -15,6 +17,10 @@ const MbcStation: FC = () => {
   const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
   const [showNfcModal, setShowNfcModal] = useState(false);
   const [selectedChip, setSelectedChip] = useState<number | null>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultVariant, setResultVariant] = useState<'success' | 'error'>('success');
+  const [resultAmount, setResultAmount] = useState(0);
+  const [resultError, setResultError] = useState<string | null>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus input when entering topup phase
@@ -37,12 +43,19 @@ const MbcStation: FC = () => {
   const handleTopUpNow = async () => {
     const amount = Number.parseInt(ctrl.topUpAmount, 10);
     if (Number.isNaN(amount) || amount <= 0) return;
+    setResultAmount(amount);
     setShowNfcModal(true);
     try {
       await ctrl.onTopUp(amount);
-      setTimeout(() => setShowNfcModal(false), 800);
+      setShowNfcModal(false);
+      setResultVariant('success');
+      setResultError(null);
+      setShowResultModal(true);
     } catch {
-      // Keep modal open to show error
+      setShowNfcModal(false);
+      setResultVariant('error');
+      setResultError(ctrl.error);
+      setShowResultModal(true);
     }
   };
 
@@ -54,13 +67,21 @@ const MbcStation: FC = () => {
   };
 
   const handleCustomAmountChange = (value: string) => {
+    const raw = stripThousands(value).replace(/\D/g, '');
     setSelectedChip(null);
-    ctrl.setTopUpAmount(value);
+    ctrl.setTopUpAmount(raw);
   };
 
   const handleCloseModal = () => {
     ctrl.onCancelScan();
     setShowNfcModal(false);
+  };
+
+  const handleCloseResultModal = () => {
+    setShowResultModal(false);
+    if (resultVariant === 'success') {
+      ctrl.onGoToTopUp();
+    }
   };
 
   const handleRetry = () => {
@@ -90,7 +111,44 @@ const MbcStation: FC = () => {
         t={t}
       />
 
-      {/* Phase: Tap (Home) */}
+      {/* Top-Up Result Modal */}
+      <ResultStatusModal
+        isOpen={showResultModal}
+        variant={resultVariant}
+        title={
+          resultVariant === 'success'
+            ? t('mbc_station_topup_result_success_title')
+            : t('mbc_station_topup_result_error_title')
+        }
+        subtitle={
+          resultVariant === 'success'
+            ? t('mbc_station_topup_result_success_subtitle')
+            : (resultError ?? t('mbc_station_topup_result_error_subtitle'))
+        }
+        detail={{
+          label: t('mbc_station_topup_result_nominal_label'),
+          value: formatIDR(resultAmount),
+        }}
+        buttonLabel={
+          resultVariant === 'success'
+            ? t('mbc_station_topup_result_done_button')
+            : t('mbc_station_topup_result_retry_button')
+        }
+        onClose={handleCloseResultModal}
+        t={t}
+      />
+
+      {/* Register Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={ctrl.pendingRegister}
+        icon="⚠️"
+        title={t('mbc_station_register_confirm_title')}
+        message={t('mbc_station_register_confirm_message')}
+        confirmLabel={t('mbc_station_register_confirm_button')}
+        cancelLabel={t('mbc_station_register_cancel_button')}
+        onConfirm={ctrl.onConfirmRegister}
+        onCancel={ctrl.onCancelRegister}
+      />      {/* Phase: Tap (Home) */}
       {nfcAvailable && ctrl.phase === 'tap' && (
         <>
 
@@ -152,12 +210,11 @@ const MbcStation: FC = () => {
             </p>
             <input
               ref={amountInputRef}
-              type="number"
-              value={selectedChip ? '' : ctrl.topUpAmount}
+              type="text"
+              inputMode="numeric"
+              value={formatThousands(ctrl.topUpAmount)}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
               placeholder={t('mbc_station_topup_other_placeholder')}
-              min="1"
-              max="999999"
               className={styles['mbc-station__other-input']}
             />
           </div>
