@@ -32,6 +32,7 @@ export const initTranslation = (_queryClient: QueryClient) => {
     .use(initReactI18next)
     .init({
       debug: false,
+      lng: 'id',
       fallbackLng: 'id',
       interpolation: {
         escapeValue: false,

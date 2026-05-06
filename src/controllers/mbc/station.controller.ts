@@ -20,6 +20,7 @@ export interface StationControllerInterface {
   onTapCard: () => Promise<void>;
   onTopUp: (amount: number) => Promise<void>;
   onGoToTopUp: () => void;
+  onCancelScan: () => void;
   t: TFunction;
 }
 
@@ -67,15 +68,9 @@ const StationController = (
       const result = await validateCardUseCase.execute();
       setNfcStatus('success');
 
-      if (result.type === 'new' || result.balance === 0) {
-        // New card or zero balance → go to top-up
-        setCardData({ v: 2, b: result.balance, s: 0, t: null });
-        setPhase('topup');
-      } else {
-        // Existing card with balance → show balance
-        setCardData({ v: 2, b: result.balance, s: 0, t: null });
-        setPhase('balance');
-      }
+      // Always go to top-up after successful validation
+      setCardData({ v: 2, b: result.balance, s: 0, t: null });
+      setPhase('topup');
     } catch (err: unknown) {
       setNfcStatus('error');
       setError(err instanceof Error ? err.message : String(err));
@@ -109,6 +104,12 @@ const StationController = (
     setNfcStatus('idle');
   };
 
+  const onCancelScan = () => {
+    setIsProcessing(false);
+    setNfcStatus('idle');
+    setError(null);
+  };
+
   return {
     phase,
     cardData,
@@ -121,6 +122,7 @@ const StationController = (
     onTapCard,
     onTopUp,
     onGoToTopUp,
+    onCancelScan,
     t,
   };
 };

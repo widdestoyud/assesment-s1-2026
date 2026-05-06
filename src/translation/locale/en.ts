@@ -191,7 +191,7 @@ export default {
     'Your Telkomsel Number',
 
   /* MBC - NFC Error Messages */
-  mbc_nfc_error_incompatible_card: 'Incompatible card. Please use an NTAG215 or NTAG216 card.',
+  mbc_nfc_error_incompatible_card: 'Failed to read card. Make sure it is an NDEF-formatted NTAG215/216 card. Hold the card steady for 2-3 seconds.',
   mbc_nfc_error_blank_card: 'This card is blank. Please register it at The Station first.',
   mbc_nfc_error_card_not_recognized: 'This card is not recognized as an MBC card.',
   mbc_nfc_error_card_data_corrupted: 'Card data is damaged or invalid. Please re-register at The Station.',
@@ -217,6 +217,27 @@ export default {
   mbc_error_encryption_failed: 'Card encryption failed. Please try again.',
   mbc_error_decryption_failed: 'Failed to read card data. Card may be from a different system.',
   mbc_error_key_derivation_failed: 'Security initialization failed. Please restart the app.',
+
+  /* MBC - Bottom Navigation */
+  mbc_nav_station: 'Station',
+  mbc_nav_gate: 'Gate',
+  mbc_nav_terminal: 'Terminal',
+  mbc_nav_scout: 'Scout',
+  mbc_nav_aria_label: 'Main navigation',
+
+  /* MBC - Station Revamp */
+  mbc_station_ready_title: 'Ready to read card',
+  mbc_station_ready_subtitle: 'Press the button below, then tap your NFC card',
+  mbc_station_nfc_tap_label: 'TAP TO START',
+  mbc_station_nfc_tap_sublabel: 'NFC',
+  mbc_station_quick_actions_title: 'Quick Actions',
+  mbc_station_action_topup: 'Top-up Balance',
+  mbc_station_action_register: 'Register Card',
+  mbc_station_current_balance: 'Current Balance',
+  mbc_station_topup_nominal_title: 'Enter Top-up Amount',
+  mbc_station_topup_other_nominal: 'Other Amount',
+  mbc_station_topup_other_placeholder: 'Example: 10000',
+  mbc_station_topup_now_button: 'Top-up Now',
 
   /* MBC - UI Labels */
   mbc_role_picker_title: 'Membership Benefit Card',
@@ -280,6 +301,14 @@ export default {
   mbc_transaction_heading: 'Transaction History',
   mbc_transaction_empty: 'No transaction history yet',
 
+  /* MBC - NFC Scan Modal */
+  mbc_nfc_scan_modal_title: 'Tap Your NFC Card',
+  mbc_nfc_scan_modal_subtitle: 'Hold the NFC card near the back of your device now',
+  mbc_nfc_scan_modal_waiting: 'Waiting...',
+  mbc_nfc_scan_modal_close: 'Close',
+  mbc_nfc_scan_modal_retry: 'Try Again',
+  mbc_nfc_scan_modal_cancel: 'Cancel',
+
   /* MBC - NFC Tap Prompt */
   mbc_nfc_status_idle: 'Tap NFC card',
   mbc_nfc_status_scanning: 'Waiting for card...',
@@ -288,7 +317,7 @@ export default {
   mbc_nfc_status_verifying: 'Verifying...',
   mbc_nfc_status_success: 'Success!',
   mbc_nfc_status_error: 'Failed. Try again.',
-  mbc_nfc_processing: 'Processing...',
+  mbc_nfc_processing: 'Tap NFC Card',
 
   /* MBC - NFC Capability Notice */
   mbc_nfc_unsupported_title: '⚠️ NFC Not Available',

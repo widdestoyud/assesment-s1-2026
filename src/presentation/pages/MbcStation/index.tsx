@@ -1,141 +1,230 @@
 import type { FC } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import container from '@di/container';
 import type { StationControllerInterface } from '@controllers/mbc/station.controller';
-import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
-import BalanceDisplay from '@components/BalanceDisplay';
-import DebugPanel, { createDebugLog, type DebugLog } from '@components/DebugPanel';
+import NfcScanModal from '@components/NfcScanModal';
+import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './mbc-station.module.css';
+
+const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
 
 const MbcStation: FC = () => {
   const ctrl = container.resolve<StationControllerInterface>('stationController');
   const { t } = ctrl;
-  const [debugLogs, setDebugLogs] = useState<DebugLog[]>([]);
-
-  const addLog = (step: string, data: unknown, level: DebugLog['level'] = 'info') => {
-    setDebugLogs(prev => [...prev, createDebugLog(step, data, level)]);
-  };
-
   const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
+  const [showNfcModal, setShowNfcModal] = useState(false);
+  const [selectedChip, setSelectedChip] = useState<number | null>(null);
+  const amountInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus input when entering topup phase
+  useEffect(() => {
+    if (ctrl.phase === 'topup' && amountInputRef.current) {
+      amountInputRef.current.focus();
+    }
+  }, [ctrl.phase]);
 
   const handleTapCard = async () => {
-    setDebugLogs([]);
-    addLog('Validate Card Start', { nfcCapability: ctrl.nfcCapability });
+    setShowNfcModal(true);
     try {
       await ctrl.onTapCard();
-      addLog('Validate Card Complete', { phase: ctrl.phase, cardData: ctrl.cardData }, 'success');
-    } catch (err: unknown) {
-      addLog('Validate Card Error', { error: err instanceof Error ? err.message : String(err) }, 'error');
+      setTimeout(() => setShowNfcModal(false), 800);
+    } catch {
+      // Keep modal open to show error with retry option
     }
   };
 
-  const handleTopUp = async () => {
+  const handleTopUpNow = async () => {
     const amount = Number.parseInt(ctrl.topUpAmount, 10);
     if (Number.isNaN(amount) || amount <= 0) return;
-    setDebugLogs([]);
-    addLog('Top-Up Start', { amount });
+    setShowNfcModal(true);
     try {
       await ctrl.onTopUp(amount);
-      addLog('Top-Up Complete', { cardData: ctrl.cardData }, 'success');
-    } catch (err: unknown) {
-      addLog('Top-Up Error', { error: err instanceof Error ? err.message : String(err) }, 'error');
+      setTimeout(() => setShowNfcModal(false), 800);
+    } catch {
+      // Keep modal open to show error
     }
   };
+
+  const handleSelectChip = (amount: number) => {
+    setSelectedChip(amount);
+    ctrl.setTopUpAmount(String(amount));
+    // Focus input after chip selection
+    setTimeout(() => amountInputRef.current?.focus(), 0);
+  };
+
+  const handleCustomAmountChange = (value: string) => {
+    setSelectedChip(null);
+    ctrl.setTopUpAmount(value);
+  };
+
+  const handleCloseModal = () => {
+    ctrl.onCancelScan();
+    setShowNfcModal(false);
+  };
+
+  const handleRetry = () => {
+    if (ctrl.phase === 'topup') {
+      handleTopUpNow();
+    } else {
+      handleTapCard();
+    }
+  };
+
+  const topUpAmount = Number.parseInt(ctrl.topUpAmount, 10);
+  const isTopUpValid = !Number.isNaN(topUpAmount) && topUpAmount > 0;
 
   return (
     <main className={styles['mbc-station']}>
-      <h1 className={styles['mbc-station__title']}>{t('mbc_station_title')}</h1>
-      <p className={styles['mbc-station__subtitle']}>{t('mbc_station_subtitle')}</p>
-
       <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
-      {nfcAvailable && (
-        <div className={styles['mbc-station__section']}>
-          {/* Phase: Tap */}
-          {ctrl.phase === 'tap' && (
-            <>
-              <p className={styles['mbc-station__instruction']}>{t('mbc_station_tap_instruction')}</p>
+      {/* NFC Scan Modal */}
+      <NfcScanModal
+        isOpen={showNfcModal}
+        nfcStatus={ctrl.nfcStatus}
+        isProcessing={ctrl.isProcessing}
+        error={ctrl.error}
+        onClose={handleCloseModal}
+        onCancel={ctrl.onCancelScan}
+        onRetry={handleRetry}
+        t={t}
+      />
+
+      {/* Phase: Tap (Home) */}
+      {nfcAvailable && ctrl.phase === 'tap' && (
+        <>
+
+          {/* NFC Tap Area */}
+          <div className={styles['mbc-station__nfc-area']}>
+            <button
+              type="button"
+              onClick={handleTapCard}
+              disabled={ctrl.isProcessing}
+              aria-label={t('mbc_station_nfc_tap_label')}
+              className={styles['mbc-station__nfc-circle']}
+            >
+              <span className={styles['mbc-station__nfc-icon']} aria-hidden="true">
+                📶
+              </span>
+              <span className={styles['mbc-station__nfc-label']}>
+                {t('mbc_station_nfc_tap_label')}
+              </span>
+              <span className={styles['mbc-station__nfc-sublabel']}>
+                {t('mbc_station_nfc_tap_sublabel')}
+              </span>
+            </button>
+          </div>
+
+          {/* Quick Actions */}
+          <div className={styles['mbc-station__actions-section']}>
+            <p className={styles['mbc-station__actions-title']}>
+              {t('mbc_station_quick_actions_title')}
+            </p>
+            <div className={styles['mbc-station__actions-grid']}>
               <button
                 type="button"
                 onClick={handleTapCard}
                 disabled={ctrl.isProcessing}
-                className={styles['mbc-station__primary-button']}
+                className={styles['mbc-station__action-button']}
               >
-                {t('mbc_station_validate_button')}
+                {t('mbc_station_action_topup')}
               </button>
-              <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} t={t} />
-            </>
-          )}
-
-          {/* Phase: Top-Up */}
-          {ctrl.phase === 'topup' && (
-            <>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleTopUp();
-                }}
-                className={styles['mbc-station__form-group']}
-              >
-                <div>
-                  <label htmlFor="topup-amount" className={styles['mbc-station__label']}>
-                    {t('mbc_station_topup_amount_label')}
-                  </label>
-                  <input
-                    id="topup-amount"
-                    type="number"
-                    value={ctrl.topUpAmount}
-                    onChange={(e) => ctrl.setTopUpAmount(e.target.value)}
-                    min="1"
-                    max="999999"
-                    required
-                    className={styles['mbc-station__input']}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={ctrl.isProcessing}
-                  className={styles['mbc-station__primary-button']}
-                >
-                  {t('mbc_station_topup_button')}
-                </button>
-              </form>
-              <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} t={t} />
-            </>
-          )}
-
-          {/* Phase: Balance */}
-          {ctrl.phase === 'balance' && ctrl.cardData && (
-            <>
-              <BalanceDisplay balance={ctrl.cardData.b} t={t} />
               <button
                 type="button"
-                onClick={ctrl.onGoToTopUp}
-                className={styles['mbc-station__secondary-button']}
+                onClick={handleTapCard}
+                disabled={ctrl.isProcessing}
+                className={styles['mbc-station__action-button']}
               >
-                {t('mbc_station_topup_again_button')}
+                {t('mbc_station_action_register')}
               </button>
-            </>
-          )}
+            </div>
+          </div>
+        </>
+      )}
 
-          {/* Error */}
-          {ctrl.error && (
+      {/* Phase: Top-Up (after NFC read success) */}
+      {nfcAvailable && ctrl.phase === 'topup' && (
+        <div className={styles['mbc-station__form-section']}>
+          {/* Other Amount Input */}
+          <div className={styles['mbc-station__other-section']}>
+            <p className={styles['mbc-station__other-label']}>
+              {t('mbc_station_topup_other_nominal')}
+            </p>
+            <input
+              ref={amountInputRef}
+              type="number"
+              value={selectedChip ? '' : ctrl.topUpAmount}
+              onChange={(e) => handleCustomAmountChange(e.target.value)}
+              placeholder={t('mbc_station_topup_other_placeholder')}
+              min="1"
+              max="999999"
+              className={styles['mbc-station__other-input']}
+            />
+          </div>
+
+          {/* Quick Amount Chips */}
+          <div className={styles['mbc-station__chips-section']}>
+            <p className={styles['mbc-station__chips-title']}>
+              {t('mbc_station_topup_nominal_title')}
+            </p>
+            <div className={styles['mbc-station__chips-grid']}>
+              {QUICK_AMOUNTS.map((amount) => (
+                <button
+                  key={amount}
+                  type="button"
+                  onClick={() => handleSelectChip(amount)}
+                  className={`${styles['mbc-station__chip']} ${selectedChip === amount ? styles['mbc-station__chip--active'] : ''}`}
+                >
+                  Rp{amount.toLocaleString('id-ID')}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          
+
+          {/* Error (non-modal) */}
+          {ctrl.error && !showNfcModal && (
             <div role="alert" className={styles['mbc-station__error-alert']}>
               {ctrl.error}
             </div>
           )}
 
-          {/* Success message for tap phase */}
-          {ctrl.nfcStatus === 'success' && ctrl.phase === 'topup' && (
-            <output className={styles['mbc-station__success-output']}>
-              {t('mbc_station_validation_success')}
-            </output>
-          )}
+          {/* Top-up Now Button */}
+          <button
+            type="button"
+            onClick={handleTopUpNow}
+            disabled={ctrl.isProcessing || !isTopUpValid}
+            className={styles['mbc-station__topup-button']}
+          >
+            {t('mbc_station_topup_now_button')}
+          </button>
         </div>
       )}
 
-      <DebugPanel logs={debugLogs} title="Station NFC Debug" onClear={() => setDebugLogs([])} />
+      {/* Phase: Balance (after top-up success) */}
+      {nfcAvailable && ctrl.phase === 'balance' && ctrl.cardData && (
+        <div className={styles['mbc-station__section']}>
+          <div className={styles['mbc-station__success-output']}>
+            {t('mbc_station_validation_success')}
+          </div>
+          <div className={styles['mbc-station__balance-card']}>
+            <p className={styles['mbc-station__balance-label']}>
+              {t('mbc_station_current_balance')}
+            </p>
+            <p className={styles['mbc-station__balance-amount']}>
+              {formatIDR(ctrl.cardData.b)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={ctrl.onGoToTopUp}
+            className={styles['mbc-station__secondary-button']}
+          >
+            {t('mbc_station_topup_again_button')}
+          </button>
+        </div>
+      )}
     </main>
   );
 };

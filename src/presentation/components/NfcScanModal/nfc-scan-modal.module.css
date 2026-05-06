@@ -1,0 +1,113 @@
+@reference "tailwindcss";
+
+/* Overlay */
+.nfc-scan-modal__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4;
+}
+
+/* Modal Container */
+.nfc-scan-modal {
+  @apply relative flex w-full max-w-sm flex-col items-center rounded-2xl bg-white px-6 py-8 shadow-xl;
+}
+
+/* Close Button */
+.nfc-scan-modal__close {
+  @apply absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors;
+}
+
+.nfc-scan-modal__close:hover {
+  @apply bg-gray-100 text-gray-600;
+}
+
+/* Title */
+.nfc-scan-modal__title {
+  @apply mb-2 text-center text-lg font-bold text-gray-800;
+}
+
+/* Subtitle */
+.nfc-scan-modal__subtitle {
+  @apply mb-6 text-center text-sm text-gray-500;
+}
+
+/* NFC Circle Animation Area */
+.nfc-scan-modal__circle-wrapper {
+  @apply relative mb-6 flex items-center justify-center;
+}
+
+.nfc-scan-modal__circle {
+  @apply flex h-44 w-44 flex-col items-center justify-center rounded-full bg-blue-50;
+}
+
+.nfc-scan-modal__circle--scanning {
+  @apply animate-pulse bg-blue-100;
+}
+
+.nfc-scan-modal__circle--success {
+  @apply bg-green-50;
+}
+
+.nfc-scan-modal__circle--error {
+  @apply bg-red-50;
+}
+
+/* Ripple animation rings */
+.nfc-scan-modal__ripple {
+  @apply absolute h-44 w-44 rounded-full border-2 border-blue-300 opacity-0;
+  animation: nfc-ripple 2s ease-out infinite;
+}
+
+.nfc-scan-modal__ripple--delayed {
+  animation-delay: 0.6s;
+}
+
+.nfc-scan-modal__ripple--delayed-2 {
+  animation-delay: 1.2s;
+}
+
+@keyframes nfc-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Icon inside circle */
+.nfc-scan-modal__icon {
+  @apply text-5xl;
+}
+
+/* Label inside circle */
+.nfc-scan-modal__label {
+  @apply mt-2 text-xs font-bold uppercase tracking-wider text-blue-700;
+}
+
+.nfc-scan-modal__label--success {
+  @apply text-green-700;
+}
+
+.nfc-scan-modal__label--error {
+  @apply text-red-700;
+}
+
+/* Status text below circle */
+.nfc-scan-modal__status {
+  @apply text-center text-sm text-gray-600;
+}
+
+/* Error message */
+.nfc-scan-modal__error {
+  @apply mt-3 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700;
+}
+
+/* Retry button */
+.nfc-scan-modal__retry {
+  @apply mt-4 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors;
+}
+
+.nfc-scan-modal__retry:hover {
+  @apply bg-blue-700;
+}

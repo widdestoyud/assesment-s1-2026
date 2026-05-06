@@ -189,7 +189,7 @@ export default {
     'Nomor Telkomsel Anda',
 
   /* MBC - Pesan Error NFC */
-  mbc_nfc_error_incompatible_card: 'Kartu tidak kompatibel. Gunakan kartu NTAG215 atau NTAG216.',
+  mbc_nfc_error_incompatible_card: 'Gagal membaca kartu. Pastikan kartu NTAG215/216 yang sudah di-format NDEF. Tahan kartu dengan stabil selama 2-3 detik.',
   mbc_nfc_error_blank_card: 'Kartu ini kosong. Silakan daftarkan di The Station terlebih dahulu.',
   mbc_nfc_error_card_not_recognized: 'Kartu ini tidak dikenali sebagai kartu MBC.',
   mbc_nfc_error_card_data_corrupted: 'Data kartu rusak atau tidak valid. Silakan daftarkan ulang di The Station.',
@@ -215,6 +215,27 @@ export default {
   mbc_error_encryption_failed: 'Enkripsi kartu gagal. Silakan coba lagi.',
   mbc_error_decryption_failed: 'Gagal membaca data kartu. Kartu mungkin dari sistem lain.',
   mbc_error_key_derivation_failed: 'Inisialisasi keamanan gagal. Silakan mulai ulang aplikasi.',
+
+  /* MBC - Bottom Navigation */
+  mbc_nav_station: 'Station',
+  mbc_nav_gate: 'Gate',
+  mbc_nav_terminal: 'Terminal',
+  mbc_nav_scout: 'Scout',
+  mbc_nav_aria_label: 'Navigasi utama',
+
+  /* MBC - Station Revamp */
+  mbc_station_ready_title: 'Siap untuk membaca kartu',
+  mbc_station_ready_subtitle: 'Tekan tombol di bawah, lalu tempelkan kartu NFC',
+  mbc_station_nfc_tap_label: 'Ketuk Untuk Memulai',
+  mbc_station_nfc_tap_sublabel: 'NFC',
+  mbc_station_quick_actions_title: 'Aksi Cepat',
+  mbc_station_action_topup: 'Top-up Saldo',
+  mbc_station_action_register: 'Registrasi Kartu',
+  mbc_station_current_balance: 'Saldo Saat Ini',
+  mbc_station_topup_nominal_title: 'Masukkan Nominal Top-up',
+  mbc_station_topup_other_nominal: 'Nominal Lain',
+  mbc_station_topup_other_placeholder: 'Contoh: 10000',
+  mbc_station_topup_now_button: 'Top-up Sekarang',
 
   /* MBC - UI Labels */
   mbc_role_picker_title: 'Membership Benefit Card',
@@ -278,6 +299,14 @@ export default {
   mbc_transaction_heading: 'Riwayat Transaksi',
   mbc_transaction_empty: 'Belum ada riwayat transaksi',
 
+  /* MBC - NFC Scan Modal */
+  mbc_nfc_scan_modal_title: 'Tempelkan Kartu NFC Anda',
+  mbc_nfc_scan_modal_subtitle: 'Dekatkan kartu ke bagian belakang perangkat sekarang',
+  mbc_nfc_scan_modal_waiting: 'Menunggu...',
+  mbc_nfc_scan_modal_close: 'Tutup',
+  mbc_nfc_scan_modal_retry: 'Coba Lagi',
+  mbc_nfc_scan_modal_cancel: 'Batalkan',
+
   /* MBC - NFC Tap Prompt */
   mbc_nfc_status_idle: 'Tempelkan kartu NFC',
   mbc_nfc_status_scanning: 'Menunggu kartu...',
@@ -286,7 +315,7 @@ export default {
   mbc_nfc_status_verifying: 'Memverifikasi...',
   mbc_nfc_status_success: 'Berhasil!',
   mbc_nfc_status_error: 'Gagal. Coba lagi.',
-  mbc_nfc_processing: 'Sedang memproses...',
+  mbc_nfc_processing: 'Tempelkan Kartu NFC Anda',
 
   /* MBC - NFC Capability Notice */
   mbc_nfc_unsupported_title: '⚠️ NFC Tidak Tersedia',

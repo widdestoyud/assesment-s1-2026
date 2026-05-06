@@ -1,93 +1,192 @@
 @reference "tailwindcss";
 
 .mbc-station {
-    @apply mx-auto max-w-lg px-4 py-6;
+  @apply mx-auto flex max-w-lg flex-col px-4 py-4;
+  min-height: calc(100vh - 64px);
 }
 
-.mbc-station__title {
-    @apply mb-1 text-xl font-bold;
+/* Info Card */
+.mbc-station__info-card {
+  @apply rounded-xl bg-gray-50 p-4 shadow-sm;
 }
 
-.mbc-station__subtitle {
-    @apply mb-4 text-sm text-gray-500;
+.mbc-station__info-title {
+  @apply text-base font-bold text-gray-800;
 }
 
-.mbc-station__storage-warning {
-    @apply mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700;
+.mbc-station__info-subtitle {
+  @apply mt-1 text-sm text-gray-500;
 }
 
-.mbc-station__tab-list {
-    @apply mb-4 flex gap-1 rounded-lg bg-gray-100 p-1;
+/* NFC Tap Area */
+.mbc-station__nfc-area {
+  @apply flex flex-1 items-center justify-center py-6;
 }
 
-.mbc-station__tab--active {
-    @apply flex-1 rounded-md bg-white px-3 py-2 text-sm font-medium shadow-sm transition-colors;
+.mbc-station__nfc-circle {
+  @apply flex h-44 w-44 flex-col items-center justify-center rounded-full bg-blue-50;
 }
 
-.mbc-station__tab--inactive {
-    @apply flex-1 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors;
+.mbc-station__nfc-circle--processing {
+  @apply animate-pulse bg-blue-100;
 }
 
-.mbc-station__tab--inactive:hover {
-    @apply text-gray-700;
+.mbc-station__nfc-icon {
+  @apply mb-2 text-4xl text-blue-600;
 }
 
-.mbc-station__section {
-    @apply space-y-4;
+.mbc-station__nfc-label {
+  @apply text-xs font-bold tracking-wide text-blue-700;
+}
+
+.mbc-station__nfc-sublabel {
+  @apply text-[10px] font-semibold text-blue-600;
+}
+
+/* Quick Actions */
+.mbc-station__actions-section {
+  @apply mt-auto pt-2;
+}
+
+.mbc-station__actions-title {
+  @apply mb-2 text-sm font-medium text-gray-700;
+}
+
+.mbc-station__actions-grid {
+  @apply grid grid-cols-2 gap-3;
+}
+
+.mbc-station__action-button {
+  @apply rounded-xl border border-blue-200 bg-white px-4 py-3 text-center text-sm font-medium text-blue-700 shadow-sm transition-colors;
+}
+
+.mbc-station__action-button:hover {
+  @apply border-blue-400 bg-blue-50;
+}
+
+.mbc-station__action-button:active {
+  @apply bg-blue-100;
+}
+
+.mbc-station__action-button--active {
+  @apply border-blue-500 bg-blue-50 font-semibold;
+}
+
+/* Top-Up Form Section */
+.mbc-station__form-section {
+  @apply flex flex-1 flex-col gap-4;
 }
 
 .mbc-station__form-group {
-    @apply space-y-3;
+  @apply space-y-3;
 }
 
 .mbc-station__label {
-    @apply block text-sm font-medium text-gray-700;
+  @apply block text-sm font-medium text-gray-700;
 }
 
 .mbc-station__input {
-    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm;
+  @apply w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+}
+
+/* Balance Card in Top-Up */
+.mbc-station__balance-card {
+  @apply rounded-xl border border-gray-200 p-4;
+}
+
+.mbc-station__balance-label {
+  @apply text-sm text-gray-500;
+}
+
+.mbc-station__balance-amount {
+  @apply mt-1 text-2xl font-bold text-blue-600;
+}
+
+/* Quick Amount Chips */
+.mbc-station__chips-section {
+  @apply space-y-2;
+}
+
+.mbc-station__chips-title {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.mbc-station__chips-grid {
+  @apply grid grid-cols-3 gap-2;
+}
+
+.mbc-station__chip {
+  @apply rounded-xl border border-gray-200 bg-white px-3 py-2 text-center text-sm font-medium text-gray-700 transition-colors;
+}
+
+.mbc-station__chip:hover {
+  @apply border-blue-300 bg-blue-50;
+}
+
+.mbc-station__chip--active {
+  @apply border-blue-400 bg-blue-50 font-semibold text-blue-700;
+}
+
+/* Other Amount Input */
+.mbc-station__other-section {
+  @apply space-y-2;
+}
+
+.mbc-station__other-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.mbc-station__other-input {
+  @apply w-full rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+}
+
+/* Top-Up Now Button */
+.mbc-station__topup-button {
+  @apply mt-auto w-full rounded-xl bg-blue-600 px-4 py-3.5 text-base font-semibold text-white shadow-sm transition-colors;
+}
+
+.mbc-station__topup-button:hover {
+  @apply bg-blue-700;
+}
+
+.mbc-station__topup-button:disabled {
+  @apply cursor-not-allowed opacity-50;
 }
 
 .mbc-station__primary-button {
-    @apply w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50;
+  @apply w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors;
+}
+
+.mbc-station__primary-button:hover {
+  @apply bg-blue-700;
+}
+
+.mbc-station__primary-button:disabled {
+  @apply cursor-not-allowed opacity-50;
 }
 
 .mbc-station__secondary-button {
-    @apply w-full rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50;
+  @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors;
 }
 
-.mbc-station__config-heading {
-    @apply text-sm font-semibold text-gray-600;
+.mbc-station__secondary-button:hover {
+  @apply bg-gray-50;
 }
 
-.mbc-station__config--empty {
-    @apply text-sm text-gray-400;
-}
-
-.mbc-station__config-list {
-    @apply space-y-2;
-}
-
-.mbc-station__config-item {
-    @apply flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm;
-}
-
-.mbc-station__config-item-name {
-    @apply font-medium;
-}
-
-.mbc-station__config-item-rate {
-    @apply text-xs text-gray-400;
-}
-
-.mbc-station__remove-button {
-    @apply text-red-500 hover:text-red-700;
-}
-
+/* Result States */
 .mbc-station__error-alert {
-    @apply mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700;
+  @apply rounded-lg bg-red-50 p-3 text-sm text-red-700;
 }
 
 .mbc-station__success-output {
-    @apply mt-4 block rounded-md bg-green-50 p-3 text-sm text-green-700;
+  @apply rounded-lg bg-green-50 p-3 text-sm font-medium text-green-700;
+}
+
+/* Section spacing */
+.mbc-station__section {
+  @apply flex flex-1 flex-col gap-4;
+}
+
+.mbc-station__instruction {
+  @apply text-sm text-gray-600;
 }

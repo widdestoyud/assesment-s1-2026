@@ -69,8 +69,9 @@ export const webNfcAdapter: NfcProtocol = {
             const errorMessage =
               error instanceof Error ? error.message : String(error);
             if (errorMessage.includes('No text record')) {
-              // Chrome Android sometimes fires onreading with empty message on first tap.
-              // Ignore and wait for next tap with actual data.
+              // Blank/new card with no text record — send empty bytes
+              // so upper layers can handle (e.g., write initial data)
+              onRead(new Uint8Array(0));
               return;
             }
             // For any other extraction error (e.g. invalid base64), send raw bytes
@@ -89,9 +90,13 @@ export const webNfcAdapter: NfcProtocol = {
         };
 
         ndef.onreadingerror = () => {
+          // onreadingerror fires when tag is detected but cannot be read.
+          // This can happen with non-NDEF formatted tags or brief contact.
+          // Don't abort — wait for another tap that might succeed.
+          // Only report error if this is the only event we get.
           onError({
             type: 'incompatible_card',
-            message: 'Error reading NFC tag — tag may be incompatible',
+            message: 'Error reading NFC tag — tag may not be NDEF formatted. Try holding the card steady for 2-3 seconds.',
             messageKey: 'mbc_nfc_error_incompatible_card',
           });
         };

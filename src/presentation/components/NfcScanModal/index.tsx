@@ -1,0 +1,214 @@
+import { useEffect, useRef } from 'react';
+import type { FC } from 'react';
+import type { TFunction } from 'i18next';
+import type { NfcStatus } from '@core/services/mbc/models';
+import styles from './nfc-scan-modal.module.css';
+
+export interface NfcScanModalProps {
+  /** Whether the modal is visible */
+  isOpen: boolean;
+  /** Current NFC operation status */
+  nfcStatus: NfcStatus;
+  /** Whether an NFC operation is in progress */
+  isProcessing: boolean;
+  /** Optional error message to display */
+  error?: string | null;
+  /** Called when user closes the modal (cancel) */
+  onClose: () => void;
+  /** Called when user wants to cancel an ongoing scan */
+  onCancel?: () => void;
+  /** Called when user wants to retry after error */
+  onRetry?: () => void;
+  /** Translation function */
+  t: TFunction;
+  /** Optional custom title override */
+  title?: string;
+  /** Optional custom subtitle override */
+  subtitle?: string;
+}
+
+const NfcScanModal: FC<NfcScanModalProps> = ({
+  isOpen,
+  nfcStatus,
+  isProcessing,
+  error,
+  onClose,
+  onCancel,
+  onRetry,
+  t,
+  title,
+  subtitle,
+}) => {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isProcessing && onCancel) {
+          onCancel();
+        }
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isProcessing, onClose, onCancel]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const isScanning = nfcStatus === 'idle' || nfcStatus === 'scanning';
+  const isWorking = nfcStatus === 'reading' || nfcStatus === 'writing' || nfcStatus === 'verifying';
+  const isSuccess = nfcStatus === 'success';
+  const isError = nfcStatus === 'error';
+
+  const getCircleModifier = (): string => {
+    if (isSuccess) return styles['nfc-scan-modal__circle--success'];
+    if (isError) return styles['nfc-scan-modal__circle--error'];
+    if (isScanning || isWorking) return styles['nfc-scan-modal__circle--scanning'];
+    return '';
+  };
+
+  const getIcon = (): string => {
+    if (isSuccess) return '✅';
+    if (isError) return '❌';
+    return '📶';
+  };
+
+  const getLabel = (): string => {
+    if (isSuccess) return t('mbc_nfc_status_success');
+    if (isError) return t('mbc_nfc_status_error');
+    if (nfcStatus === 'reading') return t('mbc_nfc_status_reading');
+    if (nfcStatus === 'writing') return t('mbc_nfc_status_writing');
+    if (nfcStatus === 'verifying') return t('mbc_nfc_status_verifying');
+    return t('mbc_nfc_scan_modal_waiting');
+  };
+
+  const getLabelModifier = (): string => {
+    if (isSuccess) return styles['nfc-scan-modal__label--success'];
+    if (isError) return styles['nfc-scan-modal__label--error'];
+    return '';
+  };
+
+  const displayTitle = title ?? t('mbc_nfc_scan_modal_title');
+  const displaySubtitle = subtitle ?? t('mbc_nfc_scan_modal_subtitle');
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === overlayRef.current) {
+      if (isProcessing && onCancel) {
+        onCancel();
+      }
+      onClose();
+    }
+  };
+
+  const handleClose = () => {
+    if (isProcessing && onCancel) {
+      onCancel();
+    }
+    onClose();
+  };
+
+  return (
+    <div
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="nfc-scan-modal-title"
+      className={styles['nfc-scan-modal__overlay']}
+      onClick={handleOverlayClick}
+    >
+      <div className={styles['nfc-scan-modal']}>
+        {/* Close / Cancel button — always available */}
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label={t('mbc_nfc_scan_modal_close')}
+          className={styles['nfc-scan-modal__close']}
+        >
+          ✕
+        </button>
+
+        {/* Title */}
+        <h2 id="nfc-scan-modal-title" className={styles['nfc-scan-modal__title']}>
+          {displayTitle}
+        </h2>
+
+        {/* Subtitle */}
+        <p className={styles['nfc-scan-modal__subtitle']}>
+          {displaySubtitle}
+        </p>
+
+        {/* NFC Circle with ripple animation */}
+        <div className={styles['nfc-scan-modal__circle-wrapper']}>
+          {/* Ripple rings (only when scanning/waiting) */}
+          {(isScanning || isWorking) && (
+            <>
+              <span className={styles['nfc-scan-modal__ripple']} aria-hidden="true" />
+              <span className={`${styles['nfc-scan-modal__ripple']} ${styles['nfc-scan-modal__ripple--delayed']}`} aria-hidden="true" />
+              <span className={`${styles['nfc-scan-modal__ripple']} ${styles['nfc-scan-modal__ripple--delayed-2']}`} aria-hidden="true" />
+            </>
+          )}
+
+          <div
+            role="status"
+            aria-live="polite"
+            aria-busy={isProcessing}
+            className={`${styles['nfc-scan-modal__circle']} ${getCircleModifier()}`}
+          >
+            <span className={styles['nfc-scan-modal__icon']} aria-hidden="true">
+              {getIcon()}
+            </span>
+            <span className={`${styles['nfc-scan-modal__label']} ${getLabelModifier()}`}>
+              {getLabel()}
+            </span>
+          </div>
+        </div>
+
+        {/* Status text */}
+        {isProcessing && (
+          <p className={styles['nfc-scan-modal__status']}>
+            {t('mbc_nfc_processing')}
+          </p>
+        )}
+
+        {/* Error message */}
+        {isError && error && (
+          <div className={styles['nfc-scan-modal__error']} role="alert">
+            {error}
+          </div>
+        )}
+
+        {/* Retry button */}
+        {isError && onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className={styles['nfc-scan-modal__retry']}
+          >
+            {t('mbc_nfc_scan_modal_retry')}
+          </button>
+        )}
+
+
+      </div>
+    </div>
+  );
+};
+
+export default NfcScanModal;
