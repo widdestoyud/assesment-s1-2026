@@ -227,43 +227,34 @@ export default {
   /* MBC - Gate */
   mbc_gate_title: '🚪 The Gate',
   mbc_gate_subtitle: 'Check-in member dengan NFC',
-  mbc_gate_simulation_mode: 'Mode Simulasi',
-  mbc_gate_simulation_time_label: 'Waktu Check-In (Simulasi)',
   mbc_gate_checkin_button: 'Check-In',
   mbc_gate_checkin_success: '✅ Check-in berhasil',
-  mbc_gate_member_label: 'Member:',
-  mbc_gate_service_label: 'Layanan:',
   mbc_gate_entry_time_label: 'Waktu masuk:',
 
   /* MBC - Terminal */
   mbc_terminal_title: '💳 The Terminal',
   mbc_terminal_subtitle: 'Check-out dan kalkulasi tarif',
-  mbc_terminal_manual_calc_label: 'Kalkulasi Manual',
-  mbc_terminal_manual_result_heading: 'Hasil Kalkulasi Manual',
   mbc_terminal_checkout_button: 'Check-Out',
-  mbc_terminal_checkout_success: '✅ Check-out berhasil — {{benefitTypeName}}',
+  mbc_terminal_checkout_success: '✅ Check-out berhasil',
 
   /* MBC - Scout */
   mbc_scout_title: '🔍 The Scout',
   mbc_scout_subtitle: 'Lihat isi kartu member',
   mbc_scout_read_button: 'Baca Kartu',
+  mbc_scout_checkin_status_label: 'Status Check-In',
+  mbc_scout_status_checked_in: '✅ Checked-In',
+  mbc_scout_status_idle: '⏸️ Idle',
+  mbc_scout_checkin_time_label: 'Waktu masuk:',
 
   /* MBC - Station */
   mbc_station_title: '🏢 The Station',
-  mbc_station_subtitle: 'Admin: Registrasi, Top-Up, Konfigurasi',
-  mbc_station_tab_register: 'Registrasi',
-  mbc_station_tab_topup: 'Top-Up',
-  mbc_station_tab_config: 'Service Config',
-  mbc_station_name_label: 'Nama',
-  mbc_station_member_id_label: 'Member ID',
-  mbc_station_register_button: 'Registrasi Kartu',
+  mbc_station_subtitle: 'Admin: Validasi & Top-Up Kartu',
+  mbc_station_tap_instruction: 'Tap kartu untuk validasi',
+  mbc_station_validate_button: 'Validasi Kartu',
   mbc_station_topup_amount_label: 'Jumlah (Rp)',
   mbc_station_topup_button: 'Top-Up Saldo',
-  mbc_station_config_heading: 'Service Types Terdaftar',
-  mbc_station_config_empty: 'Belum ada benefit type',
-  mbc_station_registration_success: '✅ Registrasi berhasil — {{memberName}}',
-  mbc_station_topup_success: '✅ Top-up berhasil — {{memberName}}',
-  mbc_station_remove_label: 'Hapus {{name}}',
+  mbc_station_topup_again_button: 'Top-Up Lagi',
+  mbc_station_validation_success: '✅ Validasi berhasil',
 
   /* MBC - Card Info Display */
   mbc_card_member_identity: 'Identitas Member',

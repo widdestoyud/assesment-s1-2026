@@ -39,6 +39,7 @@
     "types": ["vite/client", "@testing-library/jest-dom"]
   },
   "include": ["postcss.config.ts", "src", "types/**/*", "vitest.setup.ts"],
+  "exclude": ["src/**/__tests__/**", "src/**/*.test.*", "src/**/*.spec.*"],
   "typeRoots": ["./node_modules/@types", "./types"],
   "types": ["node", "vite", "vitest/globals", "@testing-library/jest-dom"]
 }

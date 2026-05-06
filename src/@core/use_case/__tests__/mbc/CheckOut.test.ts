@@ -35,6 +35,7 @@ function createMocks(cardData: CardData = CHECKED_IN_CARD) {
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
   };
 
   const cardDataService: CardDataServiceInterface = {
@@ -90,7 +91,7 @@ describe('CheckOutUseCase', () => {
     expect(result.fee).toBe(6000);
     expect(result.remainingBalance).toBe(44000);
     expect(result.feeBreakdown.usageUnits).toBe(3);
-    expect(mocks.nfcService.writeAndVerify).toHaveBeenCalledOnce();
+    expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
   });
 
   it('rejects when not checked in', async () => {
@@ -132,34 +133,15 @@ describe('CheckOutUseCase', () => {
     ).rejects.toThrow('mbc_error_insufficient_balance');
   });
 
-  it('attempts rollback when write verification fails', async () => {
+  it('throws when NFC write fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Tag removed',
-    });
-    const useCase = CheckOutUseCase(mocks);
-
-    await expect(
-      useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('mbc_error_write_verification_failed');
-    // Verify rollback was attempted
-    expect(mocks.nfcService.writeCard).toHaveBeenCalledOnce();
-  });
-
-  it('reports critical error when rollback also fails', async () => {
-    const mocks = createMocks();
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Tag removed',
-    });
-    (mocks.nfcService.writeCard as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('Rollback write failed'),
+    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('NFC write failed'),
     );
     const useCase = CheckOutUseCase(mocks);
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('mbc_error_critical_rollback_failed');
+    ).rejects.toThrow('NFC write failed');
   });
 });

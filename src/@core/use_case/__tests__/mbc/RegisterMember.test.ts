@@ -13,6 +13,7 @@ function createMocks() {
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
   };
 
   const cardDataService: CardDataServiceInterface = {
@@ -42,14 +43,10 @@ function createMocks() {
 }
 
 describe('RegisterMemberUseCase', () => {
-  it('registers a blank card successfully', async () => {
+  it('registers a card successfully with direct write', async () => {
     const mocks = createMocks();
-    // Simulate blank card: decrypt throws (no valid data)
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('Decryption failed'),
-    );
-
     const useCase = RegisterMemberUseCase(mocks);
+
     const result = await useCase.execute({
       member: { name: 'John Doe', memberId: 'M001' },
     });
@@ -57,54 +54,48 @@ describe('RegisterMemberUseCase', () => {
     expect(result.type).toBe('registration');
     expect(result.memberName).toBe('John Doe');
     expect(result.newBalance).toBe(0);
-    expect(mocks.nfcService.writeAndVerify).toHaveBeenCalledOnce();
+    expect(mocks.nfcService.writeCard).toHaveBeenCalledOnce();
+    expect(mocks.nfcService.readCard).not.toHaveBeenCalled();
+    expect(mocks.cardDataService.applyRegistration).toHaveBeenCalledOnce();
+    expect(mocks.silentShieldService.encrypt).toHaveBeenCalledOnce();
   });
 
-  it('rejects if card already has member data', async () => {
+  it('serializes and encrypts card data before writing', async () => {
     const mocks = createMocks();
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockResolvedValue(new Uint8Array([1]));
-    (mocks.cardDataService.deserialize as ReturnType<typeof vi.fn>).mockReturnValue({
-      version: 1,
-      member: { name: 'Existing User', memberId: 'M999' },
-      balance: 5000,
-      checkIn: null,
-      transactions: [],
-    });
-
     const useCase = RegisterMemberUseCase(mocks);
 
-    await expect(
-      useCase.execute({ member: { name: 'New User', memberId: 'M002' } }),
-    ).rejects.toThrow('mbc_error_card_already_registered');
+    await useCase.execute({
+      member: { name: 'Test User', memberId: 'M002' },
+    });
+
+    expect(mocks.cardDataService.serialize).toHaveBeenCalledOnce();
+    expect(mocks.silentShieldService.encrypt).toHaveBeenCalledWith(new Uint8Array([10, 20]));
+    expect(mocks.nfcService.writeCard).toHaveBeenCalledWith(new Uint8Array([99]));
   });
 
-  it('throws when write verification fails', async () => {
+  it('throws when NFC write fails', async () => {
     const mocks = createMocks();
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('Decryption failed'),
+    (mocks.nfcService.writeCard as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('NFC write failed'),
     );
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Tag removed',
-    });
 
     const useCase = RegisterMemberUseCase(mocks);
 
     await expect(
       useCase.execute({ member: { name: 'Test', memberId: 'M003' } }),
-    ).rejects.toThrow('mbc_error_write_verification_failed');
+    ).rejects.toThrow('NFC write failed');
   });
 
-  it('throws when NFC read fails', async () => {
+  it('throws when encryption fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('NFC read failed'),
+    (mocks.silentShieldService.encrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Encryption failed'),
     );
 
     const useCase = RegisterMemberUseCase(mocks);
 
     await expect(
       useCase.execute({ member: { name: 'Test', memberId: 'M004' } }),
-    ).rejects.toThrow('NFC read failed');
+    ).rejects.toThrow('Encryption failed');
   });
 });

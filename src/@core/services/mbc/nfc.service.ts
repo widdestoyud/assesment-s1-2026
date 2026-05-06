@@ -32,6 +32,8 @@ export interface NfcServiceInterface {
   writeCard(data: Uint8Array): Promise<void>;
   /** Write data and verify by reading back */
   writeAndVerify(data: Uint8Array): Promise<WriteVerifyResult>;
+  /** Read card, process data, then write back — all in one tap */
+  readThenWrite(processor: (data: Uint8Array) => Promise<Uint8Array>): Promise<Uint8Array>;
 }
 
 export const NfcService = (
@@ -99,7 +101,39 @@ export const NfcService = (
     }
   };
 
-  return { isAvailable, requestPermission, readCard, writeCard, writeAndVerify };
+  /**
+   * Read card data, process it via callback, then write result back — all in one tap.
+   * The processor receives raw encrypted bytes and must return new encrypted bytes to write.
+   */
+  const readThenWrite = (processor: (data: Uint8Array) => Promise<Uint8Array>): Promise<Uint8Array> => {
+    return new Promise<Uint8Array>((resolve, reject) => {
+      let session: NfcScanSession | null = null;
+
+      const onRead = async (data: Uint8Array): Promise<void> => {
+        try {
+          const newData = await processor(data);
+          await nfcProtocol.write(newData);
+          session?.abort();
+          resolve(data);
+        } catch (err: unknown) {
+          session?.abort();
+          reject(err instanceof Error ? err : new Error(String(err)));
+        }
+      };
+
+      const onError = (err: NfcError): void => {
+        session?.abort();
+        reject(new NfcServiceError(err));
+      };
+
+      session = nfcProtocol.startScan(
+        (data) => { onRead(data); },
+        onError,
+      );
+    });
+  };
+
+  return { isAvailable, requestPermission, readCard, writeCard, writeAndVerify, readThenWrite };
 };
 
 /** Compare two Uint8Arrays for byte-level equality */

@@ -64,6 +64,7 @@ function createMocks() {
     readCard: vi.fn(),
     writeCard: vi.fn(),
     writeAndVerify: vi.fn(),
+    readThenWrite: vi.fn(),
   };
 
   return { checkOutUseCase, manualCalculationUseCase, manageBenefitRegistryUseCase, deviceService, nfcService };

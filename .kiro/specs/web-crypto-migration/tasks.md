@@ -37,11 +37,7 @@
 
 ## Task 6: Verifikasi Build dan Test Suite
 
-> ⚠️ **BLOCKED:** Butuh Node.js 20+ (saat ini environment hanya punya Node 18.17.0)
-> Saat melanjutkan di environment dengan Node 20, jalankan langkah ini PERTAMA:
-> 1. `npm install` (regenerate node_modules dan package-lock.json)
-> 2. `npm run build` (tsc -b && vite build) — pastikan tidak ada error
-> 3. `npm run test` (vitest --run) — pastikan semua test pass
+> ✅ **RESOLVED:** Verifikasi berhasil di Node.js v22.15.1 pada branch `release/mbc-refactor-batch` (May 2026).
 
-- [ ] 6.1 Jalankan `npm run build` (tsc -b && vite build) dan pastikan tidak ada error
-- [ ] 6.2 Jalankan `npm run test` dan pastikan semua test pass
+- [x] 6.1 Jalankan `npm run build` (tsc -b && vite build) dan pastikan tidak ada error
+- [x] 6.2 Jalankan `npm run test` dan pastikan semua test pass (124 tests, 18 test files)

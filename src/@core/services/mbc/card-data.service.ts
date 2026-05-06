@@ -1,37 +1,15 @@
 import type { AwilixRegistry } from '@di/container';
-import type {
-  CardData,
-  MemberIdentity,
-  TransactionLogEntry,
-} from '@core/services/mbc/models';
+import type { CardData } from '@core/services/mbc/models';
 
 import { CardDataSchema } from '@core/services/mbc/models';
-
-export interface ValidationResult {
-  success: boolean;
-  errors?: string[];
-}
 
 export interface CardDataServiceInterface {
   serialize(card: CardData): Uint8Array;
   deserialize(raw: Uint8Array): CardData;
-  validate(card: CardData): ValidationResult;
-  applyRegistration(card: CardData, member: MemberIdentity): CardData;
+  createBlank(): CardData;
   applyTopUp(card: CardData, amount: number): CardData;
-  applyCheckIn(
-    card: CardData,
-    benefitTypeId: string,
-    deviceId: string,
-    timestamp: string,
-  ): CardData;
-  applyCheckOut(
-    card: CardData,
-    fee: number,
-    activityType: string,
-    benefitTypeId: string,
-    exitTimestamp: string,
-  ): CardData;
-  appendTransactionLog(card: CardData, entry: TransactionLogEntry): CardData;
+  applyCheckIn(card: CardData, timestamp: string): CardData;
+  applyCheckOut(card: CardData, fee: number): CardData;
 }
 
 export const CardDataService = (
@@ -59,119 +37,34 @@ export const CardDataService = (
     return result.data as CardData;
   };
 
-  const validate = (card: CardData): ValidationResult => {
-    const result = CardDataSchema.safeParse(card);
-    if (result.success) {
-      return { success: true };
-    }
-    return {
-      success: false,
-      errors: result.error.issues.map(
-        i => `${i.path.join('.')}: ${i.message}`,
-      ),
-    };
-  };
-
-  const applyRegistration = (
-    card: CardData,
-    member: MemberIdentity,
-  ): CardData => {
-    return {
-      ...card,
-      version: 1,
-      member: { ...member },
-      balance: 0,
-      checkIn: null,
-      transactions: [],
-    };
+  const createBlank = (): CardData => {
+    return { v: 2, b: 0, s: 0, t: null };
   };
 
   const applyTopUp = (card: CardData, amount: number): CardData => {
-    const newBalance = card.balance + amount;
-    const entry: TransactionLogEntry = {
-      amount,
-      timestamp: new Date().toISOString(),
-      activityType: 'top-up',
-      benefitTypeId: 'top-up',
-    };
-    return {
-      ...card,
-      balance: newBalance,
-      transactions: trimTransactions([...card.transactions, entry]),
-    };
+    return { ...card, b: card.b + amount };
   };
 
-  const applyCheckIn = (
-    card: CardData,
-    benefitTypeId: string,
-    deviceId: string,
-    timestamp: string,
-  ): CardData => {
-    if (card.checkIn !== null) {
+  const applyCheckIn = (card: CardData, timestamp: string): CardData => {
+    if (card.s !== 0) {
       throw new Error('mbc_error_already_checked_in');
     }
-    return {
-      ...card,
-      checkIn: {
-        timestamp,
-        benefitTypeId,
-        deviceId,
-      },
-    };
+    return { ...card, s: 1, t: timestamp };
   };
 
-  const applyCheckOut = (
-    card: CardData,
-    fee: number,
-    activityType: string,
-    benefitTypeId: string,
-    exitTimestamp: string,
-  ): CardData => {
-    if (card.checkIn === null) {
+  const applyCheckOut = (card: CardData, fee: number): CardData => {
+    if (card.s !== 1) {
       throw new Error('mbc_error_not_checked_in');
     }
-    const newBalance = card.balance - fee;
-    const entry: TransactionLogEntry = {
-      amount: -fee,
-      timestamp: exitTimestamp,
-      activityType,
-      benefitTypeId,
-    };
-    return {
-      ...card,
-      balance: newBalance,
-      checkIn: null,
-      transactions: trimTransactions([...card.transactions, entry]),
-    };
-  };
-
-  const appendTransactionLog = (
-    card: CardData,
-    entry: TransactionLogEntry,
-  ): CardData => {
-    return {
-      ...card,
-      transactions: trimTransactions([...card.transactions, entry]),
-    };
-  };
-
-  const trimTransactions = (
-    transactions: TransactionLogEntry[],
-  ): TransactionLogEntry[] => {
-    if (transactions.length > 5) {
-      return transactions.slice(-5);
-    }
-    return transactions;
+    return { ...card, s: 0, t: null, b: card.b - fee };
   };
 
   return {
     serialize,
     deserialize,
-    validate,
-    applyRegistration,
+    createBlank,
     applyTopUp,
     applyCheckIn,
     applyCheckOut,
-    appendTransactionLog,
   };
 };

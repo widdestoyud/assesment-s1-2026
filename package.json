@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env NODE_ENV=development vite",
+    "dev:tunnel": "cross-env NODE_ENV=development sh -c 'trap \"kill 0\" EXIT; vite & sleep 3 && ngrok http https://localhost:3000 --host-header=localhost:3000 --verify-upstream-tls=false; wait'",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "cross-env NODE_ENV=development vitest --run",
@@ -24,6 +25,7 @@
     "@types/node": "^20.19.9",
     "awilix": "^12.0.5",
     "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
     "i18next": "^25.0.1",
     "i18next-browser-languagedetector": "^8.0.5",
     "react": "^19.0.0",
@@ -79,6 +81,7 @@
     "typescript-eslint": "^8.26.1",
     "vite": "^6.3.1",
     "vite-plugin-mkcert": "^1.17.8",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "vitest": "^3.2.4"
   },
   "config": {

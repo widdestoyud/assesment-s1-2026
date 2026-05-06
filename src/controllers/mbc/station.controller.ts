@@ -1,41 +1,25 @@
 import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
+  CardData,
   NfcCapabilityStatus,
   NfcStatus,
-  OperationResult,
-  BenefitType,
 } from '@core/services/mbc/models';
 
-export interface RegistrationFormData {
-  name: string;
-  memberId: string;
-}
-
-export interface TopUpFormData {
-  amount: number;
-}
+export type StationPhase = 'tap' | 'topup' | 'balance';
 
 export interface StationControllerInterface {
-  // Registration
-  onRegister: (data: RegistrationFormData) => Promise<void>;
-  // Top-up
-  onTopUp: (data: TopUpFormData) => Promise<void>;
-  // Benefit config
-  benefitTypes: BenefitType[];
-  onAddBenefitType: (benefitType: BenefitType) => Promise<void>;
-  onEditBenefitType: (id: string, updates: Partial<Omit<BenefitType, 'id'>>) => Promise<void>;
-  onRemoveBenefitType: (id: string) => Promise<void>;
-  onRefreshBenefitTypes: () => Promise<void>;
-  // NFC state
+  phase: StationPhase;
+  cardData: CardData | null;
+  topUpAmount: string;
+  setTopUpAmount: (value: string) => void;
   nfcStatus: NfcStatus;
-  lastResult: OperationResult | null;
   isProcessing: boolean;
   error: string | null;
-  // Storage health
-  storageWarning: string | null;
-  // NFC capability
   nfcCapability: NfcCapabilityStatus;
+  onTapCard: () => Promise<void>;
+  onTopUp: (amount: number) => Promise<void>;
+  onGoToTopUp: () => void;
   t: TFunction;
 }
 
@@ -44,135 +28,99 @@ const StationController = (
     AwilixRegistry,
     | 'useState'
     | 'useEffect'
-    | 'useCallback'
     | 'useTranslation'
-    | 'registerMemberUseCase'
+    | 'validateCardUseCase'
     | 'topUpBalanceUseCase'
-    | 'manageBenefitRegistryUseCase'
-    | 'storageHealthService'
     | 'nfcService'
   >,
 ): StationControllerInterface => {
   const {
     useState,
     useEffect,
-    useCallback,
     useTranslation,
-    registerMemberUseCase,
+    validateCardUseCase,
     topUpBalanceUseCase,
-    manageBenefitRegistryUseCase,
-    storageHealthService,
     nfcService,
   } = deps;
 
   const { t } = useTranslation();
 
+  const [phase, setPhase] = useState<StationPhase>('tap');
+  const [cardData, setCardData] = useState<CardData | null>(null);
+  const [topUpAmount, setTopUpAmount] = useState('');
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
-  const [lastResult, setLastResult] = useState<OperationResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
-  const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
-  // Initialize on mount
   useEffect(() => {
-    const init = async () => {
-      const isNfcAvailable = nfcService.isAvailable();
-      setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
+    const isNfcAvailable = nfcService.isAvailable();
+    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
+  }, []);
 
-      // Check storage health
-      const health = await storageHealthService.checkWriteCapacity();
-      if (!health.canWrite && health.error) {
-        setStorageWarning(health.error.message);
+  const onTapCard = async () => {
+    setIsProcessing(true);
+    setNfcStatus('scanning');
+    setError(null);
+
+    try {
+      const result = await validateCardUseCase.execute();
+      setNfcStatus('success');
+
+      if (result.type === 'new' || result.balance === 0) {
+        // New card or zero balance → go to top-up
+        setCardData({ v: 2, b: result.balance, s: 0, t: null });
+        setPhase('topup');
+      } else {
+        // Existing card with balance → show balance
+        setCardData({ v: 2, b: result.balance, s: 0, t: null });
+        setPhase('balance');
       }
-
-      // Load benefit types
-      const types = await manageBenefitRegistryUseCase.getAll();
-      setBenefitTypes(types);
-    };
-    init();
-  }, []);
-
-  const onRegister = useCallback(async (data: RegistrationFormData) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
-    setLastResult(null);
-
-    try {
-      const result = await registerMemberUseCase.execute({
-        member: { name: data.name, memberId: data.memberId },
-      });
-      setNfcStatus('success');
-      setLastResult(result);
     } catch (err: unknown) {
       setNfcStatus('error');
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing]);
+  };
 
-  const onTopUp = useCallback(async (data: TopUpFormData) => {
-    if (isProcessing) return;
+  const onTopUp = async (amount: number) => {
     setIsProcessing(true);
     setNfcStatus('scanning');
     setError(null);
-    setLastResult(null);
 
     try {
-      const result = await topUpBalanceUseCase.execute({
-        amount: data.amount,
-      });
+      const result = await topUpBalanceUseCase.execute({ amount });
       setNfcStatus('success');
-      setLastResult(result);
+      setCardData({ v: 2, b: result.balance, s: 0, t: null });
+      setPhase('balance');
     } catch (err: unknown) {
       setNfcStatus('error');
-      setError(err instanceof Error ? err.message : 'Top-up failed');
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing]);
+  };
 
-  const onRefreshBenefitTypes = useCallback(async () => {
-    const types = await manageBenefitRegistryUseCase.getAll();
-    setBenefitTypes(types);
-  }, []);
-
-  const onAddBenefitType = useCallback(async (benefitType: BenefitType) => {
-    await manageBenefitRegistryUseCase.add(benefitType);
-    await onRefreshBenefitTypes();
-  }, []);
-
-  const onEditBenefitType = useCallback(async (
-    id: string,
-    updates: Partial<Omit<BenefitType, 'id'>>,
-  ) => {
-    await manageBenefitRegistryUseCase.update(id, updates);
-    await onRefreshBenefitTypes();
-  }, []);
-
-  const onRemoveBenefitType = useCallback(async (id: string) => {
-    await manageBenefitRegistryUseCase.remove(id);
-    await onRefreshBenefitTypes();
-  }, []);
+  const onGoToTopUp = () => {
+    setPhase('topup');
+    setTopUpAmount('');
+    setError(null);
+    setNfcStatus('idle');
+  };
 
   return {
-    onRegister,
-    onTopUp,
-    benefitTypes,
-    onAddBenefitType,
-    onEditBenefitType,
-    onRemoveBenefitType,
-    onRefreshBenefitTypes,
+    phase,
+    cardData,
+    topUpAmount,
+    setTopUpAmount,
     nfcStatus,
-    lastResult,
     isProcessing,
     error,
-    storageWarning,
     nfcCapability,
+    onTapCard,
+    onTopUp,
+    onGoToTopUp,
     t,
   };
 };

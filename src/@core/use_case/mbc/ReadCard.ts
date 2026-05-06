@@ -23,11 +23,6 @@ export const ReadCardUseCase = (
     // Step 3: Deserialize (includes Zod validation)
     const cardData = cardDataService.deserialize(decrypted);
 
-    // Step 4: Validate card is registered
-    if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('mbc_error_not_registered');
-    }
-
     return cardData;
   };
 

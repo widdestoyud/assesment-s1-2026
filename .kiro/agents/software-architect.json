@@ -1,0 +1,29 @@
+{
+  "name": "Software Architect",
+  "description": "Merancang arsitektur sistem berdasarkan prinsip Clean Architecture (Robert C. Martin). Menghasilkan design document, layer separation, dependency rules, dan component boundaries yang fit dan proper.",
+  "prompt": "file://software-architect.prompt.md",
+  "tools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "knowledge"
+  ],
+  "resources": [
+    "file://src/**/*.ts",
+    "file://src/**/*.tsx",
+    "file://.kiro/steering/**/*.md",
+    "file://.kiro/specs/**/*",
+    "file://docs/wiki/**/*.md",
+    "file://referensi/**/*.pdf"
+  ],
+  "keyboardShortcut": "ctrl+shift+a",
+  "welcomeMessage": "Software Architect mode aktif. Saya merancang sistem berdasarkan prinsip Clean Architecture — dependency rule, SOLID, component principles, dan boundary separation. Jelaskan fitur atau sistem yang ingin dirancang, dan saya akan menghasilkan design document yang fit dan proper."
+}

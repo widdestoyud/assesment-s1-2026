@@ -4,7 +4,6 @@ import type {
   CardData,
   NfcCapabilityStatus,
   NfcStatus,
-  BenefitType,
 } from '@core/services/mbc/models';
 
 export interface ScoutControllerInterface {
@@ -12,7 +11,6 @@ export interface ScoutControllerInterface {
   cardData: CardData | null;
   isReading: boolean;
   error: string | null;
-  benefitTypes: BenefitType[];
   nfcCapability: NfcCapabilityStatus;
   onReadCard: () => Promise<void>;
   t: TFunction;
@@ -23,20 +21,16 @@ const ScoutController = (
     AwilixRegistry,
     | 'useState'
     | 'useEffect'
-    | 'useCallback'
     | 'useTranslation'
     | 'readCardUseCase'
-    | 'manageBenefitRegistryUseCase'
     | 'nfcService'
   >,
 ): ScoutControllerInterface => {
   const {
     useState,
     useEffect,
-    useCallback,
     useTranslation,
     readCardUseCase,
-    manageBenefitRegistryUseCase,
     nfcService,
   } = deps;
 
@@ -46,22 +40,14 @@ const ScoutController = (
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [isReading, setIsReading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [benefitTypes, setBenefitTypes] = useState<BenefitType[]>([]);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
 
-  // Load benefit types on mount (for resolving display names)
   useEffect(() => {
-    const init = async () => {
-      const isNfcAvailable = nfcService.isAvailable();
-      setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-
-      const types = await manageBenefitRegistryUseCase.getAll();
-      setBenefitTypes(types);
-    };
-    init();
+    const isNfcAvailable = nfcService.isAvailable();
+    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
   }, []);
 
-  const onReadCard = useCallback(async () => {
+  const onReadCard = async () => {
     if (isReading) return;
     setIsReading(true);
     setNfcStatus('scanning');
@@ -74,18 +60,17 @@ const ScoutController = (
       setCardData(data);
     } catch (err: unknown) {
       setNfcStatus('error');
-      setError(err instanceof Error ? err.message : 'Failed to read card');
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsReading(false);
     }
-  }, [isReading]);
+  };
 
   return {
     nfcStatus,
     cardData,
     isReading,
     error,
-    benefitTypes,
     nfcCapability,
     onReadCard,
     t,

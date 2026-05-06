@@ -1,111 +1,67 @@
 import type { AwilixRegistry } from '@di/container';
 import type { CheckOutResult } from '@core/services/mbc/models';
+import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
 import { formatDuration } from '@utils/helpers/mbc.helper';
 
-export interface CheckOutInput {
-  currentDeviceId: string;
-}
-
 export interface CheckOutUseCaseInterface {
-  execute(input: CheckOutInput): Promise<CheckOutResult>;
+  execute(): Promise<CheckOutResult>;
 }
 
 export const CheckOutUseCase = (
   deps: Pick<
     AwilixRegistry,
-    | 'nfcService'
-    | 'cardDataService'
-    | 'silentShieldService'
-    | 'pricingService'
-    | 'benefitRegistryService'
+    'nfcService' | 'cardDataService' | 'silentShieldService' | 'pricingService'
   >,
 ): CheckOutUseCaseInterface => {
-  const {
-    nfcService,
-    cardDataService,
-    silentShieldService,
-    pricingService,
-    benefitRegistryService,
-  } = deps;
+  const { nfcService, cardDataService, silentShieldService, pricingService } =
+    deps;
 
-  const execute = async (input: CheckOutInput): Promise<CheckOutResult> => {
-    // Step 1: Read card → decrypt → deserialize
-    const rawEncrypted = await nfcService.readCard();
-    const decrypted = await silentShieldService.decrypt(rawEncrypted);
-    const cardData = cardDataService.deserialize(decrypted);
+  const execute = async (): Promise<CheckOutResult> => {
+    let result: CheckOutResult | null = null;
 
-    // Step 2: Validate active check-in exists (double tap-out prevention)
-    if (cardData.checkIn === null) {
-      throw new Error('mbc_error_not_checked_in');
-    }
+    // Single-tap: read card, validate, calculate fee, apply check-out, write back
+    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+      // Decrypt → deserialize
+      const decrypted = await silentShieldService.decrypt(rawEncrypted);
+      const card = cardDataService.deserialize(decrypted);
 
-    // Step 3: Validate device ID match
-    if (cardData.checkIn.deviceId !== input.currentDeviceId) {
-      throw new Error('mbc_error_device_mismatch');
-    }
-
-    // Step 4: Lookup service type from registry
-    const serviceType = await benefitRegistryService.getById(
-      cardData.checkIn.benefitTypeId,
-    );
-    if (!serviceType) {
-      throw new Error('mbc_error_benefit_type_not_found');
-    }
-
-    // Step 5: Calculate fee
-    const exitTime = new Date().toISOString();
-    const feeResult = pricingService.calculateFee(
-      serviceType.pricing,
-      cardData.checkIn.timestamp,
-      exitTime,
-    );
-
-    // Step 6: Validate sufficient balance
-    if (feeResult.fee > cardData.balance) {
-      throw new Error('mbc_error_insufficient_balance');
-    }
-
-    // Step 7: Snapshot current state (for potential rollback)
-    const snapshot = cardDataService.serialize(cardData);
-
-    // Step 8: Apply check-out (deduct fee, clear check-in, append transaction log)
-    const updatedCard = cardDataService.applyCheckOut(
-      cardData,
-      feeResult.fee,
-      serviceType.activityType,
-      serviceType.id,
-      exitTime,
-    );
-
-    // Step 9: Serialize → encrypt → write with verify
-    const serialized = cardDataService.serialize(updatedCard);
-    const encrypted = await silentShieldService.encrypt(serialized);
-    const writeResult = await nfcService.writeAndVerify(encrypted);
-
-    if (!writeResult.success) {
-      // Attempt rollback: restore snapshot
-      try {
-        const snapshotEncrypted = await silentShieldService.encrypt(snapshot);
-        await nfcService.writeCard(snapshotEncrypted);
-      } catch {
-        // Rollback failed — card may be in inconsistent state
-        throw new Error('mbc_error_critical_rollback_failed');
+      // Validate active check-in exists
+      if (card.s !== 1 || card.t === null) {
+        throw new Error('mbc_error_not_checked_in');
       }
-      throw new Error('mbc_error_write_verification_failed');
-    }
 
-    // Step 10: Calculate duration for display
-    const duration = formatDuration(cardData.checkIn.timestamp, exitTime);
+      // Calculate fee using hardcoded parking config
+      const exitTime = new Date().toISOString();
+      const feeResult = pricingService.calculateFee(
+        DEFAULT_PARKING_BENEFIT.pricing,
+        card.t,
+        exitTime,
+      );
 
-    return {
-      benefitTypeName: serviceType.displayName,
-      entryTime: cardData.checkIn.timestamp,
-      exitTime,
-      duration,
-      fee: feeResult.fee,
-      remainingBalance: updatedCard.balance,
-      feeBreakdown: feeResult,
-    };
+      // Validate sufficient balance
+      if (feeResult.fee > card.b) {
+        throw new Error('mbc_error_insufficient_balance');
+      }
+
+      // Apply check-out
+      const updatedCard = cardDataService.applyCheckOut(card, feeResult.fee);
+
+      // Calculate duration for display
+      const duration = formatDuration(card.t, exitTime);
+
+      result = {
+        fee: feeResult.fee,
+        duration,
+        remainingBalance: updatedCard.b,
+        feeBreakdown: feeResult,
+      };
+
+      // Serialize → encrypt → return for write
+      const serialized = cardDataService.serialize(updatedCard);
+      return silentShieldService.encrypt(serialized);
+    });
+
+    return result as unknown as CheckOutResult;
   };
 
   return { execute };

@@ -229,43 +229,34 @@ export default {
   /* MBC - Gate */
   mbc_gate_title: '🚪 The Gate',
   mbc_gate_subtitle: 'Check-in member with NFC',
-  mbc_gate_simulation_mode: 'Simulation Mode',
-  mbc_gate_simulation_time_label: 'Check-In Time (Simulation)',
   mbc_gate_checkin_button: 'Check-In',
   mbc_gate_checkin_success: '✅ Check-in successful',
-  mbc_gate_member_label: 'Member:',
-  mbc_gate_service_label: 'Service:',
   mbc_gate_entry_time_label: 'Entry time:',
 
   /* MBC - Terminal */
   mbc_terminal_title: '💳 The Terminal',
   mbc_terminal_subtitle: 'Check-out and fee calculation',
-  mbc_terminal_manual_calc_label: 'Manual Calculation',
-  mbc_terminal_manual_result_heading: 'Manual Calculation Result',
   mbc_terminal_checkout_button: 'Check-Out',
-  mbc_terminal_checkout_success: '✅ Check-out successful — {{benefitTypeName}}',
+  mbc_terminal_checkout_success: '✅ Check-out successful',
 
   /* MBC - Scout */
   mbc_scout_title: '🔍 The Scout',
   mbc_scout_subtitle: 'View member card contents',
   mbc_scout_read_button: 'Read Card',
+  mbc_scout_checkin_status_label: 'Check-In Status',
+  mbc_scout_status_checked_in: '✅ Checked-In',
+  mbc_scout_status_idle: '⏸️ Idle',
+  mbc_scout_checkin_time_label: 'Entry time:',
 
   /* MBC - Station */
   mbc_station_title: '🏢 The Station',
-  mbc_station_subtitle: 'Admin: Registration, Top-Up, Configuration',
-  mbc_station_tab_register: 'Registration',
-  mbc_station_tab_topup: 'Top-Up',
-  mbc_station_tab_config: 'Service Config',
-  mbc_station_name_label: 'Name',
-  mbc_station_member_id_label: 'Member ID',
-  mbc_station_register_button: 'Register Card',
+  mbc_station_subtitle: 'Admin: Validate & Top-Up Cards',
+  mbc_station_tap_instruction: 'Tap card to validate',
+  mbc_station_validate_button: 'Validate Card',
   mbc_station_topup_amount_label: 'Amount (Rp)',
   mbc_station_topup_button: 'Top-Up Balance',
-  mbc_station_config_heading: 'Registered Service Types',
-  mbc_station_config_empty: 'No benefit types yet',
-  mbc_station_registration_success: '✅ Registration successful — {{memberName}}',
-  mbc_station_topup_success: '✅ Top-up successful — {{memberName}}',
-  mbc_station_remove_label: 'Remove {{name}}',
+  mbc_station_topup_again_button: 'Top-Up Again',
+  mbc_station_validation_success: '✅ Validation successful',
 
   /* MBC - Card Info Display */
   mbc_card_member_identity: 'Member Identity',

@@ -1,25 +1,6 @@
 export interface CardData {
-  version: number;
-  member: MemberIdentity;
-  balance: number;
-  checkIn: CheckInStatus | null;
-  transactions: TransactionLogEntry[];
-}
-
-export interface MemberIdentity {
-  name: string;
-  memberId: string;
-}
-
-export interface CheckInStatus {
-  timestamp: string;
-  benefitTypeId: string;
-  deviceId: string;
-}
-
-export interface TransactionLogEntry {
-  amount: number;
-  timestamp: string;
-  activityType: string;
-  benefitTypeId: string;
+  v: 2;
+  b: number; // balance (0-999999)
+  s: 0 | 1; // checkInStatus: 0=idle, 1=checked-in
+  t: string | null; // checkInTimestamp ISO 8601 (null when s=0)
 }

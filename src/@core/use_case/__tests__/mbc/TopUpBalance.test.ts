@@ -22,6 +22,7 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
   };
 
   const cardDataService: CardDataServiceInterface = {
@@ -88,14 +89,13 @@ describe('TopUpBalanceUseCase', () => {
     await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('mbc_error_not_registered');
   });
 
-  it('throws when write verification fails', async () => {
+  it('throws when NFC write fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Connection lost',
-    });
+    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('NFC write failed'),
+    );
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('mbc_error_write_verification_failed');
+    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('NFC write failed');
   });
 });

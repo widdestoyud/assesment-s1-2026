@@ -69,11 +69,15 @@ export const webNfcAdapter: NfcProtocol = {
             const errorMessage =
               error instanceof Error ? error.message : String(error);
             if (errorMessage.includes('No text record')) {
-              onError({
-                type: 'blank_card',
-                message: 'This card is blank — no text record found',
-                messageKey: 'mbc_nfc_error_blank_card',
-              });
+              // Chrome Android sometimes fires onreading with empty message on first tap.
+              // Ignore and wait for next tap with actual data.
+              return;
+            }
+            // For any other extraction error (e.g. invalid base64), send raw bytes
+            // so upper layers (decrypt) can handle and decide to overwrite
+            const rawBytes = extractRawBytes(event.message);
+            if (rawBytes) {
+              onRead(rawBytes);
             } else {
               onError({
                 type: 'invalid_card_data',
@@ -139,10 +143,11 @@ export const webNfcAdapter: NfcProtocol = {
       );
     }
 
+    const ndef = new NDEFReader();
+    // Encode as base64 text record to fit within NDEF text record constraints
+    const base64 = uint8ArrayToBase64(data);
+
     try {
-      const ndef = new NDEFReader();
-      // Encode as base64 text record to fit within NDEF text record constraints
-      const base64 = uint8ArrayToBase64(data);
       await ndef.write({
         records: [{ recordType: 'text', data: base64 }],
       });
@@ -205,6 +210,20 @@ function extractPayload(message: NDEFMessage): Uint8Array {
     }
   }
   throw new Error('No text record found in NFC tag');
+}
+
+/**
+ * Extract raw bytes from any text record in the NDEF message.
+ * Used as fallback when base64 decoding fails — returns the raw text as bytes.
+ */
+function extractRawBytes(message: NDEFMessage): Uint8Array | null {
+  for (const record of message.records) {
+    if (record.recordType === 'text' && record.data) {
+      // Return the raw record data as-is (will fail decrypt, triggering overwrite)
+      return new Uint8Array(record.data.buffer);
+    }
+  }
+  return null;
 }
 
 /** Convert Uint8Array to base64 string */

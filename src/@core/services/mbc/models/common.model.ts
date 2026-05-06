@@ -1,5 +1,3 @@
-import type { CardData } from './card-data.model.ts';
-
 export type RoleMode = 'station' | 'gate' | 'terminal' | 'scout';
 
 export type NfcStatus =
@@ -42,51 +40,24 @@ export interface FeeResult {
 }
 
 export interface CheckInResult {
-  memberName: string;
-  entryTime: string;
-  benefitTypeName: string;
+  checkInTime: string;
 }
 
 export interface CheckOutResult {
-  benefitTypeName: string;
-  entryTime: string;
-  exitTime: string;
-  duration: string;
   fee: number;
+  duration: string;
   remainingBalance: number;
   feeBreakdown: FeeResult;
 }
 
 export interface OperationResult {
-  type: 'registration' | 'top-up';
-  memberName: string;
-  previousBalance?: number;
-  amount?: number;
-  newBalance: number;
+  type: 'new' | 'existing' | 'top-up';
+  balance: number;
 }
-
-export interface AtomicWriteResult {
-  success: boolean;
-  before: CardData;
-  after: CardData | null;
-  error?: AtomicWriteError;
-}
-
-export type AtomicWriteError =
-  | { type: 'read_failed'; message: string }
-  | { type: 'validation_failed'; message: string }
-  | { type: 'write_failed'; message: string }
-  | { type: 'verification_failed'; message: string; rolledBack: boolean }
-  | { type: 'rollback_failed'; message: string };
 
 export interface WriteVerifyResult {
   success: boolean;
   error?: string;
-}
-
-export interface StorageError {
-  type: 'unavailable' | 'quota_exceeded' | 'read_failed' | 'write_failed';
-  message: string;
 }
 
 export type NfcCapabilityStatus =

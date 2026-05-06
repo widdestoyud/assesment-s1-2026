@@ -31,6 +31,7 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
   };
 
   const cardDataService: CardDataServiceInterface = {
@@ -69,7 +70,7 @@ describe('CheckInUseCase', () => {
     expect(result.memberName).toBe('John Doe');
     expect(result.benefitTypeName).toBe('Parkir');
     expect(result.entryTime).toBeDefined();
-    expect(mocks.nfcService.writeAndVerify).toHaveBeenCalledOnce();
+    expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
   });
 
   it('uses simulation timestamp when provided', async () => {
@@ -126,12 +127,11 @@ describe('CheckInUseCase', () => {
     ).rejects.toThrow('mbc_error_not_registered');
   });
 
-  it('throws when write verification fails', async () => {
+  it('throws when NFC write fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Tag removed',
-    });
+    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('NFC write failed'),
+    );
     const useCase = CheckInUseCase(mocks);
 
     await expect(
@@ -140,6 +140,6 @@ describe('CheckInUseCase', () => {
         benefitTypeName: 'Parkir',
         deviceId: 'device-abc',
       }),
-    ).rejects.toThrow('mbc_error_write_verification_failed');
+    ).rejects.toThrow('NFC write failed');
   });
 });
