@@ -31,19 +31,24 @@ jobs:
       - name: Run tests
         run: npm run test
         env:
-          NODE_ENV: development
+          VITE_BASIC_VERSION: ${{ github.sha }}
+          VITE_BASE_PATH: /assesment-s1-2026/
+          VITE_GC_TIME: '300000'
+          VITE_STALE_TIME: '60000'
+          VITE_QUERY_DEVTOOL: 'false'
+          VITE_ROUTE_DEVTOOL: 'false'
+          VITE_NFC_CHECK_ENABLED: 'true'
 
       - name: Build
         run: npm run build
         env:
           VITE_BASE_PATH: /assesment-s1-2026/
-          VITE_NODE_ENV: production
           VITE_BASIC_VERSION: ${{ github.sha }}
-          VITE_APP_VERSION: 2.0.0
           VITE_GC_TIME: '300000'
           VITE_STALE_TIME: '60000'
           VITE_QUERY_DEVTOOL: 'false'
           VITE_ROUTE_DEVTOOL: 'false'
+          VITE_NFC_CHECK_ENABLED: 'true'
 
       - name: Create 404.html for SPA routing
         run: cp build/index.html build/404.html
