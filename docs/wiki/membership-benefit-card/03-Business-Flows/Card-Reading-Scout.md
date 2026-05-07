@@ -18,7 +18,7 @@ sequenceDiagram
     participant Ctrl as scout.controller
     participant UC as ReadCard
     participant NFC as nfc.service
-    participant Reg as service-registry.service
+    participant Reg as benefit-registry.service
 
     Member->>UI: 1. Tap NFC card
     UI->>Ctrl: 2. onCardTap()
@@ -31,7 +31,7 @@ sequenceDiagram
         UC-->>Ctrl: 6a. Error: "Card not recognized" (Req 9.4)
     else Valid card
         UC-->>Ctrl: 6b. CardData
-        Ctrl->>Reg: 7. Resolve service type names
+        Ctrl->>Reg: 7. Resolve benefit type names
         Reg-->>Ctrl: 8. Display names for serviceTypeIds
         Ctrl-->>UI: 9. Render card info
     end

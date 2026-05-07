@@ -1,42 +1,27 @@
 import type { AwilixRegistry } from '@di/container';
-import type {
-  CardData,
-  MemberIdentity,
-  TransactionLogEntry,
-} from '@core/services/mbc/models';
+import type { CardData, TransactionEntry } from '@core/services/mbc/models';
 
 import { CardDataSchema } from '@core/services/mbc/models';
 
-export interface ValidationResult {
-  success: boolean;
-  errors?: string[];
-}
+const MAX_HISTORY = 5;
 
 export interface CardDataServiceInterface {
   serialize(card: CardData): Uint8Array;
   deserialize(raw: Uint8Array): CardData;
-  validate(card: CardData): ValidationResult;
-  applyRegistration(card: CardData, member: MemberIdentity): CardData;
+  createBlank(): CardData;
   applyTopUp(card: CardData, amount: number): CardData;
-  applyCheckIn(
-    card: CardData,
-    serviceTypeId: string,
-    deviceId: string,
-    timestamp: string,
-  ): CardData;
-  applyCheckOut(
-    card: CardData,
-    fee: number,
-    activityType: string,
-    serviceTypeId: string,
-    exitTimestamp: string,
-  ): CardData;
-  appendTransactionLog(card: CardData, entry: TransactionLogEntry): CardData;
+  applyCheckIn(card: CardData, timestamp: string): CardData;
+  applyCheckOut(card: CardData, fee: number): CardData;
 }
 
 export const CardDataService = (
   _deps: AwilixRegistry,
 ): CardDataServiceInterface => {
+  const addHistory = (card: CardData, entry: TransactionEntry): CardData => {
+    const history = [entry, ...card.h].slice(0, MAX_HISTORY);
+    return { ...card, h: history };
+  };
+
   const serialize = (card: CardData): Uint8Array => {
     const json = JSON.stringify(card);
     return new TextEncoder().encode(json);
@@ -48,135 +33,60 @@ export const CardDataService = (
     try {
       parsed = JSON.parse(json);
     } catch {
-      throw new Error('Failed to parse card data: invalid JSON');
+      throw new Error('mbc_nfc_error_card_not_recognized');
     }
 
     const result = CardDataSchema.safeParse(parsed);
     if (!result.success) {
-      const messages = result.error.issues
-        .map(i => `${i.path.join('.')}: ${i.message}`)
-        .join('; ');
-      throw new Error(`Invalid card data: ${messages}`);
+      throw new Error('mbc_nfc_error_card_data_corrupted');
     }
 
     return result.data as CardData;
   };
 
-  const validate = (card: CardData): ValidationResult => {
-    const result = CardDataSchema.safeParse(card);
-    if (result.success) {
-      return { success: true };
-    }
-    return {
-      success: false,
-      errors: result.error.issues.map(
-        i => `${i.path.join('.')}: ${i.message}`,
-      ),
-    };
-  };
-
-  const applyRegistration = (
-    card: CardData,
-    member: MemberIdentity,
-  ): CardData => {
-    return {
-      ...card,
-      version: 1,
-      member: { ...member },
-      balance: 0,
-      checkIn: null,
-      transactions: [],
-    };
+  const createBlank = (): CardData => {
+    return { v: 2, b: 0, s: 0, t: null, h: [] };
   };
 
   const applyTopUp = (card: CardData, amount: number): CardData => {
-    const newBalance = card.balance + amount;
-    const entry: TransactionLogEntry = {
-      amount,
-      timestamp: new Date().toISOString(),
-      activityType: 'top-up',
-      serviceTypeId: 'top-up',
-    };
-    return {
-      ...card,
-      balance: newBalance,
-      transactions: trimTransactions([...card.transactions, entry]),
-    };
+    const updated = { ...card, b: card.b + amount };
+    return addHistory(updated, {
+      ts: Math.floor(Date.now() / 1000),
+      a: amount,
+      tp: 'tu',
+    });
   };
 
-  const applyCheckIn = (
-    card: CardData,
-    serviceTypeId: string,
-    deviceId: string,
-    timestamp: string,
-  ): CardData => {
-    if (card.checkIn !== null) {
-      throw new Error(
-        'Cannot check in: card already has an active check-in session',
-      );
+  const applyCheckIn = (card: CardData, timestamp: string): CardData => {
+    if (card.s !== 0) {
+      throw new Error('mbc_error_already_checked_in');
     }
-    return {
-      ...card,
-      checkIn: {
-        timestamp,
-        serviceTypeId,
-        deviceId,
-      },
-    };
+    const updated: CardData = { ...card, s: 1, t: timestamp };
+    return addHistory(updated, {
+      ts: Math.floor(new Date(timestamp).getTime() / 1000),
+      a: 0,
+      tp: 'ci',
+    });
   };
 
-  const applyCheckOut = (
-    card: CardData,
-    fee: number,
-    activityType: string,
-    serviceTypeId: string,
-    exitTimestamp: string,
-  ): CardData => {
-    if (card.checkIn === null) {
-      throw new Error('Cannot check out: no active check-in session');
+  const applyCheckOut = (card: CardData, fee: number): CardData => {
+    if (card.s !== 1) {
+      throw new Error('mbc_error_not_checked_in');
     }
-    const newBalance = card.balance - fee;
-    const entry: TransactionLogEntry = {
-      amount: -fee,
-      timestamp: exitTimestamp,
-      activityType,
-      serviceTypeId,
-    };
-    return {
-      ...card,
-      balance: newBalance,
-      checkIn: null,
-      transactions: trimTransactions([...card.transactions, entry]),
-    };
-  };
-
-  const appendTransactionLog = (
-    card: CardData,
-    entry: TransactionLogEntry,
-  ): CardData => {
-    return {
-      ...card,
-      transactions: trimTransactions([...card.transactions, entry]),
-    };
-  };
-
-  const trimTransactions = (
-    transactions: TransactionLogEntry[],
-  ): TransactionLogEntry[] => {
-    if (transactions.length > 5) {
-      return transactions.slice(-5);
-    }
-    return transactions;
+    const updated: CardData = { ...card, s: 0, t: null, b: card.b - fee };
+    return addHistory(updated, {
+      ts: Math.floor(Date.now() / 1000),
+      a: -fee,
+      tp: 'co',
+    });
   };
 
   return {
     serialize,
     deserialize,
-    validate,
-    applyRegistration,
+    createBlank,
     applyTopUp,
     applyCheckIn,
     applyCheckOut,
-    appendTransactionLog,
   };
 };

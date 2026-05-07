@@ -8,16 +8,16 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 
 - [x] 1. Layer 0 — Data models, types, Zod schemas, and constants
   - [x] 1.1 Create MBC constants and storage keys
-    - Create `src/utils/constants/mbc-keys.ts` with MBC-specific storage keys (`MBC_DEVICE_ID`, `MBC_SERVICE_REGISTRY`), storage config (`STORE_NAME`), and Silent Shield config constants
+    - Create `src/utils/constants/mbc-keys.ts` with MBC-specific storage keys (`MBC_DEVICE_ID`, `MBC_BENEFIT_REGISTRY`), storage config (`STORE_NAME`), and Silent Shield config constants
     - Export from `src/utils/constants/index.ts`
     - Register in DI container via `helperContainer.ts`
     - _Requirements: 19.1, 19.6, 20.1_
 
   - [x] 1.2 Create MBC data model interfaces and Zod schemas
     - Create `src/@core/services/mbc/models/card-data.model.ts` with `CardData`, `MemberIdentity`, `CheckInStatus`, `TransactionLogEntry` interfaces
-    - Create `src/@core/services/mbc/models/service-type.model.ts` with `ServiceType`, `PricingStrategy` interfaces and `DEFAULT_PARKING_SERVICE` constant
+    - Create `src/@core/services/mbc/models/benefit-type.model.ts` with `BenefitType`, `PricingStrategy` interfaces and `DEFAULT_PARKING_BENEFIT` constant
     - Create `src/@core/services/mbc/models/common.model.ts` with `RoleMode`, `NfcStatus`, `NfcError`, `FeeResult`, `CheckInResult`, `CheckOutResult`, `OperationResult`, `AtomicWriteResult`, `AtomicWriteError`, `WriteVerifyResult`, `StorageError`, `NfcPermissionResult`, `NfcScanSession` types
-    - Create `src/@core/services/mbc/models/schemas.ts` with Zod schemas: `CardDataSchema`, `ServiceTypeFormSchema`, `RegistrationFormSchema`, `TopUpFormSchema`, `ManualCalcFormSchema`
+    - Create `src/@core/services/mbc/models/schemas.ts` with Zod schemas: `CardDataSchema`, `BenefitTypeFormSchema`, `RegistrationFormSchema`, `TopUpFormSchema`, `ManualCalcFormSchema`
     - Create `src/@core/services/mbc/models/index.ts` barrel export
     - _Requirements: 13.1, 12.2-3, 1.1, 15.2_
 
@@ -162,11 +162,11 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Handle storage write failures gracefully with `StorageError`
     - _Requirements: 19.1, 19.6, 19.7, 20.8_
 
-  - [x] 6.4 Implement service-registry.service
-    - Create `src/@core/services/mbc/service-registry.service.ts` with `ServiceRegistryServiceInterface` and `ServiceRegistryService` factory function
+  - [x] 6.4 Implement benefit-registry.service
+    - Create `src/@core/services/mbc/benefit-registry.service.ts` with `BenefitRegistryServiceInterface` and `BenefitRegistryService` factory function
     - Depends on `KeyValueStoreProtocol` (via DI)
     - Implement `getAll`, `getById`, `add`, `update`, `remove`, `initializeDefaults`
-    - `initializeDefaults()`: check if registry exists, if not create with `DEFAULT_PARKING_SERVICE`
+    - `initializeDefaults()`: check if registry exists, if not create with `DEFAULT_PARKING_BENEFIT`
     - Validate service type data integrity on read using Zod schema
     - Handle storage write failures gracefully with `StorageError`
     - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 20.5, 20.6, 20.8_
@@ -174,7 +174,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
   - [x]* 6.5 Write unit tests for stateful services
     - Create `src/@core/services/__tests__/mbc/device.service.test.ts` — test Device_ID generation, persistence, regeneration warning, storage failure handling
     - Create `src/@core/services/__tests__/mbc/storage-health.service.test.ts` — test availability check, write capacity check, quota exceeded detection
-    - Create `src/@core/services/__tests__/mbc/service-registry.service.test.ts` — test CRUD, default initialization, validation, storage failure handling
+    - Create `src/@core/services/__tests__/mbc/benefit-registry.service.test.ts` — test CRUD, default initialization, validation, storage failure handling
     - Mock `KeyValueStoreProtocol` via partial `AwilixRegistry`
     - _Requirements: 19.1, 19.7, 20.1, 20.2, 20.3, 20.4, 15.5, 15.6, 15.7, 20.8_
 
@@ -187,7 +187,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 
   - [x] 7.2 Create MBC service container
     - Create `src/infrastructure/di/registry/mbcServiceContainer.ts`
-    - Register all MBC services: `pricingService`, `cardDataService`, `silentShieldService`, `nfcService`, `deviceService`, `storageHealthService`, `serviceRegistryService`
+    - Register all MBC services: `pricingService`, `cardDataService`, `silentShieldService`, `nfcService`, `deviceService`, `storageHealthService`, `benefitRegistryService`
     - Use `asFunction(...).singleton()` for stateful services
     - Export `MbcServiceContainerInterface`
     - _Requirements: 12.1, 13.1, 11.1, 2.1, 19.1, 20.1, 15.1_
@@ -258,14 +258,14 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Return `FeeResult`
     - _Requirements: 21.2, 21.3, 21.4, 21.5, 21.7_
 
-  - [x] 9.8 Implement ManageServiceRegistry use case
-    - Create `src/@core/use_case/mbc/ManageServiceRegistry.ts`
-    - Expose `getAll`, `add`, `update`, `remove` operations delegating to `ServiceRegistryService`
+  - [x] 9.8 Implement ManageBenefitRegistry use case
+    - Create `src/@core/use_case/mbc/ManageBenefitRegistry.ts`
+    - Expose `getAll`, `add`, `update`, `remove` operations delegating to `BenefitRegistryService`
     - Initialize defaults on first access
     - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 16.1, 16.2, 16.3, 16.5_
 
   - [x]* 9.9 Write unit tests for use cases
-    - Create test files in `src/@core/use_case/__tests__/mbc/` for `RegisterMember`, `TopUpBalance`, `CheckIn`, `ReadCard`, `ManualCalculation`, `ManageServiceRegistry`
+    - Create test files in `src/@core/use_case/__tests__/mbc/` for `RegisterMember`, `TopUpBalance`, `CheckIn`, `ReadCard`, `ManualCalculation`, `ManageBenefitRegistry`
     - Mock all service dependencies via partial `AwilixRegistry`
     - Test success paths, rejection conditions, and error handling
     - _Requirements: 4.2, 4.3, 5.2, 5.5, 6.2, 6.3, 8.3, 8.7, 8.8, 8.10, 9.4, 21.5_
@@ -276,7 +276,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 - [x] 11. Layer 4 — Use case DI registration
   - [x] 11.1 Create MBC use case container
     - Create `src/infrastructure/di/registry/mbcUseCaseContainer.ts`
-    - Register all MBC use cases: `registerMemberUseCase`, `topUpBalanceUseCase`, `checkInUseCase`, `checkOutUseCase`, `readCardUseCase`, `manualCalculationUseCase`, `manageServiceRegistryUseCase`
+    - Register all MBC use cases: `registerMemberUseCase`, `topUpBalanceUseCase`, `checkInUseCase`, `checkOutUseCase`, `readCardUseCase`, `manualCalculationUseCase`, `manageBenefitRegistryUseCase`
     - Export `MbcUseCaseContainerInterface`
     - Update `src/infrastructure/di/container.ts` to import and call `registerMbcUseCaseModules`, add to `AwilixRegistry`
     - _Requirements: all use case requirements_
@@ -290,17 +290,17 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 
   - [x] 12.2 Implement station.controller
     - Create `src/controllers/mbc/station.controller.ts` with `StationControllerInterface`
-    - Receive `registerMemberUseCase`, `topUpBalanceUseCase`, `manageServiceRegistryUseCase`, `nfcService`, `useFormHook`, `zodResolver`, `zod` from DI
+    - Receive `registerMemberUseCase`, `topUpBalanceUseCase`, `manageBenefitRegistryUseCase`, `nfcService`, `useFormHook`, `zodResolver`, `zod` from DI
     - Manage registration form (name, memberId), top-up form (amount), service config CRUD
     - Handle NFC tap events: set `isProcessing` lock, execute use case, update `lastResult`
     - Manage `nfcStatus` state transitions
-    - Initialize service registry defaults on mount
+    - Initialize benefit registry defaults on mount
     - Check storage health and quota on mount, display warnings
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4, 5.5, 15.1, 15.2, 15.3, 15.4, 20.4, 20.7_
 
   - [x] 12.3 Implement gate.controller
     - Create `src/controllers/mbc/gate.controller.ts` with `GateControllerInterface`
-    - Receive `checkInUseCase`, `manageServiceRegistryUseCase`, `deviceService`, `nfcService` from DI
+    - Receive `checkInUseCase`, `manageBenefitRegistryUseCase`, `deviceService`, `nfcService` from DI
     - Manage service type selection from registry, auto-select if only one
     - Persist last selected service type
     - Handle simulation mode toggle and custom timestamp
@@ -310,7 +310,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 
   - [x] 12.4 Implement terminal.controller
     - Create `src/controllers/mbc/terminal.controller.ts` with `TerminalControllerInterface`
-    - Receive `checkOutUseCase`, `manualCalculationUseCase`, `manageServiceRegistryUseCase`, `deviceService`, `nfcService` from DI
+    - Receive `checkOutUseCase`, `manualCalculationUseCase`, `manageBenefitRegistryUseCase`, `deviceService`, `nfcService` from DI
     - Handle NFC tap: set `isProcessing` lock, execute check-out use case, update `lastResult` with fee breakdown
     - Manage manual calculation mode toggle, form, and result
     - Ensure Device_ID is available on mount
@@ -318,7 +318,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 
   - [x] 12.5 Implement scout.controller
     - Create `src/controllers/mbc/scout.controller.ts` with `ScoutControllerInterface`
-    - Receive `readCardUseCase`, `nfcService`, `manageServiceRegistryUseCase` from DI
+    - Receive `readCardUseCase`, `nfcService`, `manageBenefitRegistryUseCase` from DI
     - Handle NFC tap: read card data, resolve service type names from registry for display
     - Return `cardData`, `nfcStatus`, `isReading`
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
@@ -368,17 +368,17 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Resolve service type display names from the provided `serviceTypes` array
     - _Requirements: 9.2, 9.3, 10.3_
 
-  - [x] 14.5 Create ServiceTypeSelector component
-    - Create `src/presentation/components/mbc/ServiceTypeSelector/index.tsx` and `service-type-selector.module.scss`
-    - Props: `serviceTypes: ServiceType[]`, `selectedId: string | null`, `onSelect: (id: string) => void`, `disabled?: boolean`
-    - Render dropdown/list of service types from props
+  - [x] 14.5 Create BenefitTypeSelector component
+    - Create `src/presentation/components/mbc/BenefitTypeSelector/index.tsx` and `benefit-type-selector.module.scss`
+    - Props: `benefitTypes: BenefitType[]`, `selectedId: string | null`, `onSelect: (id: string) => void`, `disabled?: boolean`
+    - Render dropdown/list of benefit types from props
     - _Requirements: 6.6, 17.1_
 
-  - [x] 14.6 Create ServiceTypeForm component
-    - Create `src/presentation/components/mbc/ServiceTypeForm/index.tsx` and `service-type-form.module.scss`
-    - Props: `onSubmit: (data: ServiceTypeFormData) => void`, `initialValues?: Partial<ServiceType>`, `isEditing?: boolean`
+  - [x] 14.6 Create BenefitTypeForm component
+    - Create `src/presentation/components/mbc/BenefitTypeForm/index.tsx` and `benefit-type-form.module.scss`
+    - Props: `onSubmit: (data: BenefitTypeFormData) => void`, `initialValues?: Partial<BenefitType>`, `isEditing?: boolean`
     - Form fields: id, displayName, activityType, pricing (ratePerUnit, unitType, roundingStrategy)
-    - Validate with `ServiceTypeFormSchema`
+    - Validate with `BenefitTypeFormSchema`
     - _Requirements: 15.2, 15.3_
 
   - [x] 14.7 Create CardInfoDisplay component
@@ -412,7 +412,7 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Test `NfcTapPrompt` status rendering and disabled state
     - Test `FeeBreakdown` IDR formatting and breakdown display
     - Test `TransactionLogList` rendering with 0-5 entries
-    - Test `ServiceTypeSelector` selection callback
+    - Test `BenefitTypeSelector` selection callback
     - Test `CardInfoDisplay` full card data rendering
     - Test `RoleCard` active state and click handler
     - Test `BalanceDisplay` before/after states
@@ -546,6 +546,117 @@ This plan implements the MBC feature following a strict bottom-up build order: d
     - Tests: ✅ Pass (`npx vitest --run` — 119 passed, 18 test files, zero failures)
     - No `any` types introduced
     - Clean Architecture layer boundaries maintained
+
+- [x] 21. Refactor — CSS Modules with Tailwind @apply
+  - **Assigned:** @developer
+  - **Steering:** `.kiro/steering/styling-rules.md`
+  - **Scope:** Move all inline Tailwind utility classes from JSX to co-located CSS Module files using `@apply`
+
+  - [x] 21.1 Refactor presentation components (10 files)
+    - `NfcTapPrompt/index.tsx` → + `nfc-tap-prompt.module.css`
+    - `FeeBreakdown/index.tsx` → + `fee-breakdown.module.css`
+    - `BalanceDisplay/index.tsx` → + `balance-display.module.css`
+    - `TransactionLogList/index.tsx` → + `transaction-log-list.module.css`
+    - `ServiceTypeSelector/index.tsx` → + `service-type-selector.module.css`
+    - `ServiceTypeForm/index.tsx` → + `service-type-form.module.css`
+    - `CardInfoDisplay/index.tsx` → + `card-info-display.module.css`
+    - `SimulationBanner/index.tsx` → + `simulation-banner.module.css`
+    - `ManualCalcForm/index.tsx` → + `manual-calc-form.module.css`
+    - `RoleCard/index.tsx` → + `role-card.module.css`
+
+  - [x] 21.2 Refactor pages (5 files)
+    - `MbcRolePicker/index.tsx` → + `mbc-role-picker.module.css`
+    - `MbcStation/index.tsx` → + `mbc-station.module.css`
+    - `MbcGate/index.tsx` → + `mbc-gate.module.css`
+    - `MbcTerminal/index.tsx` → + `mbc-terminal.module.css`
+    - `MbcScout/index.tsx` → + `mbc-scout.module.css`
+
+  - [x] 21.3 Update steering document
+    - Updated `.kiro/steering/styling-rules.md` with CSS Modules + `@apply` conventions
+    - All CSS Module files include `@reference "tailwindcss"` directive (Tailwind v4 requirement)
+    - Conditional classes use template literals with `styles.*` references
+
+  - [x] 21.4 Verification checkpoint
+    - Build: ✅ Pass (`npm run build` — zero errors)
+    - Tests: ✅ Pass (`npx vitest --run` — 119 passed, 18 test files, zero failures)
+    - 15 CSS Module files created, 15 TSX files updated
+    - No inline Tailwind utilities remain in JSX `className` props
+
+- [ ] 22. Refactor — Proactive NFC Capability Detection
+  - **Assigned:** @developer
+  - **Issue:** #50
+  - **Scope:** NFC-dependent pages check Web NFC capability on mount, display inline notice when unsupported
+
+  - [ ] 22.1 Add NFC capability check to controllers
+    - Update `station.controller`, `gate.controller`, `terminal.controller`, `scout.controller`
+    - Add `nfcCapability: NfcCapabilityStatus` state checked on mount via `nfcService.isAvailable()`
+    - States: `supported`, `unsupported`, `permission_denied`, `permission_pending`, `checking`
+    - _Requirements: 22.1, 22.2, 22.3_
+
+  - [ ] 22.2 Create NfcCapabilityNotice component
+    - Create `src/presentation/components/mbc/NfcCapabilityNotice/index.tsx` + `nfc-capability-notice.module.css`
+    - Props: `status: NfcCapabilityStatus`
+    - Render inline warning/error notice with explanation per status
+    - Use CSS Modules + `@apply` per styling-rules steering
+    - _Requirements: 22.2, 22.3, 2.2_
+
+  - [ ] 22.3 Update pages to conditionally render NFC UI
+    - `MbcStation` — gate registration/top-up tabs behind capability check, config tab always available
+    - `MbcGate` — replace NFC area with notice when unsupported
+    - `MbcTerminal` — replace NFC area with notice, keep Manual Calc available
+    - `MbcScout` — replace NFC area with notice
+    - _Requirements: 22.4, 22.5_
+
+  - [ ] 22.4 Verification checkpoint
+    - Build passes, tests pass
+    - NFC unsupported notice visible on desktop Chrome (no Web NFC)
+    - Manual Calculation still works on Terminal when NFC unsupported
+
+- [ ] 23. Refactor — Migrate Silent Shield to Web Crypto API
+  - **Assigned:** @developer
+  - **Scope:** Replace `crypto-browserify` polyfill with native `crypto.subtle` (Web Crypto API) for AES-256-GCM encryption
+  - **Motivation:** Eliminate 6 low-severity npm audit vulnerabilities from `elliptic` chain, reduce bundle size, use browser-native crypto
+
+  - [ ] 23.1 Rewrite silent-shield.service to use Web Crypto API
+    - Replace `crypto-browserify` imports with `crypto.subtle` calls
+    - Use `crypto.subtle.deriveKey()` with PBKDF2 for key derivation
+    - Use `crypto.subtle.encrypt()` / `crypto.subtle.decrypt()` with AES-GCM
+    - Maintain same output format: `[IV (12B) | ciphertext | authTag]`
+    - Ensure backward compatibility: cards encrypted with old implementation must still decrypt
+    - _Requirements: 11.1, 11.2, 11.3, 11.4_
+
+  - [ ] 23.2 Remove crypto polyfill dependencies
+    - Uninstall `crypto-browserify` from dependencies
+    - Uninstall `vite-plugin-node-polyfills` from devDependencies
+    - Remove `nodePolyfills({ include: ['crypto'] })` from `vite.config.ts`
+    - Remove `stream` and `vm` externalization warnings
+    - _Impact: eliminates 6 low-severity vulnerabilities_
+
+  - [ ] 23.3 Update property tests for encryption round-trip
+    - Verify `decrypt(encrypt(data))` equals `data` using Web Crypto API
+    - Verify backward compatibility with test vectors from old implementation
+    - _Requirements: 11.4_
+
+  - [ ] 23.4 Verification checkpoint
+    - `npm run build` passes with zero errors
+    - `npx vitest --run` passes with zero failures
+    - `npm audit` reports 0 vulnerabilities
+    - Bundle size reduced (no more crypto polyfill)
+
+- [ ] 24. Feature — Backup Storage Harian ke Excel (placeholder)
+  - **Assigned:** TBD
+  - **Scope:** Export data dari The Station ke format Excel (.xlsx) untuk backup harian
+  - **Status:** Detail acceptance criteria akan didefinisikan kemudian
+
+  - [ ] 24.1 Define detailed requirements and acceptance criteria
+    - Tentukan data apa yang di-export (transaction logs, member data, benefit registry)
+    - Tentukan format kolom Excel
+    - Tentukan trigger (manual button vs scheduled)
+    - Tentukan lokasi download
+    - _Requirements: TBD_
+
+  - [ ] 24.2 Implementation
+    - Detail TBD
 
 ## Notes
 

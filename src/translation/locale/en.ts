@@ -22,7 +22,7 @@ export default {
   app_popup_close_button_label: 'Close',
 
   /* Document Title */
-  web_register_landing_document_title: 'Prepaid Registration | Telkomsel',
+  web_register_landing_document_title: 'Membership Benefit Card | Telkomsel',
   web_register_verification_document_title:
     'Prepaid Number Verification | Telkomsel',
   web_register_personal_data_document_title:
@@ -189,4 +189,208 @@ export default {
   // eSIM Registration
   web_register_personal_data_registrasi_sim_order_msisdn:
     'Your Telkomsel Number',
+
+  /* MBC - NFC Error Messages */
+  mbc_nfc_error_incompatible_card: 'Failed to read card. Make sure it is an NDEF-formatted NTAG215/216 card. Hold the card steady for 2-3 seconds.',
+  mbc_nfc_error_blank_card: 'This card is blank. Please register it at The Station first.',
+  mbc_nfc_error_card_not_recognized: 'This card is not recognized as an MBC card.',
+  mbc_nfc_error_card_data_corrupted: 'Card data is damaged or invalid. Please re-register at The Station.',
+  mbc_nfc_error_permission_denied: 'NFC permission was denied. Please allow NFC access in browser settings.',
+  mbc_nfc_error_hardware_unavailable: 'NFC is not available on this device or browser.',
+  mbc_nfc_error_connection_lost: 'NFC connection lost. Please keep the card steady and try again.',
+  mbc_nfc_error_read_failed: 'Failed to read NFC card. Please try again.',
+  mbc_nfc_error_write_failed: 'Failed to write to NFC card. Please try again.',
+  mbc_nfc_error_scan_failed: 'NFC scan failed. Please try again.',
+  mbc_error_not_registered: 'Card is not registered. Please register at The Station first.',
+  mbc_error_already_checked_in: 'Member already checked in. Please complete check-out first.',
+  mbc_error_not_checked_in: 'Member has not checked in. Cannot process check-out.',
+  mbc_error_device_mismatch: 'Device mismatch. Please return to the original check-in device.',
+  mbc_error_insufficient_balance: 'Insufficient balance. Fee: Rp {{fee}}, Balance: Rp {{balance}}, Shortage: Rp {{shortage}}. Please top-up at The Station.',
+  mbc_error_benefit_type_not_found: 'Benefit type "{{id}}" not found. Please configure at The Station.',
+  mbc_error_benefit_type_duplicate: 'Benefit type "{{id}}" already exists.',
+  mbc_error_invalid_benefit_type: 'Invalid benefit type configuration.',
+  mbc_error_card_already_registered: 'Card already registered to {{name}}.',
+  mbc_error_write_verification_failed: 'Write verification failed. Card has been rolled back.',
+  mbc_error_critical_rollback_failed: 'CRITICAL: Write failed and rollback failed. Card may be inconsistent. Contact support.',
+  mbc_error_topup_amount_invalid: 'Top-up amount must be a positive number.',
+  mbc_error_invalid_timestamp: 'Invalid check-in timestamp format.',
+  mbc_error_encryption_failed: 'Card encryption failed. Please try again.',
+  mbc_error_decryption_failed: 'Failed to read card data. Card may be from a different system.',
+  mbc_error_key_derivation_failed: 'Security initialization failed. Please restart the app.',
+
+  /* MBC - Bottom Navigation */
+  mbc_nav_station: 'Station',
+  mbc_nav_gate: 'Gate',
+  mbc_nav_terminal: 'Terminal',
+  mbc_nav_scout: 'Scout',
+  mbc_nav_aria_label: 'Main navigation',
+
+  /* MBC - Station Revamp */
+  mbc_station_ready_title: 'Ready to read card',
+  mbc_station_ready_subtitle: 'Press the button below, then tap your NFC card',
+  mbc_station_nfc_tap_label: 'TAP TO START',
+  mbc_station_nfc_tap_sublabel: 'NFC',
+  mbc_station_quick_actions_title: 'Quick Actions',
+  mbc_station_action_topup: 'Top-up Balance',
+  mbc_station_action_register: 'Register Card',
+  mbc_station_current_balance: 'Current Balance',
+  mbc_station_topup_nominal_title: 'Enter Top-up Amount',
+  mbc_station_topup_other_nominal: 'Other Amount',
+  mbc_station_topup_other_placeholder: 'Example: 10000',
+  mbc_station_topup_now_button: 'Top-up Now',
+
+  /* MBC - UI Labels */
+  mbc_role_picker_title: 'Select Role',
+  mbc_role_picker_subtitle: 'Choose mode as needed',
+  mbc_role_station_description: 'Top-up & Registration',
+  mbc_role_gate_description: 'Entry Gate',
+  mbc_role_terminal_description: 'Exit Gate',
+  mbc_role_scout_description: 'Pocket Book',
+
+  /* MBC - Gate */
+  mbc_gate_title: 'The Gate',
+  mbc_gate_subtitle: 'Check-in member with NFC',
+  mbc_gate_checkin_button: 'Check-In',
+  mbc_gate_checkin_success: '✅ Check-in successful',
+  mbc_gate_entry_time_label: 'Entry time:',
+
+  /* MBC - Terminal */
+  mbc_terminal_title: 'The Terminal',
+  mbc_terminal_subtitle: 'Check-out and fee calculation',
+  mbc_terminal_checkout_button: 'Check-Out',
+  mbc_terminal_checkout_success: '✅ Check-out successful',
+
+  /* MBC - Scout */
+  mbc_scout_title: 'The Scout',
+  mbc_scout_subtitle: 'View member card contents',
+  mbc_scout_read_button: 'Read Card',
+  mbc_scout_checkin_status_label: 'Check-In Status',
+  mbc_scout_status_checked_in: '✅ Checked-In',
+  mbc_scout_status_idle: '⏸️ Idle',
+  mbc_scout_checkin_time_label: 'Entry time:',
+  mbc_scout_card_detail_title: 'Card Data Detail',
+  mbc_scout_card_version_label: 'Version',
+  mbc_scout_card_balance_label: 'Balance',
+  mbc_scout_card_status_label: 'Status',
+  mbc_scout_card_timestamp_label: 'Check-In Time',
+  mbc_scout_raw_data_title: 'Raw Card Data',
+  mbc_scout_raw_data_hint: 'Encrypted data stored on the card (base64). Decryption failed — card may need to be re-registered at The Station.',
+  mbc_scout_raw_encrypted_label: 'Encrypted (base64):',
+  mbc_scout_raw_decrypted_label: 'Decrypted (JSON):',
+  mbc_scout_history_title: 'Transaction History (Last 5)',
+  mbc_scout_history_empty: 'No transaction history yet',
+  mbc_scout_history_topup: 'Top-Up',
+  mbc_scout_history_checkin: 'Check-In',
+  mbc_scout_history_checkout: 'Check-Out',
+
+  /* MBC - Station */
+  mbc_station_title: 'The Station',
+  mbc_station_subtitle: 'Register new card or top-up balance',
+  mbc_station_tap_instruction: 'Tap card to validate',
+  mbc_station_validate_button: 'Validate Card',
+  mbc_station_topup_amount_label: 'Amount (Rp)',
+  mbc_station_topup_button: 'Top-Up Balance',
+  mbc_station_topup_again_button: 'Top-Up Again',
+  mbc_station_validation_success: '✅ Validation successful',
+  mbc_station_register_success_title: 'Registration Successful',
+  mbc_station_register_success_subtitle: 'Card has been registered as a new member card.',
+  mbc_station_already_registered_title: 'Card Already Registered',
+  mbc_station_already_registered_subtitle: 'This card is already registered as a member card.',
+  mbc_station_not_registered_title: 'Card Not Registered',
+  mbc_station_not_registered_subtitle: 'This card is not registered. Please register first.',
+
+  /* MBC - Card Info Display */
+  mbc_card_member_identity: 'Member Identity',
+  mbc_card_member_id_prefix: 'ID:',
+  mbc_card_checkin_active: 'Active Check-In Status',
+  mbc_card_service_label: 'Service:',
+  mbc_card_entry_time_label: 'Entry time:',
+
+  /* MBC - Balance Display */
+  mbc_balance_label: 'Balance',
+
+  /* MBC - Fee Breakdown */
+  mbc_fee_title: 'Fee Breakdown',
+  mbc_fee_service_label: 'Service',
+  mbc_fee_usage_label: 'Usage',
+  mbc_fee_rate_label: 'Rate',
+  mbc_fee_rounding_label: 'Rounding',
+  mbc_fee_total_label: 'Total',
+
+  /* MBC - Transaction Log */
+  mbc_transaction_heading: 'Transaction History',
+  mbc_transaction_empty: 'No transaction history yet',
+
+  /* MBC - NFC Scan Modal */
+  mbc_nfc_scan_modal_title: 'Tap Your NFC Card',
+  mbc_nfc_scan_modal_subtitle: 'Hold the NFC card near the back of your device now',
+  mbc_nfc_scan_modal_waiting: 'Waiting Card...',
+  mbc_nfc_scan_modal_close: 'Close',
+  mbc_nfc_scan_modal_retry: 'Try Again',
+  mbc_nfc_scan_modal_cancel: 'Cancel',
+
+  /* MBC - NFC Tap Prompt */
+  mbc_nfc_status_idle: 'Tap NFC card',
+  mbc_nfc_status_scanning: 'Waiting for card...',
+  mbc_nfc_status_reading: 'Reading card...',
+  mbc_nfc_status_writing: 'Writing to card...',
+  mbc_nfc_status_verifying: 'Verifying...',
+  mbc_nfc_status_success: 'Success!',
+  mbc_nfc_status_error: 'Failed. Try again.',
+  mbc_nfc_processing: 'Tap NFC Card',
+
+  /* MBC - NFC Capability Notice */
+  mbc_nfc_unsupported_title: 'NFC Not Available',
+  mbc_nfc_unsupported_message: 'This browser does not support NFC. Please use Google Chrome (Android) to access NFC features.',
+  mbc_nfc_permission_pending_title: '🔒 NFC Permission Required',
+  mbc_nfc_permission_pending_message: 'NFC permission has not been granted. Some features may require NFC permission.',
+  mbc_nfc_permission_denied_title: '🚫 NFC Permission Denied',
+  mbc_nfc_permission_denied_message: 'NFC permission was denied. Enable NFC permission in device settings to use this feature.',
+
+  /* MBC - Benefit Type Selector */
+  mbc_benefit_selector_empty: 'No benefit types configured. Please configure at The Station.',
+  mbc_benefit_selector_label: 'Select Service',
+  mbc_benefit_selector_placeholder: '-- Select service --',
+
+  /* MBC - Benefit Type Form */
+  mbc_benefit_form_id_label: 'ID',
+  mbc_benefit_form_name_label: 'Name',
+  mbc_benefit_form_activity_label: 'Activity Type',
+  mbc_benefit_form_rate_label: 'Rate (Rp)',
+  mbc_benefit_form_unit_label: 'Unit Type',
+  mbc_benefit_form_unit_per_hour: 'Per Hour',
+  mbc_benefit_form_unit_per_visit: 'Per Visit',
+  mbc_benefit_form_unit_flat_fee: 'Flat Fee',
+  mbc_benefit_form_rounding_label: 'Rounding',
+  mbc_benefit_form_rounding_ceiling: 'Up (Ceiling)',
+  mbc_benefit_form_rounding_floor: 'Down (Floor)',
+  mbc_benefit_form_rounding_nearest: 'Nearest',
+  mbc_benefit_form_submit_edit: 'Save Changes',
+  mbc_benefit_form_submit_add: 'Add Benefit Type',
+
+  /* MBC - Manual Calc Form */
+  mbc_manual_calc_heading: 'Manual / Offline Calculation',
+  mbc_manual_calc_timestamp_label: 'Check-In Time',
+  mbc_manual_calc_service_label: 'Service',
+  mbc_manual_calc_service_placeholder: '-- Select service --',
+  mbc_manual_calc_submit: 'Calculate Fee',
+
+  /* MBC - Simulation Banner */
+  mbc_simulation_active: '⚠️ Simulation Mode Active',
+  mbc_simulation_checkin_time: '— Check-in time:',
+
+  /* MBC - Top-Up Result Modal */
+  mbc_station_topup_result_success_title: 'Top-up successful',
+  mbc_station_topup_result_success_subtitle: 'Card has been registered and written.',
+  mbc_station_topup_result_error_title: 'Top-up failed',
+  mbc_station_topup_result_error_subtitle: 'An error occurred while writing to the card.',
+  mbc_station_topup_result_nominal_label: 'Amount',
+  mbc_station_topup_result_done_button: 'Done',
+  mbc_station_topup_result_retry_button: 'Try Again',
+
+  /* MBC - Register Confirmation Dialog */
+  mbc_station_register_confirm_title: 'Card Cannot Be Read',
+  mbc_station_register_confirm_message: 'This card cannot be recognized by the system. Possible causes:\n\n• New card that has never been registered\n• Card from another incompatible system\n• Card data is corrupted or invalid\n\nIf you re-register, any previous data (including balance) will be lost and the card will start from Rp 0 balance.',
+  mbc_station_register_confirm_button: 'Register as New Card',
+  mbc_station_register_cancel_button: 'Cancel',
 };

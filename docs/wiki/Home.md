@@ -14,7 +14,7 @@
 graph TB
     subgraph PWA["MBC Progressive Web App"]
         direction TB
-        subgraph Presentation["Layer 6 — Presentation"]
+        subgraph Presentation["Layer 5 — Presentation"]
             RP[Role Picker]
             ST[Station]
             GT[Gate]
@@ -22,7 +22,7 @@ graph TB
             SC[Scout]
         end
 
-        subgraph Controllers["Layer 5 — Controllers"]
+        subgraph Controllers["Layer 4 — Controllers"]
             C1[role-picker]
             C2[station]
             C3[gate]
@@ -30,30 +30,35 @@ graph TB
             C5[scout]
         end
 
-        subgraph UseCases["Layer 4 — Use Cases"]
+        subgraph UseCases["Layer 3 — Use Cases"]
             UC1[RegisterMember]
             UC2[TopUpBalance]
             UC3[CheckIn]
             UC4[CheckOut]
             UC5[ReadCard]
             UC6[ManualCalc]
-            UC7[ServiceRegistry]
+            UC7[BenefitRegistry]
         end
 
-        subgraph Services["Layer 1-3 — Services"]
+        subgraph Services["Layer 2 — Services"]
             S1[pricing]
             S2[card-data]
             S3[silent-shield]
             S4[nfc]
             S5[device]
             S6[storage-health]
-            S7[service-registry]
+            S7[benefit-registry]
         end
 
-        subgraph Infra["Layer 2 — Infrastructure"]
-            A1[webNfcAdapter]
-            A3[webStorageAdapter]
+        subgraph Core["Layer 1 — Core"]
+            P1[Protocols]
+            P2[Domain Models]
         end
+    end
+
+    subgraph Infra["Infrastructure"]
+        A1[webNfcAdapter]
+        A3[webStorageAdapter]
     end
 
     subgraph External["External"]
@@ -64,9 +69,9 @@ graph TB
     Presentation --> Controllers
     Controllers --> UseCases
     UseCases --> Services
-    Services --> Infra
+    Services --> Core
+    Infra -.->|implements| Core
     A1 --> NFC
-    A2 --> IDB
     A3 --> LS
 ```
 
@@ -80,7 +85,7 @@ graph TB
 
 ### Data Models
 - [Card Data Schema](membership-benefit-card/02-Data-Models/Card-Data-Schema)
-- [Service Type Model](membership-benefit-card/02-Data-Models/Service-Type-Model)
+- [Benefit Type Model](membership-benefit-card/02-Data-Models/Benefit-Type-Model)
 - [NFC Memory Layout](membership-benefit-card/02-Data-Models/NFC-Card-Memory-Layout)
 - [Zod Validation Schemas](membership-benefit-card/02-Data-Models/Zod-Validation-Schemas)
 
@@ -91,7 +96,7 @@ graph TB
 - [Check-Out](membership-benefit-card/03-Business-Flows/Check-Out-Flow)
 - [Manual Calculation](membership-benefit-card/03-Business-Flows/Manual-Calculation)
 - [Card Reading (Scout)](membership-benefit-card/03-Business-Flows/Card-Reading-Scout)
-- [Service Type Configuration](membership-benefit-card/03-Business-Flows/Service-Type-Configuration)
+- [Benefit Type Configuration](membership-benefit-card/03-Business-Flows/Benefit-Type-Configuration)
 
 ### Technical Flows
 - [Atomic Write Pipeline](membership-benefit-card/04-Technical-Flows/Atomic-Write-Pipeline)

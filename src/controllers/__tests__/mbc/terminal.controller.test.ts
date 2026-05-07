@@ -1,13 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { useState, useEffect, useCallback } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { useTranslation } from 'react-i18next';
 
 import type { CheckOutUseCaseInterface } from '@core/use_case/mbc/CheckOut';
 import type { ManualCalculationUseCaseInterface } from '@core/use_case/mbc/ManualCalculation';
-import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/ManageServiceRegistry';
+import type { ManageBenefitRegistryUseCaseInterface } from '@core/use_case/mbc/ManageBenefitRegistry';
 import type { DeviceServiceInterface } from '@core/services/mbc/device.service';
 
-import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
+import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
 import TerminalController from '../../mbc/terminal.controller';
 
 const MOCK_DEVICE_ID = 'device-test-456';
@@ -15,7 +16,7 @@ const MOCK_DEVICE_ID = 'device-test-456';
 function createMocks() {
   const checkOutUseCase: CheckOutUseCaseInterface = {
     execute: vi.fn().mockResolvedValue({
-      serviceTypeName: 'Parkir',
+      benefitTypeName: 'Parkir',
       entryTime: '2024-01-01T10:00:00.000Z',
       exitTime: '2024-01-01T13:00:00.000Z',
       duration: '3 jam',
@@ -41,8 +42,8 @@ function createMocks() {
     }),
   };
 
-  const manageServiceRegistryUseCase: ManageServiceRegistryUseCaseInterface = {
-    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_SERVICE]),
+  const manageBenefitRegistryUseCase: ManageBenefitRegistryUseCaseInterface = {
+    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_BENEFIT]),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
@@ -57,7 +58,16 @@ function createMocks() {
     }),
   };
 
-  return { checkOutUseCase, manualCalculationUseCase, manageServiceRegistryUseCase, deviceService };
+  const nfcService = {
+    isAvailable: () => true,
+    requestPermission: vi.fn(),
+    readCard: vi.fn(),
+    writeCard: vi.fn(),
+    writeAndVerify: vi.fn(),
+    readThenWrite: vi.fn(),
+  };
+
+  return { checkOutUseCase, manualCalculationUseCase, manageBenefitRegistryUseCase, deviceService, nfcService };
 }
 
 function createController(mocks = createMocks()) {
@@ -66,6 +76,7 @@ function createController(mocks = createMocks()) {
       useState,
       useEffect,
       useCallback,
+      useTranslation,
       ...mocks,
     }),
   );
@@ -87,7 +98,7 @@ describe('TerminalController', () => {
     const { result } = createController(mocks);
 
     await waitFor(() => {
-      expect(result.current.serviceTypes).toHaveLength(1);
+      expect(result.current.benefitTypes).toHaveLength(1);
     });
 
     await act(async () => {
@@ -107,7 +118,7 @@ describe('TerminalController', () => {
     const { result } = createController(mocks);
 
     await waitFor(() => {
-      expect(result.current.serviceTypes).toHaveLength(1);
+      expect(result.current.benefitTypes).toHaveLength(1);
     });
 
     await act(async () => {
@@ -139,7 +150,7 @@ describe('TerminalController', () => {
     await act(async () => {
       await result.current.onManualCalculate({
         checkInTimestamp: '2024-01-01T10:00:00.000Z',
-        serviceTypeId: 'parking',
+        benefitTypeId: 'parking',
       });
     });
 
@@ -157,7 +168,7 @@ describe('TerminalController', () => {
     await act(async () => {
       await result.current.onManualCalculate({
         checkInTimestamp: '2024-01-01T10:00:00.000Z',
-        serviceTypeId: 'nonexistent',
+        benefitTypeId: 'nonexistent',
       });
     });
 

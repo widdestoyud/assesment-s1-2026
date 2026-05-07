@@ -18,15 +18,10 @@ export const ReadCardUseCase = (
     const rawEncrypted = await nfcService.readCard();
 
     // Step 2: Decrypt
-    const decrypted = silentShieldService.decrypt(rawEncrypted);
+    const decrypted = await silentShieldService.decrypt(rawEncrypted);
 
     // Step 3: Deserialize (includes Zod validation)
     const cardData = cardDataService.deserialize(decrypted);
-
-    // Step 4: Validate card is registered
-    if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('Card is not registered or contains invalid data.');
-    }
 
     return cardData;
   };

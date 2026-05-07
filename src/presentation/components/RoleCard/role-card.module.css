@@ -1,0 +1,65 @@
+@reference "tailwindcss";
+
+.role-card {
+  @apply flex w-full flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition-all;
+}
+
+.role-card--blue {
+  @apply border-blue-100 bg-blue-50/30;
+}
+
+.role-card--blue:hover {
+  @apply border-blue-300 bg-blue-50;
+}
+
+.role-card--green {
+  @apply border-green-100 bg-green-50/30;
+}
+
+.role-card--green:hover {
+  @apply border-green-300 bg-green-50;
+}
+
+.role-card--orange {
+  @apply border-orange-100 bg-orange-50/30;
+}
+
+.role-card--orange:hover {
+  @apply border-orange-300 bg-orange-50;
+}
+
+.role-card--purple {
+  @apply border-purple-100 bg-purple-50/30;
+}
+
+.role-card--purple:hover {
+  @apply border-purple-300 bg-purple-50;
+}
+
+.role-card__icon {
+  @apply text-4xl;
+}
+
+.role-card__label {
+  @apply text-base font-bold;
+}
+
+.role-card__label--blue {
+  @apply text-blue-600;
+}
+
+.role-card__label--green {
+  @apply text-green-600;
+}
+
+.role-card__label--orange {
+  @apply text-orange-600;
+}
+
+.role-card__label--purple {
+  @apply text-purple-600;
+}
+
+.role-card__description {
+  @apply text-xs text-gray-500;
+}

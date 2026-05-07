@@ -19,42 +19,32 @@ export const TopUpBalanceUseCase = (
 
   const execute = async (input: TopUpBalanceInput): Promise<OperationResult> => {
     if (input.amount <= 0) {
-      throw new Error('Top-up amount must be a positive number');
+      throw new Error('mbc_error_topup_amount_invalid');
     }
 
-    // Step 1: Read card → decrypt → deserialize
-    const rawEncrypted = await nfcService.readCard();
-    const decrypted = silentShieldService.decrypt(rawEncrypted);
-    const cardData = cardDataService.deserialize(decrypted);
+    let newBalance = 0;
 
-    // Step 2: Validate card is registered
-    if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('Card is not registered. Please register at The Station first.');
-    }
+    // Single-tap: read card, process, write back
+    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+      // Decrypt → deserialize
+      const decrypted = await silentShieldService.decrypt(rawEncrypted);
+      const card = cardDataService.deserialize(decrypted);
 
-    const previousBalance = cardData.balance;
+      // Validate max balance
+      if (card.b + input.amount > 999999) {
+        throw new Error('mbc_error_balance_exceeds_max');
+      }
 
-    // Step 3: Apply top-up (also appends transaction log)
-    const updatedCard = cardDataService.applyTopUp(cardData, input.amount);
+      // Apply top-up
+      const updatedCard = cardDataService.applyTopUp(card, input.amount);
+      newBalance = updatedCard.b;
 
-    // Step 4: Serialize → encrypt → write with verify
-    const serialized = cardDataService.serialize(updatedCard);
-    const encrypted = silentShieldService.encrypt(serialized);
-    const writeResult = await nfcService.writeAndVerify(encrypted);
+      // Serialize → encrypt → return for write
+      const serialized = cardDataService.serialize(updatedCard);
+      return silentShieldService.encrypt(serialized);
+    });
 
-    if (!writeResult.success) {
-      throw new Error(
-        `Top-up failed: write verification error — ${writeResult.error}`,
-      );
-    }
-
-    return {
-      type: 'top-up',
-      memberName: cardData.member.name,
-      previousBalance,
-      amount: input.amount,
-      newBalance: updatedCard.balance,
-    };
+    return { type: 'top-up', balance: newBalance };
   };
 
   return { execute };

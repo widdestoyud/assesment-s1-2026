@@ -1,0 +1,33 @@
+@reference "tailwindcss";
+
+.confirm-dialog__overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4;
+}
+
+.confirm-dialog {
+  @apply relative flex w-full max-w-sm flex-col rounded-2xl bg-white px-6 py-8;
+}
+
+.confirm-dialog__icon {
+  @apply mb-4 text-center text-4xl;
+}
+
+.confirm-dialog__title {
+  @apply text-center text-lg font-bold text-gray-900;
+}
+
+.confirm-dialog__message {
+  @apply mt-2 text-center text-sm leading-relaxed text-gray-600;
+}
+
+.confirm-dialog__actions {
+  @apply mt-6 flex flex-col gap-3;
+}
+
+.confirm-dialog__button--primary {
+  @apply w-full rounded-lg bg-blue-600 py-3 text-center font-semibold text-white transition-colors hover:bg-blue-700;
+}
+
+.confirm-dialog__button--secondary {
+  @apply w-full rounded-lg border border-gray-300 bg-white py-3 text-center font-semibold text-gray-700 transition-colors hover:bg-gray-50;
+}

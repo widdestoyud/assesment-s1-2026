@@ -57,7 +57,7 @@ interface TerminalControllerInterface {
   manualForm: UseFormReturn;
   onManualCalculate: (data: ManualCalcFormData) => void;
   manualResult: FeeResult | null;
-  serviceTypes: ServiceType[];
+  benefitTypes: BenefitType[];
 }
 ```
 

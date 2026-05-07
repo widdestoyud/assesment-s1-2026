@@ -1,5 +1,7 @@
 # Laporan Fase 5: Layer 5 — Controllers
 
+> ⚠️ **Catatan arsitektur:** Dokumen ini menggunakan penomoran layer lama (Layer 0-6, 7 layer). Arsitektur saat ini menggunakan **5 layer** — lihat [Clean Architecture](../01-Architecture/Clean-Architecture.md). Layer 5 (Controllers) sekarang menjadi **Layer 4 — Controllers**.
+
 > Tanggal selesai: April 30, 2026
 > Status: ✅ Complete
 > Milestone: [Phase 5: Layer 5 - Controllers](https://github.com/widdestoyud/assesment-s1-2026/milestone/5) (Closed)
@@ -39,10 +41,10 @@ Setiap controller mengembalikan typed interface yang berisi data dan event handl
 | File | Interface | Dependencies (via DI) | State Managed |
 |------|-----------|----------------------|---------------|
 | `src/controllers/mbc/role-picker.controller.ts` | `RolePickerControllerInterface` | useState, useCallback | activeRole |
-| `src/controllers/mbc/station.controller.ts` | `StationControllerInterface` | useState, useEffect, useCallback, registerMemberUseCase, topUpBalanceUseCase, manageServiceRegistryUseCase, nfcService, storageHealthService | nfcStatus, lastResult, isProcessing, error, serviceTypes, storageWarning |
-| `src/controllers/mbc/gate.controller.ts` | `GateControllerInterface` | useState, useEffect, useCallback, checkInUseCase, manageServiceRegistryUseCase, deviceService | selectedServiceType, simulationMode, simulationTimestamp, nfcStatus, lastResult, isProcessing, error, deviceId |
-| `src/controllers/mbc/terminal.controller.ts` | `TerminalControllerInterface` | useState, useEffect, useCallback, checkOutUseCase, manualCalculationUseCase, manageServiceRegistryUseCase, deviceService | nfcStatus, lastResult, isProcessing, error, isManualMode, manualResult, serviceTypes |
-| `src/controllers/mbc/scout.controller.ts` | `ScoutControllerInterface` | useState, useEffect, useCallback, readCardUseCase, manageServiceRegistryUseCase | nfcStatus, cardData, isReading, error, serviceTypes |
+| `src/controllers/mbc/station.controller.ts` | `StationControllerInterface` | useState, useEffect, useCallback, registerMemberUseCase, topUpBalanceUseCase, manageBenefitRegistryUseCase, nfcService, storageHealthService | nfcStatus, lastResult, isProcessing, error, benefitTypes, storageWarning |
+| `src/controllers/mbc/gate.controller.ts` | `GateControllerInterface` | useState, useEffect, useCallback, checkInUseCase, manageBenefitRegistryUseCase, deviceService | selectedBenefitType, simulationMode, simulationTimestamp, nfcStatus, lastResult, isProcessing, error, deviceId |
+| `src/controllers/mbc/terminal.controller.ts` | `TerminalControllerInterface` | useState, useEffect, useCallback, checkOutUseCase, manualCalculationUseCase, manageBenefitRegistryUseCase, deviceService | nfcStatus, lastResult, isProcessing, error, isManualMode, manualResult, benefitTypes |
+| `src/controllers/mbc/scout.controller.ts` | `ScoutControllerInterface` | useState, useEffect, useCallback, readCardUseCase, manageBenefitRegistryUseCase | nfcStatus, cardData, isReading, error, benefitTypes |
 
 ### DI Wiring
 
@@ -85,7 +87,7 @@ Setiap controller mengembalikan typed interface yang berisi data dan event handl
 |---|----------|----------|
 | 1 | Starts in idle state | ✅ Positive |
 | 2 | Ensures device ID on mount | ✅ Positive |
-| 3 | Auto-selects when only one service type | ✅ Positive |
+| 3 | Auto-selects when only one benefit type | ✅ Positive |
 | 4 | Toggles simulation mode | ✅ Positive |
 | 5 | Performs check-in successfully | ✅ Positive |
 | 6 | Handles check-in error | ❌ Negative |
@@ -119,7 +121,7 @@ Setiap controller mengembalikan typed interface yang berisi data dan event handl
 |-----------|--------|
 | **React hooks via DI** | useState, useEffect, useCallback diinject via Awilix. Controllers tidak import React langsung — memudahkan testing dan menjaga layer boundary. |
 | **Processing lock** | `isProcessing` flag mencegah double-tap. Saat true, semua NFC operations di-ignore. |
-| **Auto-select service type** | Gate controller auto-select jika hanya 1 service type di registry. Mengurangi friction untuk operator. |
+| **Auto-select benefit type** | Gate controller auto-select jika hanya 1 benefit type di registry. Mengurangi friction untuk operator. |
 | **Lazy init di mount** | useEffect pada mount untuk load service types, ensure device ID, check storage health. Async operations di-handle gracefully. |
 | **renderHook testing** | Controllers adalah custom hooks — ditest dengan `renderHook` + `act` dari React Testing Library. |
 

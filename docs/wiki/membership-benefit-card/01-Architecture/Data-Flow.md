@@ -21,7 +21,7 @@ sequenceDiagram
     participant Price as pricing.service
     participant Crypto as silent-shield.service
     participant Dev as device.service
-    participant Reg as service-registry.service
+    participant Reg as benefit-registry.service
 
     Op->>UI: 1. Taps NFC card
     UI->>Ctrl: 2. onCardTap(event)
@@ -45,7 +45,7 @@ sequenceDiagram
         Dev-->>UC: 13. currentDeviceId
         UC->>UC: 14. Validate deviceId match
         UC->>Reg: 15. getById(serviceTypeId)
-        Reg-->>UC: 16. ServiceType + PricingStrategy
+        Reg-->>UC: 16. BenefitType + PricingStrategy
     end
 
     rect rgb(230, 255, 230)

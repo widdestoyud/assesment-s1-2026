@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { useState, useEffect, useCallback } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { useTranslation } from 'react-i18next';
 
 import type { CardData } from '@core/services/mbc/models';
 import type { ReadCardUseCaseInterface } from '@core/use_case/mbc/ReadCard';
-import type { ManageServiceRegistryUseCaseInterface } from '@core/use_case/mbc/ManageServiceRegistry';
+import type { ManageBenefitRegistryUseCaseInterface } from '@core/use_case/mbc/ManageBenefitRegistry';
 
-import { DEFAULT_PARKING_SERVICE } from '@core/services/mbc/models';
+import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
 import ScoutController from '../../mbc/scout.controller';
 
 const CARD_DATA: CardData = {
@@ -22,15 +23,24 @@ function createMocks() {
     execute: vi.fn().mockResolvedValue(CARD_DATA),
   };
 
-  const manageServiceRegistryUseCase: ManageServiceRegistryUseCaseInterface = {
-    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_SERVICE]),
+  const manageBenefitRegistryUseCase: ManageBenefitRegistryUseCaseInterface = {
+    getAll: vi.fn().mockResolvedValue([DEFAULT_PARKING_BENEFIT]),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     initializeDefaults: vi.fn().mockResolvedValue(undefined),
   };
 
-  return { readCardUseCase, manageServiceRegistryUseCase };
+  const nfcService = {
+    isAvailable: () => true,
+    requestPermission: vi.fn(),
+    readCard: vi.fn(),
+    writeCard: vi.fn(),
+    writeAndVerify: vi.fn(),
+    readThenWrite: vi.fn(),
+  };
+
+  return { readCardUseCase, manageBenefitRegistryUseCase, nfcService };
 }
 
 function createController(mocks = createMocks()) {
@@ -39,6 +49,7 @@ function createController(mocks = createMocks()) {
       useState,
       useEffect,
       useCallback,
+      useTranslation,
       ...mocks,
     }),
   );
@@ -54,12 +65,12 @@ describe('ScoutController', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('loads service types on mount', async () => {
+  it('loads benefit types on mount', async () => {
     const mocks = createMocks();
     createController(mocks);
 
     await waitFor(() => {
-      expect(mocks.manageServiceRegistryUseCase.getAll).toHaveBeenCalledOnce();
+      expect(mocks.manageBenefitRegistryUseCase.getAll).toHaveBeenCalledOnce();
     });
   });
 

@@ -112,17 +112,17 @@ See [Device Binding](../04-Technical-Flows/Device-Binding) for the full lifecycl
 
 See [Storage Architecture](../04-Technical-Flows/Storage-Architecture) for error handling flows.
 
-## ADR-8: Extensible Service Type Architecture
+## ADR-8: Extensible Benefit Type Architecture
 
 **Context:** Initial requirement is parking, but the system should support bike rental, gym, restaurant, VIP, etc.
 
-**Decision:** Abstract service types with pluggable pricing strategies (`per-hour`, `per-visit`, `flat-fee`).
+**Decision:** Abstract benefit types with pluggable pricing strategies (`per-hour`, `per-visit`, `flat-fee`).
 
 **Consequences:**
-- ✅ New service types added via configuration, not code changes
-- ✅ Each service type has its own pricing rules
-- ✅ Default parking service pre-configured
-- ⚠️ Service type must exist in registry at check-out time
+- ✅ New benefit types added via configuration, not code changes
+- ✅ Each benefit type has its own pricing rules
+- ✅ Default parking benefit pre-configured
+- ⚠️ Benefit type must exist in registry at check-out time
 
 ## ADR-9: Controllers as Pure Factory Functions
 

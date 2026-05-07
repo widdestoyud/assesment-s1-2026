@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { CardData, ServiceType } from '@core/services/mbc/models';
+import type { CardData, BenefitType } from '@core/services/mbc/models';
 import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 import type { PricingServiceInterface } from '@core/services/mbc/pricing.service';
-import type { ServiceRegistryServiceInterface } from '@core/services/mbc/service-registry.service';
+import type { BenefitRegistryServiceInterface } from '@core/services/mbc/benefit-registry.service';
 
 import { CheckOutUseCase } from '../../mbc/CheckOut';
 
-const PARKING_SERVICE: ServiceType = {
+const PARKING_BENEFIT: BenefitType = {
   id: 'parking',
   displayName: 'Parkir',
   activityType: 'parking-fee',
@@ -22,7 +22,7 @@ const CHECKED_IN_CARD: CardData = {
   balance: 50000,
   checkIn: {
     timestamp: '2024-01-01T10:00:00.000Z',
-    serviceTypeId: 'parking',
+    benefitTypeId: 'parking',
     deviceId: 'device-123',
   },
   transactions: [],
@@ -35,6 +35,7 @@ function createMocks(cardData: CardData = CHECKED_IN_CARD) {
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
   };
 
   const cardDataService: CardDataServiceInterface = {
@@ -53,8 +54,8 @@ function createMocks(cardData: CardData = CHECKED_IN_CARD) {
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
-    encrypt: vi.fn().mockReturnValue(new Uint8Array([99])),
-    decrypt: vi.fn().mockReturnValue(new Uint8Array([1])),
+    encrypt: vi.fn().mockResolvedValue(new Uint8Array([99])),
+    decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
   const pricingService: PricingServiceInterface = {
@@ -67,16 +68,16 @@ function createMocks(cardData: CardData = CHECKED_IN_CARD) {
     }),
   };
 
-  const serviceRegistryService: ServiceRegistryServiceInterface = {
-    getAll: vi.fn().mockResolvedValue([PARKING_SERVICE]),
-    getById: vi.fn().mockResolvedValue(PARKING_SERVICE),
+  const benefitRegistryService: BenefitRegistryServiceInterface = {
+    getAll: vi.fn().mockResolvedValue([PARKING_BENEFIT]),
+    getById: vi.fn().mockResolvedValue(PARKING_BENEFIT),
     add: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     initializeDefaults: vi.fn().mockResolvedValue(undefined),
   };
 
-  return { nfcService, cardDataService, silentShieldService, pricingService, serviceRegistryService };
+  return { nfcService, cardDataService, silentShieldService, pricingService, benefitRegistryService };
 }
 
 describe('CheckOutUseCase', () => {
@@ -86,11 +87,11 @@ describe('CheckOutUseCase', () => {
 
     const result = await useCase.execute({ currentDeviceId: 'device-123' });
 
-    expect(result.serviceTypeName).toBe('Parkir');
+    expect(result.benefitTypeName).toBe('Parkir');
     expect(result.fee).toBe(6000);
     expect(result.remainingBalance).toBe(44000);
     expect(result.feeBreakdown.usageUnits).toBe(3);
-    expect(mocks.nfcService.writeAndVerify).toHaveBeenCalledOnce();
+    expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
   });
 
   it('rejects when not checked in', async () => {
@@ -100,7 +101,7 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('has not checked in');
+    ).rejects.toThrow('mbc_error_not_checked_in');
   });
 
   it('rejects on device ID mismatch', async () => {
@@ -109,17 +110,17 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'wrong-device' }),
-    ).rejects.toThrow('Device mismatch');
+    ).rejects.toThrow('mbc_error_device_mismatch');
   });
 
   it('rejects when service type not found', async () => {
     const mocks = createMocks();
-    (mocks.serviceRegistryService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+    (mocks.benefitRegistryService.getById as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
     const useCase = CheckOutUseCase(mocks);
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('not found in registry');
+    ).rejects.toThrow('mbc_error_benefit_type_not_found');
   });
 
   it('rejects when balance is insufficient', async () => {
@@ -129,37 +130,18 @@ describe('CheckOutUseCase', () => {
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('Insufficient balance');
+    ).rejects.toThrow('mbc_error_insufficient_balance');
   });
 
-  it('attempts rollback when write verification fails', async () => {
+  it('throws when NFC write fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Tag removed',
-    });
-    const useCase = CheckOutUseCase(mocks);
-
-    await expect(
-      useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('rolled back');
-    // Verify rollback was attempted
-    expect(mocks.nfcService.writeCard).toHaveBeenCalledOnce();
-  });
-
-  it('reports critical error when rollback also fails', async () => {
-    const mocks = createMocks();
-    (mocks.nfcService.writeAndVerify as ReturnType<typeof vi.fn>).mockResolvedValue({
-      success: false,
-      error: 'Tag removed',
-    });
-    (mocks.nfcService.writeCard as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('Rollback write failed'),
+    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('NFC write failed'),
     );
     const useCase = CheckOutUseCase(mocks);
 
     await expect(
       useCase.execute({ currentDeviceId: 'device-123' }),
-    ).rejects.toThrow('CRITICAL');
+    ).rejects.toThrow('NFC write failed');
   });
 });

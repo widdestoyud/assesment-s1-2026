@@ -1,0 +1,9 @@
+@reference "tailwindcss";
+
+.page-layout {
+  @apply mx-auto flex min-h-screen max-w-lg flex-col;
+}
+
+.page-layout__content {
+  @apply flex flex-1 flex-col px-4 py-4;
+}

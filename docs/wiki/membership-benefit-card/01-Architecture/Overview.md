@@ -62,7 +62,7 @@ graph TB
 ## Key Characteristics
 
 - **Offline-First** — All operations run without internet after initial install (Req 14)
-- **Extensible Service Types** — Parking, bike rental, gym, restaurant, VIP, etc.
+- **Extensible Benefit Types** — Parking, bike rental, gym, restaurant, VIP, etc.
 - **Configurable Pricing** — Per-hour, per-visit, flat-fee with rounding strategies
 - **Atomic Transactions** — No double deduction or partial writes (see [Atomic Write Pipeline](../04-Technical-Flows/Atomic-Write-Pipeline))
 - **Device Binding** — Check-out only on the same device as check-in (see [Device Binding](../04-Technical-Flows/Device-Binding))

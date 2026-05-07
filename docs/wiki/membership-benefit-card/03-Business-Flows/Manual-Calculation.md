@@ -17,7 +17,7 @@ sequenceDiagram
     participant UI as Terminal Page
     participant Ctrl as terminal.controller
     participant UC as ManualCalculation
-    participant Reg as service-registry.service
+    participant Reg as benefit-registry.service
     participant Price as pricing.service
 
     Op->>UI: 1. Toggle "Manual Calculation" mode
@@ -25,14 +25,14 @@ sequenceDiagram
     Note right of UI: UI labeled "Manual / Offline Calculation"<br/>(Req 21.6)
 
     Op->>UI: 3. Enter check-in timestamp
-    Op->>UI: 4. Select service type
+    Op->>UI: 4. Select benefit type
     Op->>UI: 5. Submit form
     UI->>Ctrl: 6. onManualCalculate(formData)
     Ctrl->>Ctrl: 7. Validate via ManualCalcFormSchema
 
     Ctrl->>UC: 8. execute(checkInTimestamp, serviceTypeId)
     UC->>Reg: 9. getById(serviceTypeId)
-    Reg-->>UC: 10. ServiceType + PricingStrategy
+    Reg-->>UC: 10. BenefitType + PricingStrategy
     UC->>Price: 11. calculateFee(strategy, checkInTime, now)
     Price-->>UC: 12. FeeResult
 

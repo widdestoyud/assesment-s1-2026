@@ -1,0 +1,29 @@
+@reference "tailwindcss";
+
+.fee-breakdown {
+    @apply rounded-lg bg-gray-50 p-4;
+}
+
+.fee-breakdown__title {
+    @apply mb-3 text-lg font-semibold;
+}
+
+.fee-breakdown__list {
+    @apply space-y-2 text-sm;
+}
+
+.fee-breakdown__row {
+    @apply flex justify-between;
+}
+
+.fee-breakdown__label {
+    @apply text-gray-600;
+}
+
+.fee-breakdown__value {
+    @apply font-medium;
+}
+
+.fee-breakdown__total-row {
+    @apply flex justify-between border-t pt-2 text-base font-bold;
+}

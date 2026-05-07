@@ -13,6 +13,26 @@ const globalSearchSchema = z.object({
   token: z.string().optional(),
 });
 
+function RootLayout() {
+  const activeQueryDevTool = config.tanStack.queryDevTool === 'true';
+  const activeRouteDevTool = config.tanStack.routeDevTool === 'true';
+
+  return (
+    <>
+      <HeadContent />
+      <Outlet />
+      <>
+        {activeQueryDevTool && (
+          <ReactQueryDevtools buttonPosition="bottom-left" />
+        )}
+        {activeRouteDevTool && (
+          <TanStackRouterDevtools position="bottom-right" />
+        )}
+      </>
+    </>
+  );
+}
+
 export const Route = createRootRouteWithContext<{
   basePath: string;
 }>()({
@@ -34,22 +54,5 @@ export const Route = createRootRouteWithContext<{
       },
     ],
   }),
-  component: () => {
-    const activeQueryDevTool = config.tanStack.queryDevTool;
-    const activeRouteDevTool = config.tanStack.routeDevTool;
-    return (
-      <>
-        <HeadContent />
-        <Outlet />
-        <>
-          {activeQueryDevTool && (
-            <ReactQueryDevtools buttonPosition="bottom-left" />
-          )}
-          {activeRouteDevTool && (
-            <TanStackRouterDevtools position="bottom-right" />
-          )}
-        </>
-      </>
-    );
-  },
+  component: RootLayout,
 });

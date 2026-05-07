@@ -47,9 +47,9 @@ Fase 1 membangun fondasi proyek: tipe data, model domain, Zod validation schemas
 |------|---------|
 | `src/utils/constants/mbc-keys.ts` | Storage keys, Silent Shield config constants |
 | `src/@core/services/mbc/models/card-data.model.ts` | CardData, MemberIdentity, CheckInStatus, TransactionLogEntry |
-| `src/@core/services/mbc/models/service-type.model.ts` | ServiceType, PricingStrategy, DEFAULT_PARKING_SERVICE |
+| `src/@core/services/mbc/models/benefit-type.model.ts` | BenefitType, PricingStrategy, DEFAULT_PARKING_BENEFIT |
 | `src/@core/services/mbc/models/common.model.ts` | RoleMode, NfcStatus, NfcError, FeeResult, AtomicWriteResult, dll |
-| `src/@core/services/mbc/models/schemas.ts` | Zod schemas: CardDataSchema, ServiceTypeFormSchema, dll |
+| `src/@core/services/mbc/models/schemas.ts` | Zod schemas: CardDataSchema, BenefitTypeFormSchema, dll |
 | `src/@core/services/mbc/models/index.ts` | Barrel export untuk semua models |
 | `src/utils/helpers/mbc.helper.ts` | formatIDR, formatDuration, ISO timestamp helpers |
 | `src/@core/protocols/nfc/index.ts` | NfcProtocol interface (isSupported, requestPermission, startScan, write) |
@@ -146,7 +146,7 @@ Fase 3 membangun layer I/O (adapter untuk browser API) dan stateful services yan
 | 6.1 | ✅ Done | nfc.service — readCard, writeCard, writeAndVerify |
 | 6.2 | ✅ Done | storage-health.service — isAvailable, checkWriteCapacity |
 | 6.3 | ✅ Done | device.service — getDeviceId, ensureDeviceId |
-| 6.4 | ✅ Done | service-registry.service — CRUD + initializeDefaults |
+| 6.4 | ✅ Done | benefit-registry.service — CRUD + initializeDefaults |
 | 6.5* | ✅ Done | Unit tests untuk semua stateful services |
 | 7.1 | ✅ Done | MBC protocol DI container (nfcProtocol) |
 | 7.2 | ✅ Done | MBC service DI container (7 services) |
@@ -168,7 +168,7 @@ Fase 3 membangun layer I/O (adapter untuk browser API) dan stateful services yan
 | `src/@core/services/mbc/nfc.service.ts` | High-level NFC operations: readCard (one-shot scan → resolve), writeCard, writeAndVerify (write → read-back → compare) |
 | `src/@core/services/mbc/storage-health.service.ts` | Deteksi ketersediaan localStorage, test write capacity, deteksi QuotaExceededError |
 | `src/@core/services/mbc/device.service.ts` | Device_ID lifecycle: get from storage, generate via crypto.randomUUID() if missing, persist, flag wasRegenerated |
-| `src/@core/services/mbc/service-registry.service.ts` | CRUD untuk Service Type configurations. Validasi dengan Zod, filter corrupted entries, initialize defaults (parking) |
+| `src/@core/services/mbc/benefit-registry.service.ts` | CRUD untuk Benefit Type configurations. Validasi dengan Zod, filter corrupted entries, initialize defaults (parking) |
 
 **DI Wiring:**
 
@@ -185,7 +185,7 @@ Fase 3 membangun layer I/O (adapter untuk browser API) dan stateful services yan
 | `src/@core/services/__tests__/mbc/nfc.service.test.ts` | 14 | isAvailable (true/false), requestPermission (granted/denied/unsupported), readCard (success/error), writeCard (success/error), writeAndVerify (match/mismatch/write-error/read-error/empty-data) |
 | `src/@core/services/__tests__/mbc/storage-health.service.test.ts` | 8 | isAvailable (true/false), checkWriteCapacity (healthy/unavailable/mismatch/quota-exceeded/generic-error/cleanup) |
 | `src/@core/services/__tests__/mbc/device.service.test.ts` | 6 | getDeviceId (exists/missing), ensureDeviceId (existing/generate-new/idempotent/storage-error) |
-| `src/@core/services/__tests__/mbc/service-registry.service.test.ts` | 17 | initializeDefaults (empty/existing), getAll (normal/empty/corrupted-filter), getById (found/not-found), add (valid/duplicate/invalid), update (valid/not-found/preserve-id/invalid-after-update), remove (valid/not-found/last-item) |
+| `src/@core/services/__tests__/mbc/benefit-registry.service.test.ts` | 17 | initializeDefaults (empty/existing), getAll (normal/empty/corrupted-filter), getById (found/not-found), add (valid/duplicate/invalid), update (valid/not-found/preserve-id/invalid-after-update), remove (valid/not-found/last-item) |
 
 ### Test Coverage Summary
 
@@ -194,7 +194,7 @@ pie title Phase 3 Test Distribution
     "nfc.service" : 14
     "storage-health.service" : 8
     "device.service" : 6
-    "service-registry.service" : 17
+    "benefit-registry.service" : 17
 ```
 
 **Total fase 3: 45 tests baru, semua passing**
@@ -245,7 +245,7 @@ pie title Phase 3 Test Distribution
 | ❌ Negative | getDeviceId returns undefined when not stored | Unit |
 | ❌ Negative | ensureDeviceId propagates storage write errors | Edge |
 
-#### service-registry.service (17 tests)
+#### benefit-registry.service (17 tests)
 
 | Category | Scenario | Type |
 |----------|----------|------|
@@ -274,15 +274,15 @@ pie title Phase 3 Test Distribution
 | Req 2.1, 2.2, 2.4, 3.1 | webNfcAdapter | NFC read/write/permission |
 | Req 3.4, 3.7 | nfc.service | Write verification |
 | Req 19.1, 19.6, 19.7 | device.service | Device_ID lifecycle |
-| Req 15.1-7 | service-registry.service | Service type CRUD |
-| Req 20.2-4, 20.5-6, 20.8 | storage-health.service, service-registry.service | Storage error handling |
+| Req 15.1-7 | benefit-registry.service | Benefit type CRUD |
+| Req 20.2-4, 20.5-6, 20.8 | storage-health.service, benefit-registry.service | Storage error handling |
 
 ### Keputusan Arsitektur
 
 - **Base64 encoding untuk NFC** — Card data di-encode sebagai base64 string dalam NDEF text record. Ini memastikan kompatibilitas dengan NDEF format yang hanya mendukung text/URL records.
 - **One-shot readCard** — `readCard()` mengembalikan Promise yang resolve pada first scan, lalu abort session. Ini mencegah multiple reads yang tidak diinginkan.
-- **Singleton untuk stateful services** — nfc.service, device.service, storage-health.service, dan service-registry.service di-register sebagai singleton di DI container karena mereka menyimpan state atau cache.
-- **Zod validation pada read** — service-registry.service memvalidasi setiap entry saat membaca dari localStorage, dan memfilter entries yang corrupted. Ini mencegah crash akibat data rusak.
+- **Singleton untuk stateful services** — nfc.service, device.service, storage-health.service, dan benefit-registry.service di-register sebagai singleton di DI container karena mereka menyimpan state atau cache.
+- **Zod validation pada read** — benefit-registry.service memvalidasi setiap entry saat membaca dari localStorage, dan memfilter entries yang corrupted. Ini mencegah crash akibat data rusak.
 - **QuotaExceededError detection** — storage-health.service mendeteksi quota exceeded di Chrome (`QuotaExceededError`), Firefox, dan Safari (legacy code 22).
 - **crypto.randomUUID()** — Digunakan untuk generate Device_ID karena tersedia di semua browser modern dan menghasilkan UUID v4 yang cryptographically random.
 
@@ -299,7 +299,7 @@ graph TB
         NS[nfc.service]
         DS[device.service]
         SHS[storage-health.service]
-        SRS[service-registry.service]
+        SRS[benefit-registry.service]
     end
 
     subgraph "Protocols"
@@ -342,7 +342,7 @@ graph TB
 | 9.4 | ✅ Done | CheckOut use case (with snapshot rollback) |
 | 9.6 | ✅ Done | ReadCard use case |
 | 9.7 | ✅ Done | ManualCalculation use case |
-| 9.8 | ✅ Done | ManageServiceRegistry use case |
+| 9.8 | ✅ Done | ManageBenefitRegistry use case |
 | 9.9* | ✅ Done | Unit tests (36 tests) |
 | 11.1 | ✅ Done | Use case DI container |
 

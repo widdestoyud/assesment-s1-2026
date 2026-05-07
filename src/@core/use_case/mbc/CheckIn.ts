@@ -1,16 +1,8 @@
 import type { AwilixRegistry } from '@di/container';
 import type { CheckInResult } from '@core/services/mbc/models';
 
-export interface CheckInInput {
-  serviceTypeId: string;
-  serviceTypeName: string;
-  deviceId: string;
-  /** Optional custom timestamp for simulation mode (ISO 8601) */
-  simulationTimestamp?: string;
-}
-
 export interface CheckInUseCaseInterface {
-  execute(input: CheckInInput): Promise<CheckInResult>;
+  execute(): Promise<CheckInResult>;
 }
 
 export const CheckInUseCase = (
@@ -21,51 +13,31 @@ export const CheckInUseCase = (
 ): CheckInUseCaseInterface => {
   const { nfcService, cardDataService, silentShieldService } = deps;
 
-  const execute = async (input: CheckInInput): Promise<CheckInResult> => {
-    // Step 1: Read card → decrypt → deserialize
-    const rawEncrypted = await nfcService.readCard();
-    const decrypted = silentShieldService.decrypt(rawEncrypted);
-    const cardData = cardDataService.deserialize(decrypted);
+  const execute = async (): Promise<CheckInResult> => {
+    let checkInTime = '';
 
-    // Step 2: Validate card is registered
-    if (!cardData.member.name || !cardData.member.memberId) {
-      throw new Error('Card is not registered. Please register at The Station first.');
-    }
+    // Single-tap: read card, validate, apply check-in, write back
+    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+      // Decrypt → deserialize
+      const decrypted = await silentShieldService.decrypt(rawEncrypted);
+      const card = cardDataService.deserialize(decrypted);
 
-    // Step 3: Validate no active check-in (double tap-in prevention)
-    if (cardData.checkIn !== null) {
-      throw new Error(
-        'Member already checked in. Cannot check in again until check-out is completed.',
-      );
-    }
+      // Validate not already checked in
+      if (card.s !== 0) {
+        throw new Error('mbc_error_already_checked_in');
+      }
 
-    // Step 4: Determine timestamp (real or simulation)
-    const timestamp = input.simulationTimestamp ?? new Date().toISOString();
+      // Apply check-in with current timestamp
+      const timestamp = new Date().toISOString();
+      const updatedCard = cardDataService.applyCheckIn(card, timestamp);
+      checkInTime = timestamp;
 
-    // Step 5: Apply check-in
-    const updatedCard = cardDataService.applyCheckIn(
-      cardData,
-      input.serviceTypeId,
-      input.deviceId,
-      timestamp,
-    );
+      // Serialize → encrypt → return for write
+      const serialized = cardDataService.serialize(updatedCard);
+      return silentShieldService.encrypt(serialized);
+    });
 
-    // Step 6: Serialize → encrypt → write with verify
-    const serialized = cardDataService.serialize(updatedCard);
-    const encrypted = silentShieldService.encrypt(serialized);
-    const writeResult = await nfcService.writeAndVerify(encrypted);
-
-    if (!writeResult.success) {
-      throw new Error(
-        `Check-in failed: write verification error — ${writeResult.error}`,
-      );
-    }
-
-    return {
-      memberName: cardData.member.name,
-      entryTime: timestamp,
-      serviceTypeName: input.serviceTypeName,
-    };
+    return { checkInTime };
   };
 
   return { execute };

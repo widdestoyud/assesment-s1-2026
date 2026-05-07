@@ -4,20 +4,33 @@ import type {
   NfcPermissionResult,
   NfcScanSession,
 } from '@core/services/mbc/models';
+import config from '@src/infrastructure/config';
+
+const MBC_MIME_TYPE = 'application/octet-stream';
 
 /**
  * Web NFC API adapter implementing NfcProtocol.
  *
  * Wraps the browser's NDEFReader API behind a clean interface.
- * Card data is stored as a single NDEF text record containing
- * the encrypted+serialized payload as a base64 string.
+ * Card data is stored as a single NDEF MIME record (application/octet-stream)
+ * containing raw binary encrypted bytes — no base64 encoding overhead.
+ *
+ * This maximizes usable storage on NTAG215 (~466 bytes for payload after
+ * NDEF headers and AES-GCM overhead).
  *
  * Browser support: Chrome Android 89+.
  * Requires HTTPS context and user gesture for first scan.
  */
 export const webNfcAdapter: NfcProtocol = {
   isSupported(): boolean {
-    return typeof globalThis.window !== 'undefined' && 'NDEFReader' in globalThis;
+    // When NFC check is disabled, always report as supported (for UI development)
+    if (!config.nfcCheckEnabled) return true;
+    if (typeof globalThis.window === 'undefined') return false;
+    if (!('NDEFReader' in globalThis)) return false;
+    // Web NFC is only reliably supported in Chrome Android 89+
+    const ua = navigator.userAgent;
+    const isChrome = /Chrome\/\d+/.test(ua) && !/SamsungBrowser|EdgA|OPR/.test(ua);
+    return isChrome;
   },
 
   async requestPermission(): Promise<NfcPermissionResult> {
@@ -26,8 +39,6 @@ export const webNfcAdapter: NfcProtocol = {
     }
 
     try {
-      // Triggering a scan is the only way to request NFC permission
-      // in the Web NFC API. We start and immediately abort.
       const ndef = new NDEFReader();
       const controller = new AbortController();
       await ndef.scan({ signal: controller.signal });
@@ -51,6 +62,7 @@ export const webNfcAdapter: NfcProtocol = {
       onError({
         type: 'hardware_unavailable',
         message: 'Web NFC is not supported on this device or browser',
+        messageKey: 'mbc_nfc_error_hardware_unavailable',
       });
       return { abort: () => controller.abort() };
     }
@@ -60,23 +72,40 @@ export const webNfcAdapter: NfcProtocol = {
     ndef
       .scan({ signal: controller.signal })
       .then(() => {
+        let readSucceeded = false;
+        let readErrorTimeout: ReturnType<typeof setTimeout> | null = null;
+
         ndef.onreading = (event: NDEFReadingEvent) => {
-          try {
-            const data = extractPayload(event.message);
+          readSucceeded = true;
+          if (readErrorTimeout) {
+            clearTimeout(readErrorTimeout);
+            readErrorTimeout = null;
+          }
+
+          const data = extractPayload(event.message);
+          if (data) {
             onRead(data);
-          } catch {
-            onError({
-              type: 'read_failed',
-              message: 'Failed to extract data from NFC tag',
-            });
+          } else {
+            // No recognizable record — treat as blank card
+            onRead(new Uint8Array(0));
           }
         };
 
         ndef.onreadingerror = () => {
-          onError({
-            type: 'read_failed',
-            message: 'Error reading NFC tag — tag may be incompatible',
-          });
+          if (readSucceeded) return;
+
+          if (readErrorTimeout) {
+            clearTimeout(readErrorTimeout);
+          }
+          readErrorTimeout = setTimeout(() => {
+            if (!readSucceeded) {
+              onError({
+                type: 'incompatible_card',
+                message: 'Error reading NFC tag — tag may not be NDEF formatted.',
+                messageKey: 'mbc_nfc_error_incompatible_card',
+              });
+            }
+          }, 1000);
         };
       })
       .catch((error: unknown) => {
@@ -86,24 +115,28 @@ export const webNfcAdapter: NfcProtocol = {
               onError({
                 type: 'permission_denied',
                 message: 'NFC permission was denied by the user',
+                messageKey: 'mbc_nfc_error_permission_denied',
               });
               break;
             case 'NotSupportedError':
               onError({
                 type: 'hardware_unavailable',
                 message: 'NFC hardware is not available on this device',
+                messageKey: 'mbc_nfc_error_hardware_unavailable',
               });
               break;
             default:
               onError({
                 type: 'read_failed',
                 message: `NFC scan failed: ${error.message}`,
+                messageKey: 'mbc_nfc_error_scan_failed',
               });
           }
         } else {
           onError({
             type: 'read_failed',
             message: 'An unexpected error occurred during NFC scan',
+            messageKey: 'mbc_nfc_error_scan_failed',
           });
         }
       });
@@ -118,15 +151,19 @@ export const webNfcAdapter: NfcProtocol = {
       throw createNfcError(
         'hardware_unavailable',
         'Web NFC is not supported on this device or browser',
+        'mbc_nfc_error_hardware_unavailable',
       );
     }
 
+    const ndef = new NDEFReader();
+
     try {
-      const ndef = new NDEFReader();
-      // Encode as base64 text record to fit within NDEF text record constraints
-      const base64 = uint8ArrayToBase64(data);
       await ndef.write({
-        records: [{ recordType: 'text', data: base64 }],
+        records: [{
+          recordType: 'mime',
+          mediaType: MBC_MIME_TYPE,
+          data: data,
+        }],
       });
     } catch (error: unknown) {
       if (error instanceof DOMException) {
@@ -135,57 +172,83 @@ export const webNfcAdapter: NfcProtocol = {
             throw createNfcError(
               'permission_denied',
               'NFC permission was denied by the user',
+              'mbc_nfc_error_permission_denied',
             );
           case 'NotSupportedError':
             throw createNfcError(
               'hardware_unavailable',
               'NFC hardware is not available on this device',
+              'mbc_nfc_error_hardware_unavailable',
             );
           case 'NetworkError':
             throw createNfcError(
               'connection_lost',
               'NFC connection lost during write — tag may have been removed',
+              'mbc_nfc_error_connection_lost',
             );
           default:
             throw createNfcError(
               'write_failed',
               `NFC write failed: ${error.message}`,
+              'mbc_nfc_error_write_failed',
             );
         }
       }
       throw createNfcError(
         'write_failed',
         'An unexpected error occurred during NFC write',
+        'mbc_nfc_error_write_failed',
       );
     }
   },
 };
 
 /**
- * Extract the payload bytes from an NDEF message.
- * Expects a single text record containing base64-encoded data.
+ * Extract binary payload from an NDEF message.
+ *
+ * Supports two record formats for backward compatibility:
+ * 1. MIME record (application/octet-stream) — new format, raw binary
+ * 2. Text record — legacy format, base64-encoded binary
+ *
+ * Returns null if no recognizable record is found (blank card).
  */
-function extractPayload(message: NDEFMessage): Uint8Array {
+function extractPayload(message: NDEFMessage): Uint8Array | null {
+  for (const record of message.records) {
+    // Priority 1: MIME record — direct binary (new format)
+    if (record.recordType === 'mime' && record.data) {
+      return new Uint8Array(record.data.buffer, record.data.byteOffset, record.data.byteLength);
+    }
+  }
+
+  // Priority 2: Text record — legacy base64 format (backward compat)
   for (const record of message.records) {
     if (record.recordType === 'text' && record.data) {
       const decoder = new TextDecoder();
-      const base64 = decoder.decode(record.data);
-      return base64ToUint8Array(base64);
+      const rawText = decoder.decode(record.data).trim();
+      if (rawText.length > 0) {
+        try {
+          return base64ToUint8Array(rawText);
+        } catch {
+          // Try stripping language prefix
+          for (const prefixLen of [2, 3, 5]) {
+            if (rawText.length > prefixLen) {
+              try {
+                return base64ToUint8Array(rawText.substring(prefixLen));
+              } catch {
+                // Continue
+              }
+            }
+          }
+        }
+      }
+      return null;
     }
   }
-  throw new Error('No text record found in NFC tag');
+
+  return null;
 }
 
-/** Convert Uint8Array to base64 string */
-function uint8ArrayToBase64(bytes: Uint8Array): string {
-  let binary = '';
-  for (const byte of bytes) {
-    binary += String.fromCodePoint(byte);
-  }
-  return btoa(binary);
-}
-
-/** Convert base64 string to Uint8Array */
+/** Convert base64 string to Uint8Array (legacy support) */
 function base64ToUint8Array(base64: string): Uint8Array {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
@@ -195,7 +258,12 @@ function base64ToUint8Array(base64: string): Uint8Array {
   return bytes;
 }
 
-/** Helper to create a typed NfcError */
-function createNfcError(type: NfcError['type'], message: string): NfcError {
-  return { type, message };
+/** Helper to create a typed NfcError with locale key */
+function createNfcError(
+  type: NfcError['type'],
+  message: string,
+  messageKey: string,
+  messageParams?: Record<string, string | number>,
+): NfcError {
+  return { type, message, messageKey, ...(messageParams && { messageParams }) };
 }

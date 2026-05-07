@@ -45,3 +45,31 @@ export const formatDuration = (
 export const getCurrentTimestamp = (): string => {
   return new Date().toISOString();
 };
+
+/**
+ * Format a numeric string with Indonesian thousands separator (dot).
+ * Example: formatThousands("10000") → "10.000"
+ * Non-numeric characters are stripped before formatting.
+ */
+export const formatThousands = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  if (digits === '') return '';
+  let formatted = '';
+  let count = 0;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    if (count > 0 && count % 3 === 0) {
+      formatted = '.' + formatted;
+    }
+    formatted = digits[i] + formatted;
+    count++;
+  }
+  return formatted;
+};
+
+/**
+ * Strip thousands separator (dot) from formatted string to get raw numeric string.
+ * Example: stripThousands("10.000") → "10000"
+ */
+export const stripThousands = (value: string): string => {
+  return value.replace(/\./g, '');
+};

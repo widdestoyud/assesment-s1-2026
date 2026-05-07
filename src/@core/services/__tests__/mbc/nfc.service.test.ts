@@ -103,6 +103,7 @@ describe('NfcService', () => {
             setTimeout(() => onError({
               type: 'read_failed',
               message: 'Tag removed too quickly',
+              messageKey: 'nfc_error_read_failed',
             }), 10);
             return { abort: vi.fn() };
           },
@@ -110,7 +111,7 @@ describe('NfcService', () => {
       });
       const service = NfcService({ nfcProtocol: protocol });
 
-      await expect(service.readCard()).rejects.toThrow('NFC read failed');
+      await expect(service.readCard()).rejects.toThrow('nfc_error_read_failed');
     });
   });
 
@@ -177,7 +178,7 @@ describe('NfcService', () => {
       const result = await service.writeAndVerify(testData);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Verification failed');
+      expect(result.error).toContain('mbc_error_write_verification_failed');
     });
 
     it('returns failure when write throws', async () => {
@@ -200,6 +201,7 @@ describe('NfcService', () => {
             setTimeout(() => onError({
               type: 'read_failed',
               message: 'Tag removed during verification',
+              messageKey: 'nfc_error_read_failed',
             }), 10);
             return { abort: vi.fn() };
           },
@@ -210,7 +212,7 @@ describe('NfcService', () => {
       const result = await service.writeAndVerify(new Uint8Array([1, 2]));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('NFC read failed');
+      expect(result.error).toContain('nfc_error_read_failed');
     });
 
     it('handles empty data arrays', async () => {

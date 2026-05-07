@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 import mkCert from 'vite-plugin-mkcert';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { configDefaults } from 'vitest/config';
 
 const viteConfig = ({ mode }: { mode: string }) => {
@@ -16,6 +15,7 @@ const viteConfig = ({ mode }: { mode: string }) => {
         '@src': path.resolve(__dirname, './src'),
         '@core': path.resolve(__dirname, './src/@core'),
         '@di': path.resolve(__dirname, './src/infrastructure/di'),
+        '@infra': path.resolve(__dirname, './src/infrastructure'),
         '@controllers': path.resolve(__dirname, './src/controllers'),
         '@components': path.resolve(__dirname, './src/presentation/components'),
         '@pages': path.resolve(__dirname, './src/presentation/pages'),
@@ -28,8 +28,6 @@ const viteConfig = ({ mode }: { mode: string }) => {
         '@utils': path.resolve(__dirname, './src/utils'),
         '@routes': path.resolve(__dirname, './src/routes'),
         '@images': path.resolve(__dirname, './src/assets/images'),
-        stream: 'stream-browserify',
-        util: 'util/',
       },
     },
     plugins: [
@@ -37,7 +35,6 @@ const viteConfig = ({ mode }: { mode: string }) => {
       react(),
       tailwindcss(),
       ...(process.env.NODE_ENV === 'development' ? [mkCert()] : []),
-      nodePolyfills({ include: ['crypto'] }),
     ],
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

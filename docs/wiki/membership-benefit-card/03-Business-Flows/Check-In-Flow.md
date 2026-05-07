@@ -20,9 +20,9 @@ sequenceDiagram
     participant NFC as nfc.service
     participant Card as card-data.service
     participant Dev as device.service
-    participant Reg as service-registry.service
+    participant Reg as benefit-registry.service
 
-    Op->>UI: 1. Select service type
+    Op->>UI: 1. Select benefit type
     Note right of UI: Auto-selected if only one<br/>configured (Req 17.2)
     Op->>UI: 2. Tap registered NFC card
     UI->>Ctrl: 3. onCardTap()
@@ -50,7 +50,7 @@ sequenceDiagram
 
 ## Steps
 
-1. Operator selects a service type from the [Service Registry](Service-Type-Configuration)
+1. Operator selects a benefit type from the [Benefit Registry](Benefit-Type-Configuration)
    - If only one service type exists → auto-selected (Req 17.2)
    - If multiple → operator must select before card taps are accepted (Req 17.3)
    - If registry is empty → message to configure at The Station (Req 17.5)
@@ -82,11 +82,11 @@ flowchart TD
 - Custom timestamp is written to the card instead of current time (Req 7.3)
 - A [SimulationBanner](../05-UI-Components/Gate-Interface) visually distinguishes simulation from normal mode (Req 7.4)
 
-## Service Type Selection Logic
+## Benefit Type Selection Logic
 
 ```mermaid
 flowchart TD
-    A[Load Service Registry] --> B{How many<br/>service types?}
+    A[Load Benefit Registry] --> B{How many<br/>benefit types?}
     B -->|0| C[Show message:<br/>"Configure at Station"]
     B -->|1| D[Auto-select<br/>the only type]
     B -->|2+| E[Show selector<br/>operator must choose]
@@ -95,7 +95,7 @@ flowchart TD
     C --> G[Card taps disabled]
 ```
 
-The last selected service type is persisted so the operator doesn't re-select on each check-in (Req 17.4).
+The last selected benefit type is persisted so the operator doesn't re-select on each check-in (Req 17.4).
 
 ## Double-Tap Prevention
 
@@ -110,7 +110,7 @@ The last selected service type is persisted so the operator doesn't re-select on
 | Card not recognized | No member data | "Kartu tidak dikenali" | 6.5 |
 | Already checked in | `checkIn !== null` | "Anggota sudah check-in" | 6.3 |
 | NFC write failed | Connection lost | "Gagal, tap ulang" | 6.7 |
-| No service type selected | Registry empty or none selected | "Pilih service type" | 17.5 |
+| No service type selected | Registry empty or none selected | "Pilih benefit type" | 17.5 |
 
 ## Result Type
 
@@ -126,6 +126,6 @@ interface CheckInResult {
 
 - [Check-Out Flow](Check-Out-Flow) — The exit counterpart
 - [Device Binding](../04-Technical-Flows/Device-Binding) — How deviceId is written and validated
-- [Service Type Configuration](Service-Type-Configuration) — Managing the service registry
+- [Benefit Type Configuration](Benefit-Type-Configuration) — Managing the benefit registry
 - [Gate Interface](../05-UI-Components/Gate-Interface) — UI layout
 - [Correctness Properties](../06-Testing/Correctness-Properties) — Property 6: Check-In Status Exclusivity

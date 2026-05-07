@@ -13,8 +13,8 @@ const REGISTERED_CARD: CardData = {
   balance: 25000,
   checkIn: null,
   transactions: [
-    { amount: 50000, timestamp: '2024-01-01T09:00:00.000Z', activityType: 'top-up', serviceTypeId: 'top-up' },
-    { amount: -6000, timestamp: '2024-01-01T13:00:00.000Z', activityType: 'parking-fee', serviceTypeId: 'parking' },
+    { amount: 50000, timestamp: '2024-01-01T09:00:00.000Z', activityType: 'top-up', benefitTypeId: 'top-up' },
+    { amount: -6000, timestamp: '2024-01-01T13:00:00.000Z', activityType: 'parking-fee', benefitTypeId: 'parking' },
   ],
 };
 
@@ -25,6 +25,7 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
   };
 
   const cardDataService: CardDataServiceInterface = {
@@ -39,8 +40,8 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
-    encrypt: vi.fn().mockReturnValue(new Uint8Array([99])),
-    decrypt: vi.fn().mockReturnValue(new Uint8Array([1])),
+    encrypt: vi.fn().mockResolvedValue(new Uint8Array([99])),
+    decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
   return { nfcService, cardDataService, silentShieldService };
@@ -72,7 +73,7 @@ describe('ReadCardUseCase', () => {
     const mocks = createMocks(unregistered);
     const useCase = ReadCardUseCase(mocks);
 
-    await expect(useCase.execute()).rejects.toThrow('not registered');
+    await expect(useCase.execute()).rejects.toThrow('mbc_error_not_registered');
   });
 
   it('throws when NFC read fails', async () => {
@@ -87,9 +88,9 @@ describe('ReadCardUseCase', () => {
 
   it('throws when decryption fails', async () => {
     const mocks = createMocks();
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('Decryption failed: invalid auth tag');
-    });
+    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Decryption failed: invalid auth tag'),
+    );
     const useCase = ReadCardUseCase(mocks);
 
     await expect(useCase.execute()).rejects.toThrow('Decryption failed');

@@ -1,0 +1,25 @@
+@reference "tailwindcss";
+
+.balance-display {
+    @apply rounded-lg bg-blue-50 p-4;
+}
+
+.balance-display__label {
+    @apply text-sm text-gray-600;
+}
+
+.balance-display__amount {
+    @apply text-2xl font-bold text-blue-700;
+}
+
+.balance-display__change-row {
+    @apply mt-2 text-sm text-gray-500;
+}
+
+.balance-display__change--positive {
+    @apply text-green-600;
+}
+
+.balance-display__change--negative {
+    @apply text-red-600;
+}

@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Storage Architecture provides localStorage-based persistence for critical application data — Device_ID and Service Registry. It uses the existing `KeyValueStoreProtocol` interface with `webStorageAdapter` as the implementation, and includes graceful error handling for storage unavailability and quota limits.
+The Storage Architecture provides localStorage-based persistence for critical application data — Device_ID and Benefit Registry. It uses the existing `KeyValueStoreProtocol` interface with `webStorageAdapter` as the implementation, and includes graceful error handling for storage unavailability and quota limits.
 
 ## Architecture
 
@@ -15,7 +15,7 @@ graph TB
     end
 
     subgraph Storage["localStorage"]
-        LS[(mbc-config:device-id<br/>mbc-config:service-registry)]
+        LS[(mbc-config:device-id<br/>mbc-config:benefit-registry)]
     end
 
     subgraph Health["StorageHealthService"]
@@ -64,7 +64,7 @@ flowchart TD
     E --> F{Found?}
     F -->|No| G[Generate new Device_ID]
     G --> H[Show warning: New Device_ID generated]
-    F -->|Yes| I[Read Service Registry]
+    F -->|Yes| I[Read Benefit Registry]
     I --> J{Found & valid?}
     J -->|No| K[Initialize with default parking]
     K --> L[Show warning: Registry reset to defaults]
@@ -78,7 +78,7 @@ flowchart TD
 | Key | Data | localStorage Key |
 |-----|------|-----------------|
 | `device-id` | UUID string | `mbc-config:device-id` |
-| `service-registry` | `ServiceType[]` | `mbc-config:service-registry` |
+| `benefit-registry` | `BenefitType[]` | `mbc-config:benefit-registry` |
 
 ## Error Types
 
@@ -98,13 +98,13 @@ export interface StorageError {
 
 ## Data Integrity Validation (Req 20.5)
 
-On each app launch, the Service Registry data is validated:
+On each app launch, the Benefit Registry data is validated:
 - Check for required fields and valid structure
-- Use Zod schema validation (`ServiceTypeFormSchema`)
-- If corrupted → re-initialize with default parking Service_Type + show warning
+- Use Zod schema validation (`BenefitTypeFormSchema`)
+- If corrupted → re-initialize with default parking Benefit_Type + show warning
 
 ## Related Pages
 
 - [Device Binding](Device-Binding) — Device_ID storage and recovery
-- [Service Type Configuration](../03-Business-Flows/Service-Type-Configuration) — Service Registry persistence
+- [Benefit Type Configuration](../03-Business-Flows/Benefit-Type-Configuration) — Benefit Registry persistence
 - [Design Decisions](../01-Architecture/Design-Decisions) — ADR-7: Why localStorage with error handling
