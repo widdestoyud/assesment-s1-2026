@@ -7,36 +7,34 @@ import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shi
 
 import { ReadCardUseCase } from '../../mbc/ReadCard';
 
-const REGISTERED_CARD: CardData = {
-  version: 1,
-  member: { name: 'John Doe', memberId: 'M001' },
-  balance: 25000,
-  checkIn: null,
-  transactions: [
-    { amount: 50000, timestamp: '2024-01-01T09:00:00.000Z', activityType: 'top-up', benefitTypeId: 'top-up' },
-    { amount: -6000, timestamp: '2024-01-01T13:00:00.000Z', activityType: 'parking-fee', benefitTypeId: 'parking' },
+const VALID_CARD: CardData = {
+  v: 2,
+  b: 25000,
+  s: 0,
+  t: null,
+  h: [
+    { ts: 1704103200, a: 50000, tp: 'tu' },
+    { ts: 1704114000, a: -6000, tp: 'co' },
   ],
 };
 
-function createMocks(cardData: CardData = REGISTERED_CARD) {
+function createMocks(cardData: CardData = VALID_CARD) {
   const nfcService: NfcServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
     requestPermission: vi.fn().mockResolvedValue('granted'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
-    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
+    readThenWrite: vi.fn(),
   };
 
   const cardDataService: CardDataServiceInterface = {
     serialize: vi.fn().mockReturnValue(new Uint8Array([10])),
     deserialize: vi.fn().mockReturnValue(cardData),
-    validate: vi.fn().mockReturnValue({ success: true }),
-    applyRegistration: vi.fn(),
+    createBlank: vi.fn().mockReturnValue({ v: 2, b: 0, s: 0, t: null, h: [] }),
     applyTopUp: vi.fn(),
     applyCheckIn: vi.fn(),
     applyCheckOut: vi.fn(),
-    appendTransactionLog: vi.fn(),
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
@@ -54,26 +52,23 @@ describe('ReadCardUseCase', () => {
 
     const result = await useCase.execute();
 
-    expect(result.member.name).toBe('John Doe');
-    expect(result.balance).toBe(25000);
-    expect(result.transactions).toHaveLength(2);
+    expect(result.b).toBe(25000);
+    expect(result.h).toHaveLength(2);
+    expect(result.v).toBe(2);
     // Verify no writes occurred
     expect(mocks.nfcService.writeCard).not.toHaveBeenCalled();
     expect(mocks.nfcService.writeAndVerify).not.toHaveBeenCalled();
   });
 
-  it('rejects unregistered card', async () => {
-    const unregistered: CardData = {
-      version: 1,
-      member: { name: '', memberId: '' },
-      balance: 0,
-      checkIn: null,
-      transactions: [],
-    };
-    const mocks = createMocks(unregistered);
+  it('calls readCard → decrypt → deserialize in order', async () => {
+    const mocks = createMocks();
     const useCase = ReadCardUseCase(mocks);
 
-    await expect(useCase.execute()).rejects.toThrow('mbc_error_not_registered');
+    await useCase.execute();
+
+    expect(mocks.nfcService.readCard).toHaveBeenCalledOnce();
+    expect(mocks.silentShieldService.decrypt).toHaveBeenCalledOnce();
+    expect(mocks.cardDataService.deserialize).toHaveBeenCalledOnce();
   });
 
   it('throws when NFC read fails', async () => {
@@ -89,20 +84,20 @@ describe('ReadCardUseCase', () => {
   it('throws when decryption fails', async () => {
     const mocks = createMocks();
     (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('Decryption failed: invalid auth tag'),
+      new Error('mbc_error_decryption_failed'),
     );
     const useCase = ReadCardUseCase(mocks);
 
-    await expect(useCase.execute()).rejects.toThrow('Decryption failed');
+    await expect(useCase.execute()).rejects.toThrow('mbc_error_decryption_failed');
   });
 
   it('throws when deserialization fails (corrupted data)', async () => {
     const mocks = createMocks();
     (mocks.cardDataService.deserialize as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      throw new Error('Invalid card data: version: Required');
+      throw new Error('mbc_nfc_error_card_data_corrupted');
     });
     const useCase = ReadCardUseCase(mocks);
 
-    await expect(useCase.execute()).rejects.toThrow('Invalid card data');
+    await expect(useCase.execute()).rejects.toThrow('mbc_nfc_error_card_data_corrupted');
   });
 });

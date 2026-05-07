@@ -16,7 +16,7 @@ describe('RolePickerController', () => {
     const { result } = createController();
     expect(result.current.roles).toHaveLength(4);
     expect(result.current.roles.map((r) => r.id)).toEqual([
-      'station', 'gate', 'terminal', 'scout',
+      'gate', 'terminal', 'station', 'scout',
     ]);
   });
 
@@ -49,13 +49,22 @@ describe('RolePickerController', () => {
     expect(result.current.activeRole).toBe('terminal');
   });
 
-  it('each role has label, descriptionKey, and icon', () => {
+  it('each role has label, descriptionKey, icon, and color', () => {
     const { result } = createController();
 
     for (const role of result.current.roles) {
       expect(role.label).toBeTruthy();
       expect(role.descriptionKey).toBeTruthy();
       expect(role.icon).toBeTruthy();
+      expect(role.color).toBeTruthy();
+      expect(['blue', 'green', 'orange', 'purple']).toContain(role.color);
     }
+  });
+
+  it('exposes t function from useTranslation', () => {
+    const { result } = createController();
+
+    expect(result.current.t).toBeDefined();
+    expect(typeof result.current.t).toBe('function');
   });
 });

@@ -7,45 +7,47 @@ import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shi
 
 import { CheckInUseCase } from '../../mbc/CheckIn';
 
-const REGISTERED_CARD: CardData = {
-  version: 1,
-  member: { name: 'John Doe', memberId: 'M001' },
-  balance: 10000,
-  checkIn: null,
-  transactions: [],
+const IDLE_CARD: CardData = {
+  v: 2,
+  b: 10000,
+  s: 0,
+  t: null,
+  h: [],
 };
 
 const CHECKED_IN_CARD: CardData = {
-  ...REGISTERED_CARD,
-  checkIn: {
-    timestamp: '2024-01-01T10:00:00.000Z',
-    benefitTypeId: 'parking',
-    deviceId: 'device-123',
-  },
+  v: 2,
+  b: 10000,
+  s: 1,
+  t: '2024-01-01T10:00:00.000Z',
+  h: [{ ts: 1704103200, a: 0, tp: 'ci' }],
 };
 
-function createMocks(cardData: CardData = REGISTERED_CARD) {
+function createMocks(cardData: CardData = IDLE_CARD) {
   const nfcService: NfcServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
     requestPermission: vi.fn().mockResolvedValue('granted'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     writeCard: vi.fn().mockResolvedValue(undefined),
     writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
-    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => { await processor(new Uint8Array([1])); return new Uint8Array([1]); }),
+    readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => {
+      await processor(new Uint8Array([1]));
+      return new Uint8Array([1]);
+    }),
   };
 
   const cardDataService: CardDataServiceInterface = {
     serialize: vi.fn().mockReturnValue(new Uint8Array([10])),
     deserialize: vi.fn().mockReturnValue(cardData),
-    validate: vi.fn().mockReturnValue({ success: true }),
-    applyRegistration: vi.fn(),
+    createBlank: vi.fn().mockReturnValue({ v: 2, b: 0, s: 0, t: null, h: [] }),
     applyTopUp: vi.fn(),
-    applyCheckIn: vi.fn().mockImplementation((card, benefitTypeId, deviceId, timestamp) => ({
+    applyCheckIn: vi.fn().mockImplementation((card: CardData, timestamp: string) => ({
       ...card,
-      checkIn: { timestamp, benefitTypeId, deviceId },
+      s: 1,
+      t: timestamp,
+      h: [{ ts: Math.floor(new Date(timestamp).getTime() / 1000), a: 0, tp: 'ci' }, ...card.h].slice(0, 5),
     })),
     applyCheckOut: vi.fn(),
-    appendTransactionLog: vi.fn(),
   };
 
   const silentShieldService: SilentShieldServiceInterface = {
@@ -57,89 +59,45 @@ function createMocks(cardData: CardData = REGISTERED_CARD) {
 }
 
 describe('CheckInUseCase', () => {
-  it('checks in successfully', async () => {
+  it('checks in successfully and returns checkInTime', async () => {
     const mocks = createMocks();
     const useCase = CheckInUseCase(mocks);
 
-    const result = await useCase.execute({
-      benefitTypeId: 'parking',
-      benefitTypeName: 'Parkir',
-      deviceId: 'device-abc',
-    });
+    const result = await useCase.execute();
 
-    expect(result.memberName).toBe('John Doe');
-    expect(result.benefitTypeName).toBe('Parkir');
-    expect(result.entryTime).toBeDefined();
+    expect(result.checkInTime).toBeDefined();
+    expect(typeof result.checkInTime).toBe('string');
     expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
   });
 
-  it('uses simulation timestamp when provided', async () => {
-    const mocks = createMocks();
-    const useCase = CheckInUseCase(mocks);
-    const simTime = '2024-06-15T08:00:00.000Z';
-
-    const result = await useCase.execute({
-      benefitTypeId: 'parking',
-      benefitTypeName: 'Parkir',
-      deviceId: 'device-abc',
-      simulationTimestamp: simTime,
-    });
-
-    expect(result.entryTime).toBe(simTime);
-    expect(mocks.cardDataService.applyCheckIn).toHaveBeenCalledWith(
-      expect.anything(),
-      'parking',
-      'device-abc',
-      simTime,
-    );
-  });
-
-  it('rejects double check-in', async () => {
+  it('rejects double check-in (card already checked in)', async () => {
     const mocks = createMocks(CHECKED_IN_CARD);
     const useCase = CheckInUseCase(mocks);
 
-    await expect(
-      useCase.execute({
-        benefitTypeId: 'parking',
-        benefitTypeName: 'Parkir',
-        deviceId: 'device-abc',
-      }),
-    ).rejects.toThrow('mbc_error_already_checked_in');
+    await expect(useCase.execute()).rejects.toThrow('mbc_error_already_checked_in');
   });
 
-  it('rejects unregistered card', async () => {
-    const unregistered: CardData = {
-      version: 1,
-      member: { name: '', memberId: '' },
-      balance: 0,
-      checkIn: null,
-      transactions: [],
-    };
-    const mocks = createMocks(unregistered);
-    const useCase = CheckInUseCase(mocks);
-
-    await expect(
-      useCase.execute({
-        benefitTypeId: 'parking',
-        benefitTypeName: 'Parkir',
-        deviceId: 'device-abc',
-      }),
-    ).rejects.toThrow('mbc_error_not_registered');
-  });
-
-  it('throws when NFC write fails', async () => {
+  it('throws when NFC readThenWrite fails', async () => {
     const mocks = createMocks();
     (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC write failed'),
     );
     const useCase = CheckInUseCase(mocks);
 
-    await expect(
-      useCase.execute({
-        benefitTypeId: 'parking',
-        benefitTypeName: 'Parkir',
-        deviceId: 'device-abc',
-      }),
-    ).rejects.toThrow('NFC write failed');
+    await expect(useCase.execute()).rejects.toThrow('NFC write failed');
+  });
+
+  it('calls decrypt → deserialize → applyCheckIn → serialize → encrypt', async () => {
+    const mocks = createMocks();
+    const useCase = CheckInUseCase(mocks);
+
+    await useCase.execute();
+
+    // The processor inside readThenWrite should call these in order
+    expect(mocks.silentShieldService.decrypt).toHaveBeenCalledOnce();
+    expect(mocks.cardDataService.deserialize).toHaveBeenCalledOnce();
+    expect(mocks.cardDataService.applyCheckIn).toHaveBeenCalledOnce();
+    expect(mocks.cardDataService.serialize).toHaveBeenCalledOnce();
+    expect(mocks.silentShieldService.encrypt).toHaveBeenCalledOnce();
   });
 });

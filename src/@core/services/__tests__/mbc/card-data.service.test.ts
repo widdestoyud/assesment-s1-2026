@@ -2,18 +2,23 @@ import fc from 'fast-check';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AwilixRegistry } from '@di/container';
-import type { CardData } from '@core/services/mbc/models';
+import type { CardData, TransactionEntry } from '@core/services/mbc/models';
 
 import { CardDataService } from '../../mbc/card-data.service';
 
-const mockContainer: AwilixRegistry = {} as any;
+const mockContainer: AwilixRegistry = {} as AwilixRegistry;
 
-// --- fast-check arbitraries for valid CardData ---
+// --- fast-check arbitraries for valid CardData (new schema v2) ---
 
-const memberArb = fc.record({
-  name: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
-  memberId: fc.string({ minLength: 1, maxLength: 20 }).filter(s => s.trim().length > 0),
+const transactionTypeArb = fc.constantFrom('tu', 'ci', 'co') as fc.Arbitrary<'tu' | 'ci' | 'co'>;
+
+const transactionEntryArb: fc.Arbitrary<TransactionEntry> = fc.record({
+  ts: fc.integer({ min: 1577836800, max: 1924991999 }), // 2020-01-01 to 2030-12-31 epoch seconds
+  a: fc.integer({ min: -999999, max: 999999 }),
+  tp: transactionTypeArb,
 });
+
+const historyArb = fc.array(transactionEntryArb, { minLength: 0, maxLength: 5 });
 
 const isoTimestampArb = fc
   .integer({
@@ -22,56 +27,30 @@ const isoTimestampArb = fc
   })
   .map(ms => new Date(ms).toISOString());
 
-const benefitTypeIdArb = fc
-  .stringMatching(/^[a-z][a-z0-9-]{0,19}$/)
-  .filter(s => s.length >= 1);
-
-const deviceIdArb = fc
-  .stringMatching(/^[a-f0-9-]{1,36}$/)
-  .filter(s => s.length >= 1);
-
-const transactionEntryArb = fc.record({
-  amount: fc.integer({ min: -1000000, max: 1000000 }),
-  timestamp: isoTimestampArb,
-  activityType: benefitTypeIdArb,
-  benefitTypeId: benefitTypeIdArb,
-});
-
-const transactionsArb = fc.array(transactionEntryArb, {
-  minLength: 0,
-  maxLength: 5,
-});
-
-const checkInStatusArb = fc.record({
-  timestamp: isoTimestampArb,
-  benefitTypeId: benefitTypeIdArb,
-  deviceId: deviceIdArb,
-});
-
 const cardDataArb: fc.Arbitrary<CardData> = fc.record({
-  version: fc.integer({ min: 1, max: 100 }),
-  member: memberArb,
-  balance: fc.integer({ min: 0, max: 10000000 }),
-  checkIn: fc.option(checkInStatusArb, { nil: null }),
-  transactions: transactionsArb,
+  v: fc.constant(2) as fc.Arbitrary<2>,
+  b: fc.integer({ min: 0, max: 999999 }),
+  s: fc.constantFrom(0, 1) as fc.Arbitrary<0 | 1>,
+  t: fc.option(isoTimestampArb, { nil: null }),
+  h: historyArb,
 });
 
-// Card with no active check-in (for check-in tests)
+// Card with no active check-in (s=0, t=null)
 const cardNotCheckedInArb: fc.Arbitrary<CardData> = fc.record({
-  version: fc.integer({ min: 1, max: 100 }),
-  member: memberArb,
-  balance: fc.integer({ min: 0, max: 10000000 }),
-  checkIn: fc.constant(null),
-  transactions: transactionsArb,
+  v: fc.constant(2) as fc.Arbitrary<2>,
+  b: fc.integer({ min: 0, max: 999999 }),
+  s: fc.constant(0) as fc.Arbitrary<0>,
+  t: fc.constant(null),
+  h: historyArb,
 });
 
-// Card with active check-in (for check-out tests)
+// Card with active check-in (s=1, t=timestamp)
 const cardCheckedInArb: fc.Arbitrary<CardData> = fc.record({
-  version: fc.integer({ min: 1, max: 100 }),
-  member: memberArb,
-  balance: fc.integer({ min: 1000, max: 10000000 }),
-  checkIn: checkInStatusArb,
-  transactions: transactionsArb,
+  v: fc.constant(2) as fc.Arbitrary<2>,
+  b: fc.integer({ min: 1000, max: 999999 }),
+  s: fc.constant(1) as fc.Arbitrary<1>,
+  t: isoTimestampArb,
+  h: historyArb,
 });
 
 describe('CardDataService', () => {
@@ -82,9 +61,14 @@ describe('CardDataService', () => {
     service = CardDataService(mockContainer);
   });
 
+  describe('createBlank', () => {
+    it('returns a blank card with correct defaults', () => {
+      const blank = service.createBlank();
+      expect(blank).toEqual({ v: 2, b: 0, s: 0, t: null, h: [] });
+    });
+  });
+
   /**
-   * **Validates: Requirements 13.4**
-   *
    * Property 1: Serialization Round-Trip
    * For all valid CardData objects, deserialize(serialize(card)) equals card
    */
@@ -102,20 +86,18 @@ describe('CardDataService', () => {
   });
 
   /**
-   * **Validates: Requirements 5.2**
-   *
    * Property 3: Balance Conservation (Top-Up)
-   * For all valid cards and positive amounts, applyTopUp(card, a).balance === card.balance + a
+   * For all valid cards and positive amounts, applyTopUp(card, a).b === card.b + a
    */
   describe('Property 3: Balance Conservation (Top-Up)', () => {
-    it('applyTopUp(card, a).balance === card.balance + a', () => {
+    it('applyTopUp(card, a).b === card.b + a', () => {
       fc.assert(
         fc.property(
           cardDataArb,
-          fc.integer({ min: 1, max: 10000000 }),
+          fc.integer({ min: 1, max: 999999 }),
           (card, amount) => {
             const result = service.applyTopUp(card, amount);
-            expect(result.balance).toBe(card.balance + amount);
+            expect(result.b).toBe(card.b + amount);
           },
         ),
         { numRuns: 200 },
@@ -124,30 +106,21 @@ describe('CardDataService', () => {
   });
 
   /**
-   * **Validates: Requirements 8.6, 18.7**
-   *
    * Property 4: Balance Conservation (Check-Out)
-   * For checked-in cards with fee <= balance, applyCheckOut(card, f).balance === card.balance - f
+   * For checked-in cards with fee <= balance, applyCheckOut(card, f).b === card.b - f
    */
   describe('Property 4: Balance Conservation (Check-Out)', () => {
-    it('applyCheckOut(card, f).balance === card.balance - f and balance >= 0', () => {
+    it('applyCheckOut(card, f).b === card.b - f and s === 0', () => {
       fc.assert(
         fc.property(
           cardCheckedInArb,
-          isoTimestampArb,
           fc.nat(),
-          (card, exitTimestamp, seed) => {
-            // Derive fee deterministically from fast-check seed, bounded by balance
-            const fee = card.balance > 0 ? seed % (card.balance + 1) : 0;
-            const result = service.applyCheckOut(
-              card,
-              fee,
-              'parking-fee',
-              'parking',
-              exitTimestamp,
-            );
-            expect(result.balance).toBe(card.balance - fee);
-            expect(result.checkIn).toBeNull();
+          (card, seed) => {
+            const fee = card.b > 0 ? seed % (card.b + 1) : 0;
+            const result = service.applyCheckOut(card, fee);
+            expect(result.b).toBe(card.b - fee);
+            expect(result.s).toBe(0);
+            expect(result.t).toBeNull();
           },
         ),
         { numRuns: 200 },
@@ -156,26 +129,17 @@ describe('CardDataService', () => {
   });
 
   /**
-   * **Validates: Requirements 8.8, 18.7**
-   *
    * Property 5: Exactly-Once Deduction
    * Applying check-out to an already checked-out card is rejected
    */
   describe('Property 5: Exactly-Once Deduction', () => {
-    it('applyCheckOut on already checked-out card throws', () => {
+    it('applyCheckOut on not-checked-in card throws', () => {
       fc.assert(
         fc.property(
           cardNotCheckedInArb,
-          isoTimestampArb,
-          (card, exitTimestamp) => {
+          (card) => {
             expect(() =>
-              service.applyCheckOut(
-                card,
-                100,
-                'parking-fee',
-                'parking',
-                exitTimestamp,
-              ),
+              service.applyCheckOut(card, 100),
             ).toThrow('mbc_error_not_checked_in');
           },
         ),
@@ -185,8 +149,6 @@ describe('CardDataService', () => {
   });
 
   /**
-   * **Validates: Requirements 6.3, 8.8**
-   *
    * Property 6: Check-In Status Exclusivity
    * A checked-in card cannot be checked in again; a not-checked-in card cannot be checked out
    */
@@ -196,14 +158,10 @@ describe('CardDataService', () => {
         fc.property(
           cardCheckedInArb,
           isoTimestampArb,
-          benefitTypeIdArb,
-          deviceIdArb,
-          (card, timestamp, benefitTypeId, deviceId) => {
+          (card, timestamp) => {
             expect(() =>
-              service.applyCheckIn(card, benefitTypeId, deviceId, timestamp),
-            ).toThrow(
-              'mbc_error_already_checked_in',
-            );
+              service.applyCheckIn(card, timestamp),
+            ).toThrow('mbc_error_already_checked_in');
           },
         ),
         { numRuns: 200 },
@@ -214,16 +172,9 @@ describe('CardDataService', () => {
       fc.assert(
         fc.property(
           cardNotCheckedInArb,
-          isoTimestampArb,
-          (card, exitTimestamp) => {
+          (card) => {
             expect(() =>
-              service.applyCheckOut(
-                card,
-                100,
-                'parking-fee',
-                'parking',
-                exitTimestamp,
-              ),
+              service.applyCheckOut(card, 100),
             ).toThrow('mbc_error_not_checked_in');
           },
         ),
@@ -233,59 +184,121 @@ describe('CardDataService', () => {
   });
 
   /**
-   * **Validates: Requirements 10.2**
-   *
    * Property 7: Transaction Log Bounded Size
-   * After any operation, transactions.length <= 5
+   * After any operation, h.length <= 5
    */
   describe('Property 7: Transaction Log Bounded Size', () => {
-    it('transactions.length <= 5 after applyTopUp', () => {
+    it('h.length <= 5 after applyTopUp', () => {
       fc.assert(
         fc.property(
           cardDataArb,
-          fc.integer({ min: 1, max: 10000000 }),
+          fc.integer({ min: 1, max: 999999 }),
           (card, amount) => {
             const result = service.applyTopUp(card, amount);
-            expect(result.transactions.length).toBeLessThanOrEqual(5);
+            expect(result.h.length).toBeLessThanOrEqual(5);
           },
         ),
         { numRuns: 200 },
       );
     });
 
-    it('transactions.length <= 5 after applyCheckOut', () => {
+    it('h.length <= 5 after applyCheckIn', () => {
+      fc.assert(
+        fc.property(
+          cardNotCheckedInArb,
+          isoTimestampArb,
+          (card, timestamp) => {
+            const result = service.applyCheckIn(card, timestamp);
+            expect(result.h.length).toBeLessThanOrEqual(5);
+          },
+        ),
+        { numRuns: 200 },
+      );
+    });
+
+    it('h.length <= 5 after applyCheckOut', () => {
       fc.assert(
         fc.property(
           cardCheckedInArb,
-          isoTimestampArb,
-          (card, exitTimestamp) => {
-            const fee = Math.min(100, card.balance);
-            const result = service.applyCheckOut(
-              card,
-              fee,
-              'parking-fee',
-              'parking',
-              exitTimestamp,
-            );
-            expect(result.transactions.length).toBeLessThanOrEqual(5);
+          (card) => {
+            const fee = Math.min(100, card.b);
+            const result = service.applyCheckOut(card, fee);
+            expect(result.h.length).toBeLessThanOrEqual(5);
           },
         ),
         { numRuns: 200 },
       );
     });
+  });
 
-    it('transactions.length <= 5 after appendTransactionLog', () => {
-      fc.assert(
-        fc.property(
-          cardDataArb,
-          transactionEntryArb,
-          (card, entry) => {
-            const result = service.appendTransactionLog(card, entry);
-            expect(result.transactions.length).toBeLessThanOrEqual(5);
-          },
-        ),
-        { numRuns: 200 },
-      );
+  describe('applyCheckIn', () => {
+    it('sets s=1 and t=timestamp', () => {
+      const card: CardData = { v: 2, b: 5000, s: 0, t: null, h: [] };
+      const timestamp = '2024-06-15T08:00:00.000Z';
+      const result = service.applyCheckIn(card, timestamp);
+
+      expect(result.s).toBe(1);
+      expect(result.t).toBe(timestamp);
+    });
+
+    it('adds a ci history entry', () => {
+      const card: CardData = { v: 2, b: 5000, s: 0, t: null, h: [] };
+      const timestamp = '2024-06-15T08:00:00.000Z';
+      const result = service.applyCheckIn(card, timestamp);
+
+      expect(result.h.length).toBe(1);
+      expect(result.h[0].tp).toBe('ci');
+      expect(result.h[0].a).toBe(0);
+    });
+  });
+
+  describe('applyCheckOut', () => {
+    it('sets s=0, t=null, and deducts fee', () => {
+      const card: CardData = { v: 2, b: 10000, s: 1, t: '2024-01-01T10:00:00.000Z', h: [] };
+      const result = service.applyCheckOut(card, 3000);
+
+      expect(result.s).toBe(0);
+      expect(result.t).toBeNull();
+      expect(result.b).toBe(7000);
+    });
+
+    it('adds a co history entry with negative amount', () => {
+      const card: CardData = { v: 2, b: 10000, s: 1, t: '2024-01-01T10:00:00.000Z', h: [] };
+      const result = service.applyCheckOut(card, 3000);
+
+      expect(result.h.length).toBe(1);
+      expect(result.h[0].tp).toBe('co');
+      expect(result.h[0].a).toBe(-3000);
+    });
+  });
+
+  describe('applyTopUp', () => {
+    it('adds amount to balance', () => {
+      const card: CardData = { v: 2, b: 5000, s: 0, t: null, h: [] };
+      const result = service.applyTopUp(card, 10000);
+
+      expect(result.b).toBe(15000);
+    });
+
+    it('adds a tu history entry', () => {
+      const card: CardData = { v: 2, b: 5000, s: 0, t: null, h: [] };
+      const result = service.applyTopUp(card, 10000);
+
+      expect(result.h.length).toBe(1);
+      expect(result.h[0].tp).toBe('tu');
+      expect(result.h[0].a).toBe(10000);
+    });
+  });
+
+  describe('deserialize error handling', () => {
+    it('throws on invalid JSON', () => {
+      const invalidBytes = new TextEncoder().encode('not json');
+      expect(() => service.deserialize(invalidBytes)).toThrow('mbc_nfc_error_card_not_recognized');
+    });
+
+    it('throws on invalid schema', () => {
+      const invalidCard = new TextEncoder().encode(JSON.stringify({ v: 1, b: 'abc' }));
+      expect(() => service.deserialize(invalidCard)).toThrow('mbc_nfc_error_card_data_corrupted');
     });
   });
 });
