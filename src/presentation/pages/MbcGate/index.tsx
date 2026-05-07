@@ -4,6 +4,7 @@ import container from '@di/container';
 import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
 import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import PageLayout from '@components/PageLayout';
 import DebugPanel, { createDebugLog, type DebugLog } from '@components/DebugPanel';
 import styles from './mbc-gate.module.css';
 
@@ -29,10 +30,12 @@ const MbcGate: FC = () => {
   };
 
   return (
-    <main className={styles['mbc-gate']}>
-      <h1 className={styles['mbc-gate__title']}>{t('mbc_gate_title')}</h1>
-      <p className={styles['mbc-gate__subtitle']}>{t('mbc_gate_subtitle')}</p>
-
+    <PageLayout
+      icon="🚪"
+      title={t('mbc_gate_title')}
+      subtitle={t('mbc_gate_subtitle')}
+      color="green"
+    >
       <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
       {nfcAvailable && (
@@ -67,7 +70,7 @@ const MbcGate: FC = () => {
       )}
 
       <DebugPanel logs={debugLogs} title="Gate NFC Debug" onClear={() => setDebugLogs([])} />
-    </main>
+    </PageLayout>
   );
 };
 

@@ -1,4 +1,4 @@
-export type { CardData } from './card-data.model.ts';
+export type { CardData, TransactionEntry, TransactionType } from './card-data.model.ts';
 
 export type { PricingStrategy } from './benefit-type.model.ts';
 export { DEFAULT_PARKING_BENEFIT } from './benefit-type.model.ts';

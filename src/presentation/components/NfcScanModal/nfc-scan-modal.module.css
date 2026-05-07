@@ -39,7 +39,7 @@
 }
 
 .nfc-scan-modal__circle--scanning {
-  @apply animate-pulse bg-blue-100;
+  @apply animate-pulse bg-gray-100;
 }
 
 .nfc-scan-modal__circle--success {
@@ -52,7 +52,7 @@
 
 /* Ripple animation rings */
 .nfc-scan-modal__ripple {
-  @apply absolute h-44 w-44 rounded-full border-2 border-blue-300 opacity-0;
+  @apply absolute h-44 w-44 rounded-full border-2 border-gray-200 opacity-0;
   animation: nfc-ripple 2s ease-out infinite;
 }
 
@@ -80,9 +80,14 @@
   @apply text-5xl;
 }
 
+/* Scan image inside circle */
+.nfc-scan-modal__scan-image {
+  @apply h-20 w-20 object-contain;
+}
+
 /* Label inside circle */
 .nfc-scan-modal__label {
-  @apply mt-2 text-xs font-bold uppercase tracking-wider text-blue-700;
+  @apply mt-2 text-xs font-bold uppercase tracking-wider;
 }
 
 .nfc-scan-modal__label--success {
@@ -105,7 +110,7 @@
 
 /* Retry button */
 .nfc-scan-modal__retry {
-  @apply mt-4 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors;
+  @apply mt-4 rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors;
 }
 
 .nfc-scan-modal__retry:hover {

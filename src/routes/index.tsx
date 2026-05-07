@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import MbcStation from '@pages/MbcStation';
+import MbcRolePicker from '@pages/MbcRolePicker';
 
 export const Route = createFileRoute('/')({
-  component: MbcStation,
+  component: MbcRolePicker,
 });

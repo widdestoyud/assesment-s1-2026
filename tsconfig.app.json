@@ -24,6 +24,7 @@
       "@src/*": ["./src/*"],
       "@core/*": ["./src/@core/*"],
       "@di/*": ["./src/infrastructure/di/*"],
+      "@infra/*": ["./src/infrastructure/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@utils/*": ["./src/utils/*"],
       "@routes/*": ["./src/routes/*"],

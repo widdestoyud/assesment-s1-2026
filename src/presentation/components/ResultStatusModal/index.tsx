@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
+import SignalButton from '@components/SignalButton';
 import styles from './result-status-modal.module.css';
 
 export interface ResultStatusDetail {
@@ -19,6 +20,8 @@ export interface ResultStatusModalProps {
   subtitle: string;
   /** Optional detail row (e.g. Nominal — Rp 75.000) */
   detail?: ResultStatusDetail;
+  /** Optional image source to replace the default circle icon */
+  imageSrc?: string;
   /** Button label */
   buttonLabel: string;
   /** Called when user clicks the button or dismisses the modal */
@@ -33,6 +36,7 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
   title,
   subtitle,
   detail,
+  imageSrc,
   buttonLabel,
   onClose,
 }) => {
@@ -84,26 +88,35 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
       onClick={handleOverlayClick}
     >
       <div className={styles['result-status-modal']}>
-        {/* Icon Circle */}
-        <div
-          className={`${styles['result-status-modal__circle-outer']} ${
-            isSuccess
-              ? styles['result-status-modal__circle-outer--success']
-              : styles['result-status-modal__circle-outer--error']
-          }`}
-        >
+        {/* Icon / Image */}
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt=""
+            aria-hidden="true"
+            className={styles['result-status-modal__image']}
+          />
+        ) : (
           <div
-            className={`${styles['result-status-modal__circle-inner']} ${
+            className={`${styles['result-status-modal__circle-outer']} ${
               isSuccess
-                ? styles['result-status-modal__circle-inner--success']
-                : styles['result-status-modal__circle-inner--error']
+                ? styles['result-status-modal__circle-outer--success']
+                : styles['result-status-modal__circle-outer--error']
             }`}
           >
-            <span className={styles['result-status-modal__icon']} aria-hidden="true">
-              {isSuccess ? '✓' : '✕'}
-            </span>
+            <div
+              className={`${styles['result-status-modal__circle-inner']} ${
+                isSuccess
+                  ? styles['result-status-modal__circle-inner--success']
+                  : styles['result-status-modal__circle-inner--error']
+              }`}
+            >
+              <span className={styles['result-status-modal__icon']} aria-hidden="true">
+                {isSuccess ? '✓' : '✕'}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Title */}
         <h2 id="result-status-modal-title" className={styles['result-status-modal__title']}>
@@ -128,13 +141,14 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
         )}
 
         {/* Action Button */}
-        <button
-          type="button"
+        <SignalButton
+          variant="primary"
+          size="lg"
+          fullWidth
           onClick={onClose}
-          className={styles['result-status-modal__button']}
         >
           {buttonLabel}
-        </button>
+        </SignalButton>
       </div>
     </div>
   );

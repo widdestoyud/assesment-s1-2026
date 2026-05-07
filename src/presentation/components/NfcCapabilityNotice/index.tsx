@@ -1,7 +1,9 @@
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
 import type { NfcCapabilityStatus } from '@core/services/mbc/models';
-import styles from './nfc-capability-notice.module.css';
+import { useNavigate } from '@tanstack/react-router';
+import ResultStatusModal from '@components/ResultStatusModal';
+import images from '@infra/images';
 
 export interface NfcCapabilityNoticeProps {
   status: NfcCapabilityStatus;
@@ -9,41 +11,47 @@ export interface NfcCapabilityNoticeProps {
 }
 
 const NfcCapabilityNotice: FC<NfcCapabilityNoticeProps> = ({ status, t }) => {
+  const navigate = useNavigate();
 
   if (status === 'supported') return null;
 
-  const statusMap: Record<
-    Exclude<NfcCapabilityStatus, 'supported'>,
-    { title: string; message: string; modifier: string }
-  > = {
-    unsupported: {
-      title: t('mbc_nfc_unsupported_title'),
-      message: t('mbc_nfc_unsupported_message'),
-      modifier: 'unsupported',
-    },
-    permission_pending: {
-      title: t('mbc_nfc_permission_pending_title'),
-      message: t('mbc_nfc_permission_pending_message'),
-      modifier: 'permission-pending',
-    },
-    permission_denied: {
-      title: t('mbc_nfc_permission_denied_title'),
-      message: t('mbc_nfc_permission_denied_message'),
-      modifier: 'permission-denied',
-    },
+  const handleClose = () => {
+    navigate({ to: '/' });
   };
 
-  const config = statusMap[status];
+  const getContent = () => {
+    switch (status) {
+      case 'unsupported':
+        return {
+          title: t('mbc_nfc_unsupported_title'),
+          message: t('mbc_nfc_unsupported_message'),
+        };
+      case 'permission_pending':
+        return {
+          title: t('mbc_nfc_permission_pending_title'),
+          message: t('mbc_nfc_permission_pending_message'),
+        };
+      case 'permission_denied':
+        return {
+          title: t('mbc_nfc_permission_denied_title'),
+          message: t('mbc_nfc_permission_denied_message'),
+        };
+    }
+  };
+
+  const content = getContent();
 
   return (
-    <div
-      role="alert"
-      data-testid="nfc-capability-notice"
-      className={`${styles['nfc-capability-notice']} ${styles[`nfc-capability-notice--${config.modifier}`]}`}
-    >
-      <p className={styles['nfc-capability-notice__title']}>{config.title}</p>
-      <p className={styles['nfc-capability-notice__message']}>{config.message}</p>
-    </div>
+    <ResultStatusModal
+      isOpen={true}
+      variant="error"
+      title={content.title}
+      subtitle={content.message}
+      buttonLabel={t('app_popup_close_button_label')}
+      imageSrc={images.nfcFailed}
+      onClose={handleClose}
+      t={t}
+    />
   );
 };
 

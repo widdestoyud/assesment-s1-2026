@@ -1,0 +1,50 @@
+@reference "tailwindcss";
+
+.page-header {
+  @apply flex items-center gap-4 rounded-b-2xl px-5 py-5;
+}
+
+/* Color variants */
+.page-header--blue {
+  @apply bg-blue-600;
+}
+
+.page-header--green {
+  @apply bg-green-600;
+}
+
+.page-header--orange {
+  @apply bg-orange-500;
+}
+
+.page-header--purple {
+  @apply bg-purple-600;
+}
+
+.page-header__icon {
+  @apply flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl;
+}
+
+.page-header__content {
+  @apply flex-1;
+}
+
+.page-header__title {
+  @apply text-lg font-bold text-white;
+}
+
+.page-header__subtitle {
+  @apply text-sm text-white/70;
+}
+
+.page-header__menu {
+  @apply flex h-10 w-10 items-center justify-center rounded-lg text-white transition-colors;
+}
+
+.page-header__menu:hover {
+  @apply bg-white/10;
+}
+
+.page-header__menu-icon {
+  @apply text-2xl;
+}

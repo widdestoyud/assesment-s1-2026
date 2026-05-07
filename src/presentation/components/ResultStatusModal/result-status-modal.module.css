@@ -12,6 +12,10 @@
   @apply flex h-40 w-40 items-center justify-center rounded-full;
 }
 
+.result-status-modal__image {
+  @apply h-40 w-40 object-contain;
+}
+
 .result-status-modal__circle-outer--success {
   @apply bg-green-100;
 }
@@ -41,7 +45,7 @@
 }
 
 .result-status-modal__subtitle {
-  @apply mt-2 text-center text-sm text-gray-500;
+  @apply my-2 text-center text-sm text-gray-500;
 }
 
 .result-status-modal__detail-card {

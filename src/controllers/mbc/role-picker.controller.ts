@@ -7,6 +7,7 @@ export interface RoleOption {
   label: string;
   descriptionKey: string;
   icon: string;
+  color: 'blue' | 'green' | 'orange' | 'purple';
 }
 
 export interface RolePickerControllerInterface {
@@ -18,28 +19,32 @@ export interface RolePickerControllerInterface {
 
 const ROLE_OPTIONS: RoleOption[] = [
   {
-    id: 'station',
-    label: 'The Station',
-    descriptionKey: 'mbc_role_station_description',
-    icon: '🏢',
-  },
-  {
     id: 'gate',
     label: 'The Gate',
     descriptionKey: 'mbc_role_gate_description',
     icon: '🚪',
+    color: 'green',
   },
   {
     id: 'terminal',
     label: 'The Terminal',
     descriptionKey: 'mbc_role_terminal_description',
     icon: '💳',
+    color: 'orange',
+  },
+  {
+    id: 'station',
+    label: 'The Station',
+    descriptionKey: 'mbc_role_station_description',
+    icon: '🏢',
+    color: 'blue',
   },
   {
     id: 'scout',
     label: 'The Scout',
     descriptionKey: 'mbc_role_scout_description',
     icon: '🔍',
+    color: 'purple',
   },
 ];
 

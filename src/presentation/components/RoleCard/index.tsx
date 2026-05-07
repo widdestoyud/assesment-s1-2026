@@ -10,21 +10,23 @@ export interface RoleCardProps {
   t: TFunction;
 }
 
-const RoleCard: FC<RoleCardProps> = ({ role, isActive, onSelect, t }) => {
-
+const RoleCard: FC<RoleCardProps> = ({ role, onSelect, t }) => {
   return (
     <button
       type="button"
       onClick={onSelect}
       data-testid={`role-card-${role.id}`}
-      aria-pressed={isActive}
-      className={`${styles['role-card']} ${isActive ? styles['role-card--active'] : styles['role-card--default']}`}
+      className={`${styles['role-card']} ${styles[`role-card--${role.color}`]}`}
     >
       <span className={styles['role-card__icon']} aria-hidden="true">
         {role.icon}
       </span>
-      <h3 className={styles['role-card__label']}>{role.label}</h3>
-      <p className={styles['role-card__description']}>{String(t(role.descriptionKey as never))}</p>
+      <h3 className={`${styles['role-card__label']} ${styles[`role-card__label--${role.color}`]}`}>
+        {role.label}
+      </h3>
+      <p className={styles['role-card__description']}>
+        {String(t(role.descriptionKey as never))}
+      </p>
     </button>
   );
 };

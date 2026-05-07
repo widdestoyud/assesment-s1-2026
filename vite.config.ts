@@ -15,6 +15,7 @@ const viteConfig = ({ mode }: { mode: string }) => {
         '@src': path.resolve(__dirname, './src'),
         '@core': path.resolve(__dirname, './src/@core'),
         '@di': path.resolve(__dirname, './src/infrastructure/di'),
+        '@infra': path.resolve(__dirname, './src/infrastructure'),
         '@controllers': path.resolve(__dirname, './src/controllers'),
         '@components': path.resolve(__dirname, './src/presentation/components'),
         '@pages': path.resolve(__dirname, './src/presentation/pages'),

@@ -6,7 +6,8 @@ import type {
   NfcStatus,
 } from '@core/services/mbc/models';
 
-export type StationPhase = 'tap' | 'topup' | 'balance';
+export type StationPhase = 'home' | 'topup';
+export type ResultType = 'register_success' | 'already_registered' | 'not_registered' | 'topup_success' | 'topup_error' | null;
 
 export interface StationControllerInterface {
   phase: StationPhase;
@@ -17,16 +18,16 @@ export interface StationControllerInterface {
   isProcessing: boolean;
   error: string | null;
   nfcCapability: NfcCapabilityStatus;
-  /** Whether a card needs registration confirmation from user */
-  pendingRegister: boolean;
-  onTapCard: () => Promise<void>;
+  resultType: ResultType;
+  resultAmount: number;
+  successImage: string;
+  alreadyRegisteredImage: string;
+  refreshImage: string;
+  onRegister: () => Promise<void>;
+  onStartTopUp: () => Promise<void>;
   onTopUp: (amount: number) => Promise<void>;
-  onGoToTopUp: () => void;
   onCancelScan: () => void;
-  /** User confirms to register the incompatible/blank card */
-  onConfirmRegister: () => void;
-  /** User declines registration */
-  onCancelRegister: () => void;
+  onCloseResult: () => void;
   t: TFunction;
 }
 
@@ -39,6 +40,7 @@ const StationController = (
     | 'validateCardUseCase'
     | 'topUpBalanceUseCase'
     | 'nfcService'
+    | 'images'
   >,
 ): StationControllerInterface => {
   const {
@@ -48,67 +50,48 @@ const StationController = (
     validateCardUseCase,
     topUpBalanceUseCase,
     nfcService,
+    images,
   } = deps;
 
   const { t } = useTranslation();
 
-  const [phase, setPhase] = useState<StationPhase>('tap');
+  const [phase, setPhase] = useState<StationPhase>('home');
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
-  const [pendingRegister, setPendingRegister] = useState(false);
+  const [resultType, setResultType] = useState<ResultType>(null);
+  const [resultAmount, setResultAmount] = useState(0);
 
   useEffect(() => {
     const isNfcAvailable = nfcService.isAvailable();
     setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
   }, []);
 
-  const onTapCard = async () => {
+  /**
+   * Registration flow:
+   * 1. Read card via NFC
+   * 2. If card is blank/corrupt → format as new card → show "Registrasi Berhasil"
+   * 3. If card is already valid → show "Kartu Sudah Terdaftar"
+   */
+  const onRegister = async () => {
     setIsProcessing(true);
     setNfcStatus('scanning');
     setError(null);
-    setPendingRegister(false);
+    setResultType(null);
 
     try {
       const result = await validateCardUseCase.execute();
+
       setNfcStatus('success');
-
-      // Always go to top-up after successful validation
-      setCardData({ v: 2, b: result.balance, s: 0, t: null });
-      setPhase('topup');
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-
-      // Incompatible, blank, or decryption-failed card → ask user for registration confirmation
-      if (
-        errorMessage === 'mbc_nfc_error_incompatible_card' ||
-        errorMessage === 'mbc_nfc_error_blank_card' ||
-        errorMessage === 'mbc_error_decryption_failed'
-      ) {
-        setNfcStatus('idle');
-        setPendingRegister(true);
+      if (result.type === 'new') {
+        setResultType('register_success');
       } else {
-        setNfcStatus('error');
-        setError(errorMessage);
+        setResultType('already_registered');
+        setCardData({ v: 2, b: result.balance, s: 0, t: null, h: [] });
       }
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const onTopUp = async (amount: number) => {
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
-
-    try {
-      const result = await topUpBalanceUseCase.execute({ amount });
-      setNfcStatus('success');
-      setCardData({ v: 2, b: result.balance, s: 0, t: null });
-      setPhase('balance');
     } catch (err: unknown) {
       setNfcStatus('error');
       setError(err instanceof Error ? err.message : String(err));
@@ -117,11 +100,59 @@ const StationController = (
     }
   };
 
-  const onGoToTopUp = () => {
-    setPhase('topup');
-    setTopUpAmount('');
+  /**
+   * Top-up flow step 1: Read card to validate it's registered
+   * If valid → go to topup phase
+   * If not valid → show "Kartu Belum Terdaftar"
+   */
+  const onStartTopUp = async () => {
+    setIsProcessing(true);
+    setNfcStatus('scanning');
     setError(null);
-    setNfcStatus('idle');
+    setResultType(null);
+
+    try {
+      const result = await validateCardUseCase.execute();
+      setNfcStatus('success');
+
+      if (result.type === 'new') {
+        // Card was blank/corrupt — we just formatted it, but user wanted top-up
+        // Show "not registered" since it was not previously a valid card
+        setResultType('not_registered');
+      } else {
+        // Card is valid — proceed to top-up form
+        setCardData({ v: 2, b: result.balance, s: 0, t: null, h: [] });
+        setPhase('topup');
+      }
+    } catch (err: unknown) {
+      setNfcStatus('error');
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  /**
+   * Top-up flow step 2: Write new balance to card
+   */
+  const onTopUp = async (amount: number) => {
+    setIsProcessing(true);
+    setNfcStatus('scanning');
+    setError(null);
+    setResultType(null);
+    setResultAmount(amount);
+
+    try {
+      await topUpBalanceUseCase.execute({ amount });
+      setNfcStatus('success');
+      setResultType('topup_success');
+    } catch (err: unknown) {
+      setNfcStatus('error');
+      setResultType('topup_error');
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const onCancelScan = () => {
@@ -130,14 +161,12 @@ const StationController = (
     setError(null);
   };
 
-  const onConfirmRegister = () => {
-    setPendingRegister(false);
-    setCardData({ v: 2, b: 0, s: 0, t: null });
-    setPhase('topup');
-  };
-
-  const onCancelRegister = () => {
-    setPendingRegister(false);
+  const onCloseResult = () => {
+    setResultType(null);
+    setPhase('home');
+    setTopUpAmount('');
+    setError(null);
+    setNfcStatus('idle');
   };
 
   return {
@@ -149,13 +178,16 @@ const StationController = (
     isProcessing,
     error,
     nfcCapability,
-    pendingRegister,
-    onTapCard,
+    resultType,
+    resultAmount,
+    successImage: images.success,
+    alreadyRegisteredImage: images.nfcSuccessHuman,
+    refreshImage: images.tapNfc,
+    onRegister,
+    onStartTopUp,
     onTopUp,
-    onGoToTopUp,
     onCancelScan,
-    onConfirmRegister,
-    onCancelRegister,
+    onCloseResult,
     t,
   };
 };

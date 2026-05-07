@@ -1,21 +1,20 @@
 @reference "tailwindcss";
 
 .mbc-station {
-  @apply mx-auto flex max-w-lg flex-col px-4 py-4;
-  min-height: calc(100vh - 64px);
+  @apply mx-auto flex min-h-screen max-w-lg flex-col px-4 py-4;
 }
 
-/* Info Card */
-.mbc-station__info-card {
-  @apply rounded-xl bg-gray-50 p-4 shadow-sm;
+/* Home Section */
+.mbc-station__home-section {
+  @apply flex flex-1 flex-col justify-center;
 }
 
-.mbc-station__info-title {
-  @apply text-base font-bold text-gray-800;
+.mbc-station__home-title {
+  @apply mb-1 text-xl font-bold text-gray-900;
 }
 
-.mbc-station__info-subtitle {
-  @apply mt-1 text-sm text-gray-500;
+.mbc-station__home-subtitle {
+  @apply mb-8 text-sm text-gray-500;
 }
 
 /* NFC Tap Area */
@@ -142,7 +141,10 @@
 
 /* Top-Up Now Button */
 .mbc-station__topup-button {
-  @apply mt-auto w-full rounded-xl bg-blue-600 px-4 py-3.5 text-base font-semibold text-white shadow-sm transition-colors;
+  @apply w-full rounded-xl bg-blue-600 px-4 py-4 text-base font-semibold text-white shadow-sm transition-colors;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .mbc-station__topup-button:hover {

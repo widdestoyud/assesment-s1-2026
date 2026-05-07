@@ -1,0 +1,106 @@
+@reference "tailwindcss";
+
+/* Base */
+.signal-button {
+  @apply inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Sizes */
+.signal-button--sm {
+  @apply h-5 px-3 text-[10px] leading-4;
+}
+
+.signal-button--md {
+  @apply h-8 px-4 text-xs leading-5;
+}
+
+.signal-button--lg {
+  @apply h-10 px-5 text-sm leading-5;
+}
+
+.signal-button--xl {
+  @apply h-12 px-6 text-sm leading-5;
+}
+
+/* Primary */
+.signal-button--primary {
+  @apply text-white;
+  background-color: #ED0226;
+}
+
+.signal-button--primary:hover {
+  background-color: #FF3351;
+  box-shadow: 0px 2px 2px 0px rgba(158, 158, 158, 0.2);
+}
+
+.signal-button--primary:active {
+  background-color: #ED0226;
+}
+
+.signal-button--primary:disabled {
+  @apply cursor-not-allowed shadow-none;
+  background-color: #E9E8ED;
+  color: #B3BAC6;
+}
+
+/* Secondary */
+.signal-button--secondary {
+  @apply bg-white;
+  border: 2px solid #FF0025;
+  color: #FF0025;
+}
+
+.signal-button--secondary:hover {
+  background-color: #FFF5F6;
+  box-shadow: 0px 2px 2px 0px rgba(158, 158, 158, 0.2);
+}
+
+.signal-button--secondary:active {
+  @apply bg-white;
+}
+
+.signal-button--secondary:disabled {
+  @apply cursor-not-allowed shadow-none;
+  border-color: #CCD1D9;
+  color: #B3BAC6;
+  background-color: #FFFFFF;
+}
+
+/* Text */
+.signal-button--text {
+  @apply bg-transparent;
+  color: #0050AE;
+}
+
+.signal-button--text:hover {
+  background-color: #F9F9FA;
+}
+
+.signal-button--text:disabled {
+  @apply cursor-not-allowed;
+  color: #B3BAC6;
+  background-color: transparent;
+}
+
+/* Full width modifier */
+.signal-button--full {
+  @apply w-full;
+}
+
+/* Icon sizing */
+.signal-button__icon--sm {
+  @apply h-3 w-3;
+}
+
+.signal-button__icon--md {
+  @apply h-4 w-4;
+}
+
+.signal-button__icon--lg {
+  @apply h-5 w-5;
+}
+
+.signal-button__icon--xl {
+  @apply h-6 w-6;
+}

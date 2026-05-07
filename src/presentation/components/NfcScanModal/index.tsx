@@ -25,6 +25,8 @@ export interface NfcScanModalProps {
   title?: string;
   /** Optional custom subtitle override */
   subtitle?: string;
+  /** Optional image to display instead of emoji during scanning/waiting */
+  scanImageSrc?: string;
 }
 
 const NfcScanModal: FC<NfcScanModalProps> = ({
@@ -38,6 +40,7 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
   t,
   title,
   subtitle,
+  scanImageSrc,
 }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -171,21 +174,25 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
             aria-busy={isProcessing}
             className={`${styles['nfc-scan-modal__circle']} ${getCircleModifier()}`}
           >
-            <span className={styles['nfc-scan-modal__icon']} aria-hidden="true">
-              {getIcon()}
-            </span>
-            <span className={`${styles['nfc-scan-modal__label']} ${getLabelModifier()}`}>
-              {getLabel()}
-            </span>
+            {scanImageSrc && (isScanning || isWorking) ? (
+              <img
+                src={scanImageSrc}
+                alt=""
+                aria-hidden="true"
+                className={styles['nfc-scan-modal__scan-image']}
+              />
+            ) : (
+              <span className={styles['nfc-scan-modal__icon']} aria-hidden="true">
+                {getIcon()}
+              </span>
+            )}
+           
           </div>
         </div>
 
-        {/* Status text */}
-        {isProcessing && (
-          <p className={styles['nfc-scan-modal__status']}>
-            {t('mbc_nfc_processing')}
-          </p>
-        )}
+         <span className={`${styles['nfc-scan-modal__label']} ${getLabelModifier()}`}>
+            {getLabel()}
+        </span>
 
         {/* Error message */}
         {isError && error && (

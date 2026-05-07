@@ -4,6 +4,7 @@ import container from '@di/container';
 import type { TerminalControllerInterface } from '@controllers/mbc/terminal.controller';
 import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import PageLayout from '@components/PageLayout';
 import FeeBreakdown from '@components/FeeBreakdown';
 import BalanceDisplay from '@components/BalanceDisplay';
 import DebugPanel, { createDebugLog, type DebugLog } from '@components/DebugPanel';
@@ -32,10 +33,12 @@ const MbcTerminal: FC = () => {
   };
 
   return (
-    <main className={styles['mbc-terminal']}>
-      <h1 className={styles['mbc-terminal__title']}>{t('mbc_terminal_title')}</h1>
-      <p className={styles['mbc-terminal__subtitle']}>{t('mbc_terminal_subtitle')}</p>
-
+    <PageLayout
+      icon="💳"
+      title={t('mbc_terminal_title')}
+      subtitle={t('mbc_terminal_subtitle')}
+      color="orange"
+    >
       <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
       {nfcAvailable && (
@@ -76,7 +79,7 @@ const MbcTerminal: FC = () => {
       )}
 
       <DebugPanel logs={debugLogs} title="Terminal NFC Debug" onClear={() => setDebugLogs([])} />
-    </main>
+    </PageLayout>
   );
 };
 

@@ -4,20 +4,33 @@ import type {
   NfcPermissionResult,
   NfcScanSession,
 } from '@core/services/mbc/models';
+import config from '@src/infrastructure/config';
+
+const MBC_MIME_TYPE = 'application/octet-stream';
 
 /**
  * Web NFC API adapter implementing NfcProtocol.
  *
  * Wraps the browser's NDEFReader API behind a clean interface.
- * Card data is stored as a single NDEF text record containing
- * the encrypted+serialized payload as a base64 string.
+ * Card data is stored as a single NDEF MIME record (application/octet-stream)
+ * containing raw binary encrypted bytes — no base64 encoding overhead.
+ *
+ * This maximizes usable storage on NTAG215 (~466 bytes for payload after
+ * NDEF headers and AES-GCM overhead).
  *
  * Browser support: Chrome Android 89+.
  * Requires HTTPS context and user gesture for first scan.
  */
 export const webNfcAdapter: NfcProtocol = {
   isSupported(): boolean {
-    return typeof globalThis.window !== 'undefined' && 'NDEFReader' in globalThis;
+    // When NFC check is disabled, always report as supported (for UI development)
+    if (!config.nfcCheckEnabled) return true;
+    if (typeof globalThis.window === 'undefined') return false;
+    if (!('NDEFReader' in globalThis)) return false;
+    // Web NFC is only reliably supported in Chrome Android 89+
+    const ua = navigator.userAgent;
+    const isChrome = /Chrome\/\d+/.test(ua) && !/SamsungBrowser|EdgA|OPR/.test(ua);
+    return isChrome;
   },
 
   async requestPermission(): Promise<NfcPermissionResult> {
@@ -26,8 +39,6 @@ export const webNfcAdapter: NfcProtocol = {
     }
 
     try {
-      // Triggering a scan is the only way to request NFC permission
-      // in the Web NFC API. We start and immediately abort.
       const ndef = new NDEFReader();
       const controller = new AbortController();
       await ndef.scan({ signal: controller.signal });
@@ -70,38 +81,17 @@ export const webNfcAdapter: NfcProtocol = {
             clearTimeout(readErrorTimeout);
             readErrorTimeout = null;
           }
-          try {
-            const data = extractPayload(event.message);
+
+          const data = extractPayload(event.message);
+          if (data) {
             onRead(data);
-          } catch (error: unknown) {
-            const errorMessage =
-              error instanceof Error ? error.message : String(error);
-            if (errorMessage.includes('No text record')) {
-              // Blank/new card with no text record — send empty bytes
-              // so upper layers can handle (e.g., write initial data)
-              onRead(new Uint8Array(0));
-              return;
-            }
-            // For any other extraction error (e.g. invalid base64), send raw bytes
-            // so upper layers (decrypt) can handle and decide to overwrite
-            const rawBytes = extractRawBytes(event.message);
-            if (rawBytes) {
-              onRead(rawBytes);
-            } else {
-              onError({
-                type: 'invalid_card_data',
-                message: 'Card data is not recognized as valid MBC data',
-                messageKey: 'mbc_nfc_error_card_not_recognized',
-              });
-            }
+          } else {
+            // No recognizable record — treat as blank card
+            onRead(new Uint8Array(0));
           }
         };
 
         ndef.onreadingerror = () => {
-          // onreadingerror fires when tag is detected but cannot be read.
-          // This commonly happens due to brief contact (card lifted too fast),
-          // not necessarily because the card is truly incompatible.
-          // Only report error if no successful read occurs within 3 seconds.
           if (readSucceeded) return;
 
           if (readErrorTimeout) {
@@ -111,7 +101,7 @@ export const webNfcAdapter: NfcProtocol = {
             if (!readSucceeded) {
               onError({
                 type: 'incompatible_card',
-                message: 'Error reading NFC tag — tag may not be NDEF formatted. Try holding the card steady for 2-3 seconds.',
+                message: 'Error reading NFC tag — tag may not be NDEF formatted.',
                 messageKey: 'mbc_nfc_error_incompatible_card',
               });
             }
@@ -166,12 +156,14 @@ export const webNfcAdapter: NfcProtocol = {
     }
 
     const ndef = new NDEFReader();
-    // Encode as base64 text record to fit within NDEF text record constraints
-    const base64 = uint8ArrayToBase64(data);
 
     try {
       await ndef.write({
-        records: [{ recordType: 'text', data: base64 }],
+        records: [{
+          recordType: 'mime',
+          mediaType: MBC_MIME_TYPE,
+          data: data,
+        }],
       });
     } catch (error: unknown) {
       if (error instanceof DOMException) {
@@ -212,52 +204,51 @@ export const webNfcAdapter: NfcProtocol = {
 };
 
 /**
- * Extract the payload bytes from an NDEF message.
- * Expects a single text record containing base64-encoded data.
+ * Extract binary payload from an NDEF message.
  *
- * Throws distinguishable errors:
- * - "No text record found in NFC tag" when no text record exists (blank card)
- * - "Failed to decode base64 data from NFC tag" when base64 decoding fails (non-MBC data)
+ * Supports two record formats for backward compatibility:
+ * 1. MIME record (application/octet-stream) — new format, raw binary
+ * 2. Text record — legacy format, base64-encoded binary
+ *
+ * Returns null if no recognizable record is found (blank card).
  */
-function extractPayload(message: NDEFMessage): Uint8Array {
+function extractPayload(message: NDEFMessage): Uint8Array | null {
+  for (const record of message.records) {
+    // Priority 1: MIME record — direct binary (new format)
+    if (record.recordType === 'mime' && record.data) {
+      return new Uint8Array(record.data.buffer, record.data.byteOffset, record.data.byteLength);
+    }
+  }
+
+  // Priority 2: Text record — legacy base64 format (backward compat)
   for (const record of message.records) {
     if (record.recordType === 'text' && record.data) {
       const decoder = new TextDecoder();
-      const base64 = decoder.decode(record.data);
-      try {
-        return base64ToUint8Array(base64);
-      } catch {
-        throw new Error('Failed to decode base64 data from NFC tag');
+      const rawText = decoder.decode(record.data).trim();
+      if (rawText.length > 0) {
+        try {
+          return base64ToUint8Array(rawText);
+        } catch {
+          // Try stripping language prefix
+          for (const prefixLen of [2, 3, 5]) {
+            if (rawText.length > prefixLen) {
+              try {
+                return base64ToUint8Array(rawText.substring(prefixLen));
+              } catch {
+                // Continue
+              }
+            }
+          }
+        }
       }
+      return null;
     }
   }
-  throw new Error('No text record found in NFC tag');
-}
 
-/**
- * Extract raw bytes from any text record in the NDEF message.
- * Used as fallback when base64 decoding fails — returns the raw text as bytes.
- */
-function extractRawBytes(message: NDEFMessage): Uint8Array | null {
-  for (const record of message.records) {
-    if (record.recordType === 'text' && record.data) {
-      // Return the raw record data as-is (will fail decrypt, triggering overwrite)
-      return new Uint8Array(record.data.buffer);
-    }
-  }
   return null;
 }
 
-/** Convert Uint8Array to base64 string */
-function uint8ArrayToBase64(bytes: Uint8Array): string {
-  let binary = '';
-  for (const byte of bytes) {
-    binary += String.fromCodePoint(byte);
-  }
-  return btoa(binary);
-}
-
-/** Convert base64 string to Uint8Array */
+/** Convert base64 string to Uint8Array (legacy support) */
 function base64ToUint8Array(base64: string): Uint8Array {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);

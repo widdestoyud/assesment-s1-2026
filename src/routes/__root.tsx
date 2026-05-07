@@ -6,9 +6,7 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { z } from 'zod';
-import { useTranslation } from 'react-i18next';
 import config from '@src/infrastructure/config';
-import BottomNavigation from '@components/BottomNavigation';
 
 const globalSearchSchema = z.object({
   isMobile: z.boolean().optional(),
@@ -16,17 +14,13 @@ const globalSearchSchema = z.object({
 });
 
 function RootLayout() {
-  const activeQueryDevTool = config.tanStack.queryDevTool;
-  const activeRouteDevTool = config.tanStack.routeDevTool;
-  const { t } = useTranslation();
+  const activeQueryDevTool = config.tanStack.queryDevTool === 'true';
+  const activeRouteDevTool = config.tanStack.routeDevTool === 'true';
 
   return (
     <>
       <HeadContent />
-      <div style={{ paddingBottom: '64px' }}>
-        <Outlet />
-      </div>
-      <BottomNavigation t={t} />
+      <Outlet />
       <>
         {activeQueryDevTool && (
           <ReactQueryDevtools buttonPosition="bottom-left" />
