@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 import mkCert from 'vite-plugin-mkcert';
+import { VitePWA } from 'vite-plugin-pwa';
 import { configDefaults } from 'vitest/config';
 
 const viteConfig = ({ mode }: { mode: string }) => {
@@ -34,6 +35,42 @@ const viteConfig = ({ mode }: { mode: string }) => {
       TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
       react(),
       tailwindcss(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.ico', 'android-chrome-192x192.png', 'android-chrome-512x512.png', 'apple-touch-icon.png'],
+        manifest: {
+          name: 'Membership Benefit Card',
+          short_name: 'MBC',
+          description: 'NFC-based cooperative membership system — offline-first PWA',
+          start_url: process.env.VITE_BASE_PATH || '/',
+          scope: process.env.VITE_BASE_PATH || '/',
+          display: 'standalone',
+          orientation: 'portrait',
+          theme_color: '#2563eb',
+          background_color: '#ffffff',
+          categories: ['business', 'utilities'],
+          icons: [
+            { src: 'android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+            { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,jpeg,jpg,woff,woff2}'],
+          navigateFallback: 'index.html',
+          navigateFallbackAllowlist: [/^(?!\/__).*/],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              },
+            },
+          ],
+        },
+      }),
       ...(process.env.NODE_ENV === 'development' ? [mkCert()] : []),
     ],
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -108,6 +145,10 @@ const viteConfig = ({ mode }: { mode: string }) => {
       port: 3000,
       host: 'localhost',
       allowedHosts: ['localhost', 'tdwpreweb.telkomsel.com'],
+    },
+    preview: {
+      port: 4173,
+      allowedHosts: true,
     },
     base: process.env.VITE_BASE_PATH ?? '/',
     optimizeDeps: {
