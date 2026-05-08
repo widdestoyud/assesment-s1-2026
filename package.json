@@ -8,6 +8,7 @@
     "dev:tunnel": "cross-env NODE_ENV=development sh -c 'trap \"kill 0\" EXIT; vite & sleep 3 && ngrok http https://localhost:3000 --host-header=localhost:3000 --verify-upstream-tls=false; wait'",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "preview:tunnel": "npm run build && sh -c 'trap \"kill 0\" EXIT; vite preview --port 4173 & sleep 2 && ngrok http 4173; wait'",
     "test": "cross-env NODE_ENV=development vitest --run",
     "test:staged": "cross-env NODE_ENV=development vitest related --run",
     "test:watch": "cross-env NODE_ENV=development vitest --watch",
@@ -82,6 +83,7 @@
     "vite": "^6.3.1",
     "vite-plugin-mkcert": "^1.17.8",
     "vite-plugin-node-polyfills": "^0.23.0",
+    "vite-plugin-pwa": "1.3.0",
     "vitest": "^3.2.4"
   },
   "config": {

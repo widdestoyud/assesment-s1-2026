@@ -73,7 +73,7 @@ export const SilentShieldService = (
           tagLength: MBC_KEYS.SILENT_SHIELD_TAG_LENGTH * 8,
         },
         key,
-        data,
+        data as unknown as BufferSource,
       );
 
       // Output format: [IV (12B) | ciphertext | authTag (16B)]
@@ -103,11 +103,11 @@ export const SilentShieldService = (
       const decryptedBuffer = await crypto.subtle.decrypt(
         {
           name: MBC_KEYS.SILENT_SHIELD_ALGORITHM,
-          iv,
+          iv: iv as unknown as BufferSource,
           tagLength: MBC_KEYS.SILENT_SHIELD_TAG_LENGTH * 8,
         },
         key,
-        combined,
+        combined as unknown as BufferSource,
       );
 
       return new Uint8Array(decryptedBuffer);

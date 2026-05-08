@@ -7,6 +7,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { z } from 'zod';
 import config from '@src/infrastructure/config';
+import OfflineIndicator from '@components/OfflineIndicator';
 
 const globalSearchSchema = z.object({
   isMobile: z.boolean().optional(),
@@ -21,6 +22,7 @@ function RootLayout() {
     <>
       <HeadContent />
       <Outlet />
+      <OfflineIndicator />
       <>
         {activeQueryDevTool && (
           <ReactQueryDevtools buttonPosition="bottom-left" />
