@@ -1,5 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
-import type { OperationResult } from '@core/services/mbc/models';
+import type { OperationResult } from '@src/@core/models/mbc';
 
 export interface ValidateCardUseCaseInterface {
   execute(): Promise<OperationResult>;

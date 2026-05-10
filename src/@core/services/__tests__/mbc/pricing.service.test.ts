@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AwilixRegistry } from '@di/container';
-import type { PricingStrategy } from '@core/services/mbc/models';
+import type { PricingStrategy } from '@core/models/mbc';
 
 import { PricingService } from '../../mbc/pricing.service';
 

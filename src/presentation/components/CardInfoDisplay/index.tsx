@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
-import type { CardData } from '@core/services/mbc/models';
+import type { CardData } from '@src/@core/models/mbc';
 import BalanceDisplay from '@components/BalanceDisplay';
 import styles from './card-info-display.module.css';
 

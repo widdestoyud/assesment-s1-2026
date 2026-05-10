@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AwilixRegistry } from '@di/container';
-import type { CardData, TransactionEntry } from '@core/services/mbc/models';
+import type { CardData, TransactionEntry } from '@core/models/mbc';
 
 import { CardDataService } from '../../mbc/card-data.service';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { CardData } from '@core/services/mbc/models';
+import type { CardData } from '@core/models/mbc';
 import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
@@ -27,10 +27,7 @@ const NOT_CHECKED_IN_CARD: CardData = {
 function createMocks(cardData: CardData = CHECKED_IN_CARD) {
   const nfcService: NfcServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
-    requestPermission: vi.fn().mockResolvedValue('granted'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
-    writeCard: vi.fn().mockResolvedValue(undefined),
-    writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
     readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => {
       await processor(new Uint8Array([1]));
       return new Uint8Array([1]);

@@ -1,5 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
-import type { RoleMode } from '@core/services/mbc/models';
+import type { RoleMode } from '@src/@core/models/mbc';
 import type { TFunction } from 'i18next';
 
 export interface RoleOption {

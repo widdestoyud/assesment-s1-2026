@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useState } from 'react';
 import container from '@di/container';
 import type { ScoutControllerInterface } from '@controllers/mbc/scout.controller';
-import type { TransactionType } from '@core/services/mbc/models';
+import type { TransactionType } from '@src/@core/models/mbc';
 import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import PageLayout from '@components/PageLayout';

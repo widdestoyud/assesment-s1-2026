@@ -1,7 +1,7 @@
 import type { AwilixRegistry } from '@di/container';
-import type { CardData, TransactionEntry } from '@core/services/mbc/models';
+import type { CardData, TransactionEntry } from '@src/@core/models/mbc';
 
-import { CardDataSchema } from '@core/services/mbc/models';
+import { CardDataSchema } from '@src/@core/models/mbc';
 
 const MAX_HISTORY = 5;
 

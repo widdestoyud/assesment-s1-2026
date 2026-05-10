@@ -4,7 +4,7 @@ import type {
   CheckInResult,
   NfcCapabilityStatus,
   NfcStatus,
-} from '@core/services/mbc/models';
+} from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
 
 export type GateTab = 'normal' | 'simulation';
@@ -29,6 +29,7 @@ export interface GateControllerInterface {
   onCloseResult: () => void;
   resultType: GateResultType;
   nfcErrorImage: string;
+  scanImage: string;
   t: TFunction;
 }
 
@@ -179,6 +180,7 @@ const GateController = (
     onCloseResult,
     resultType,
     nfcErrorImage: images.nfcLoadDataFailed,
+    scanImage: images.tapNfc,
     t,
   };
 };

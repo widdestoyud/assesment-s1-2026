@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
-import type { NfcStatus } from '@core/services/mbc/models';
+import type { NfcStatus } from '@src/@core/models/mbc';
 import styles from './nfc-scan-modal.module.css';
 
 export interface NfcScanModalProps {

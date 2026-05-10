@@ -25,8 +25,6 @@ export interface NfcError {
   messageParams?: Record<string, string | number>;
 }
 
-export type NfcPermissionResult = 'granted' | 'denied' | 'unsupported';
-
 export interface NfcScanSession {
   abort(): void;
 }
@@ -55,11 +53,6 @@ export interface CheckOutResult {
 export interface OperationResult {
   type: 'new' | 'existing' | 'top-up';
   balance: number;
-}
-
-export interface WriteVerifyResult {
-  success: boolean;
-  error?: string;
 }
 
 export type NfcCapabilityStatus =

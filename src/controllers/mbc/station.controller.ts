@@ -4,7 +4,7 @@ import type {
   CardData,
   NfcCapabilityStatus,
   NfcStatus,
-} from '@core/services/mbc/models';
+} from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
 
 export type StationPhase = 'home' | 'topup';

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
-import type { NfcCapabilityStatus } from '@core/services/mbc/models';
+import type { NfcCapabilityStatus } from '@src/@core/models/mbc';
 import { useNavigate } from '@tanstack/react-router';
 import ResultStatusModal from '@components/ResultStatusModal';
 import images from '@infra/images';

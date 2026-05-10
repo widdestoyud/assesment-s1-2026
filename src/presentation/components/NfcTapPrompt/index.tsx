@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
-import type { NfcStatus } from '@core/services/mbc/models';
+import type { NfcStatus } from '@src/@core/models/mbc';
 import styles from './nfc-tap-prompt.module.css';
 
 export interface NfcTapPromptProps {

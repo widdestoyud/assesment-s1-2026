@@ -2,10 +2,8 @@ import type { AwilixRegistry } from '@di/container';
 import type { NfcProtocol } from '@core/protocols/nfc';
 import type {
   NfcError,
-  NfcPermissionResult,
   NfcScanSession,
-  WriteVerifyResult,
-} from '@core/services/mbc/models';
+} from '@src/@core/models/mbc';
 
 export class NfcServiceError extends Error {
   readonly type: NfcError['type'];
@@ -24,14 +22,8 @@ export class NfcServiceError extends Error {
 export interface NfcServiceInterface {
   /** Check if NFC hardware is available */
   isAvailable(): boolean;
-  /** Request NFC permission from the user */
-  requestPermission(): Promise<NfcPermissionResult>;
   /** Read raw bytes from an NFC card (one-shot: resolves on first read) */
   readCard(): Promise<Uint8Array>;
-  /** Write raw bytes to an NFC card */
-  writeCard(data: Uint8Array): Promise<void>;
-  /** Write data and verify by reading back */
-  writeAndVerify(data: Uint8Array): Promise<WriteVerifyResult>;
   /** Read card, process data, then write back — all in one tap */
   readThenWrite(processor: (data: Uint8Array) => Promise<Uint8Array>): Promise<Uint8Array>;
 }
@@ -43,10 +35,6 @@ export const NfcService = (
 
   const isAvailable = (): boolean => {
     return nfcProtocol.isSupported();
-  };
-
-  const requestPermission = async (): Promise<NfcPermissionResult> => {
-    return nfcProtocol.requestPermission();
   };
 
   const readCard = (): Promise<Uint8Array> => {
@@ -65,40 +53,6 @@ export const NfcService = (
 
       session = nfcProtocol.startScan(onRead, onError);
     });
-  };
-
-  const writeCard = async (data: Uint8Array): Promise<void> => {
-    await nfcProtocol.write(data);
-  };
-
-  const writeAndVerify = async (
-    data: Uint8Array,
-  ): Promise<WriteVerifyResult> => {
-    try {
-      // Step 1: Write data to card
-      await nfcProtocol.write(data);
-
-      // Step 2: Read back for verification
-      const readBack = await readCard();
-
-      // Step 3: Compare written vs read
-      if (!arraysEqual(data, readBack)) {
-        return {
-          success: false,
-          error: 'mbc_error_write_verification_failed',
-        };
-      }
-
-      return { success: true };
-    } catch (error: unknown) {
-      return {
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : 'mbc_error_write_verification_failed',
-      };
-    }
   };
 
   /**
@@ -133,14 +87,5 @@ export const NfcService = (
     });
   };
 
-  return { isAvailable, requestPermission, readCard, writeCard, writeAndVerify, readThenWrite };
+  return { isAvailable, readCard, readThenWrite };
 };
-
-/** Compare two Uint8Arrays for byte-level equality */
-function arraysEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}

@@ -11,10 +11,6 @@ import {
   registerLibraryModule,
 } from '@di/registry/libraryContainer';
 import {
-  ProtocolContainerInterface,
-  registerProtocolModules,
-} from '@di/registry/protocolContainer';
-import {
   ReactContainerInterface,
   registerReactModules,
 } from '@di/registry/reactContainer';
@@ -46,7 +42,6 @@ import {
 
 const container = createContainer<AwilixRegistry>();
 
-registerProtocolModules(container);
 registerMbcProtocolModules(container);
 registerServiceModules(container);
 registerMbcServiceModules(container);
@@ -68,5 +63,4 @@ export type AwilixRegistry =
   MbcProtocolContainerInterface &
   MbcServiceContainerInterface &
   MbcUseCaseContainerInterface &
-  ProtocolContainerInterface &
   ReactContainerInterface;

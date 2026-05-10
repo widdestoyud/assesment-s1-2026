@@ -4,7 +4,7 @@ import type {
   CardData,
   NfcCapabilityStatus,
   NfcStatus,
-} from '@core/services/mbc/models';
+} from '@src/@core/models/mbc';
 
 export interface ScoutControllerInterface {
   nfcStatus: NfcStatus;

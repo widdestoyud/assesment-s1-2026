@@ -1,5 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
-import type { CardData } from '@core/services/mbc/models';
+import type { CardData } from '@src/@core/models/mbc';
 
 export interface ReadCardUseCaseInterface {
   execute(): Promise<CardData>;

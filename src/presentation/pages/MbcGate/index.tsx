@@ -98,6 +98,7 @@ const MbcGate: FC = () => {
         error={ctrl.error}
         onClose={handleCloseNfcModal}
         onCancel={ctrl.onCancelScan}
+        scanImageSrc={ctrl.scanImage}
         t={t}
       />
 

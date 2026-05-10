@@ -4,7 +4,7 @@ import type {
   CheckOutResult,
   NfcCapabilityStatus,
   NfcStatus,
-} from '@core/services/mbc/models';
+} from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
 
 export type TerminalResultType = 'checkout_success' | 'nfc_error' | null;
@@ -20,6 +20,7 @@ export interface TerminalControllerInterface {
   onCloseResult: () => void;
   resultType: TerminalResultType;
   nfcErrorImage: string;
+  scanImage: string;
   t: TFunction;
 }
 
@@ -107,6 +108,7 @@ const TerminalController = (
     onCloseResult,
     resultType,
     nfcErrorImage: images.nfcLoadDataFailed,
+    scanImage: images.tapNfc,
     t,
   };
 };

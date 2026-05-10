@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 
-import type { CardData } from '@core/services/mbc/models';
+import type { CardData } from '@core/models/mbc';
 import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
@@ -24,10 +24,7 @@ function createMocks() {
 
   const nfcService: NfcServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
-    requestPermission: vi.fn().mockResolvedValue('granted'),
     readCard: vi.fn().mockResolvedValue(rawEncrypted),
-    writeCard: vi.fn().mockResolvedValue(undefined),
-    writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
     readThenWrite: vi.fn(),
   };
 

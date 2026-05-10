@@ -1,63 +1,24 @@
-import type { KeyValueStoreProtocol } from '@core/protocols/key-value-store';
-
 /**
- * KeyValueStoreProtocol implementation backed by window.localStorage.
- * Primary storage adapter for Device_ID and Service Registry persistence.
- *
- * Internally uses JSON.stringify/parse to support typed values.
- * The `storeName` parameter is prefixed to the key for namespace isolation.
- *
- * Error handling strategy:
- * - `isAvailable()` detects whether localStorage is accessible (e.g. private mode, quota exceeded).
- * - Read operations return `undefined` on parse errors instead of throwing.
- * - Write operations may throw `QuotaExceededError` — callers should handle gracefully.
+ * Simple localStorage wrapper used for TanStack Query persistence
+ * and any future key-value storage needs.
  */
-export const webStorageAdapter: KeyValueStoreProtocol = {
+export const webStorageAdapter = {
   get: async <T>(storeName: string, key: string): Promise<T | undefined> => {
     const raw = localStorage.getItem(`${storeName}:${key}`);
     if (raw === null) return undefined;
     try {
       return JSON.parse(raw) as T;
     } catch {
-      return undefined;
+      return raw as unknown as T;
     }
   },
 
-  set: async <T>(storeName: string, key: string, value: T): Promise<void> => {
-    localStorage.setItem(`${storeName}:${key}`, JSON.stringify(value));
+  set: async (storeName: string, key: string, value: unknown): Promise<void> => {
+    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+    localStorage.setItem(`${storeName}:${key}`, serialized);
   },
 
   delete: async (storeName: string, key: string): Promise<void> => {
     localStorage.removeItem(`${storeName}:${key}`);
-  },
-
-  getAll: async <T>(storeName: string): Promise<T[]> => {
-    const prefix = `${storeName}:`;
-    const results: T[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const fullKey = localStorage.key(i);
-      if (fullKey?.startsWith(prefix)) {
-        const raw = localStorage.getItem(fullKey);
-        if (raw) {
-          try {
-            results.push(JSON.parse(raw) as T);
-          } catch {
-            // Skip malformed entries
-          }
-        }
-      }
-    }
-    return results;
-  },
-
-  isAvailable: async (): Promise<boolean> => {
-    try {
-      const testKey = '__kv_store_test__';
-      localStorage.setItem(testKey, '1');
-      localStorage.removeItem(testKey);
-      return true;
-    } catch {
-      return false;
-    }
   },
 };

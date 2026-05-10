@@ -1,11 +1,8 @@
-import type { NfcError, NfcPermissionResult, NfcScanSession } from '@core/services/mbc/models';
+import type { NfcError, NfcScanSession } from '@src/@core/models/mbc';
 
 export interface NfcProtocol {
   /** Check if Web NFC is supported and permission granted */
   isSupported(): boolean;
-
-  /** Request NFC permission from the user */
-  requestPermission(): Promise<NfcPermissionResult>;
 
   /** Start scanning for NFC tags. Returns a session with abort controller to stop. */
   startScan(

@@ -7,13 +7,11 @@ export type {
   RoleMode,
   NfcStatus,
   NfcError,
-  NfcPermissionResult,
   NfcScanSession,
   FeeResult,
   CheckInResult,
   CheckOutResult,
   OperationResult,
-  WriteVerifyResult,
   NfcCapabilityStatus,
 } from './common.model.ts';
 

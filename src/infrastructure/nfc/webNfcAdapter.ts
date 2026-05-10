@@ -1,9 +1,8 @@
 import type { NfcProtocol } from '@core/protocols/nfc';
 import type {
   NfcError,
-  NfcPermissionResult,
   NfcScanSession,
-} from '@core/services/mbc/models';
+} from '@src/@core/models/mbc';
 import config from '@src/infrastructure/config';
 
 const MBC_MIME_TYPE = 'application/octet-stream';
@@ -31,30 +30,6 @@ export const webNfcAdapter: NfcProtocol = {
     const ua = navigator.userAgent;
     const isChrome = /Chrome\/\d+/.test(ua) && !/SamsungBrowser|EdgA|OPR/.test(ua);
     return isChrome;
-  },
-
-  async requestPermission(): Promise<NfcPermissionResult> {
-    if (!this.isSupported()) {
-      return 'unsupported';
-    }
-
-    // Guard: NDEFReader may not exist even when isSupported() returns true (nfcCheckEnabled=false on desktop)
-    if (!('NDEFReader' in globalThis)) {
-      return 'unsupported';
-    }
-
-    try {
-      const ndef = new NDEFReader();
-      const controller = new AbortController();
-      await ndef.scan({ signal: controller.signal });
-      controller.abort();
-      return 'granted';
-    } catch (error: unknown) {
-      if (error instanceof DOMException && error.name === 'NotAllowedError') {
-        return 'denied';
-      }
-      return 'denied';
-    }
   },
 
   startScan(
@@ -186,7 +161,7 @@ export const webNfcAdapter: NfcProtocol = {
         records: [{
           recordType: 'mime',
           mediaType: MBC_MIME_TYPE,
-          data: data,
+          data: data.buffer as ArrayBuffer,
         }],
       });
     } catch (error: unknown) {

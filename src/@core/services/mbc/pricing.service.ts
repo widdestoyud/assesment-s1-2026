@@ -1,5 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
-import type { FeeResult, PricingStrategy } from '@core/services/mbc/models';
+import type { FeeResult, PricingStrategy } from '@src/@core/models/mbc';
 
 export interface PricingServiceInterface {
   calculateFee(

@@ -1,5 +1,5 @@
 import type { AwilixRegistry } from '@di/container';
-import type { CheckInResult } from '@core/services/mbc/models';
+import type { CheckInResult } from '@src/@core/models/mbc';
 
 export interface CheckInOptions {
   /** Custom timestamp for simulation mode (must be in the past) */

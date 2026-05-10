@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { CardData } from '@core/services/mbc/models';
+import type { CardData } from '@core/models/mbc';
 import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
@@ -21,10 +21,7 @@ const VALID_CARD: CardData = {
 function createMocks(cardData: CardData = VALID_CARD) {
   const nfcService: NfcServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
-    requestPermission: vi.fn().mockResolvedValue('granted'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
-    writeCard: vi.fn().mockResolvedValue(undefined),
-    writeAndVerify: vi.fn().mockResolvedValue({ success: true }),
     readThenWrite: vi.fn(),
   };
 
@@ -56,8 +53,6 @@ describe('ReadCardUseCase', () => {
     expect(result.h).toHaveLength(2);
     expect(result.v).toBe(2);
     // Verify no writes occurred
-    expect(mocks.nfcService.writeCard).not.toHaveBeenCalled();
-    expect(mocks.nfcService.writeAndVerify).not.toHaveBeenCalled();
   });
 
   it('calls readCard → decrypt → deserialize in order', async () => {

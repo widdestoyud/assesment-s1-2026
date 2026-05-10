@@ -61,5 +61,5 @@
 }
 
 .result-status-modal__button {
-  @apply mt-8 w-full rounded-lg bg-blue-600 py-3 text-center font-semibold text-white transition-colors hover:bg-blue-700;
+  @apply mt-10 w-full rounded-lg bg-blue-600 py-3 text-center font-semibold text-white transition-colors hover:bg-blue-700;
 }

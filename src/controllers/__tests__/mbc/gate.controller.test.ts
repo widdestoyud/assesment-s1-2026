@@ -16,10 +16,7 @@ function createMocks() {
 
   const nfcService = {
     isAvailable: vi.fn().mockReturnValue(true),
-    requestPermission: vi.fn(),
     readCard: vi.fn(),
-    writeCard: vi.fn(),
-    writeAndVerify: vi.fn(),
     readThenWrite: vi.fn(),
   };
 

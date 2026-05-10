@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import type { TFunction } from 'i18next';
-import type { FeeResult } from '@core/services/mbc/models';
+import type { FeeResult } from '@src/@core/models/mbc';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './fee-breakdown.module.css';
 

@@ -1,6 +1,6 @@
 import type { AwilixRegistry } from '@di/container';
-import type { CheckOutResult } from '@core/services/mbc/models';
-import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
+import type { CheckOutResult } from '@src/@core/models/mbc';
+import { DEFAULT_PARKING_BENEFIT } from '@src/@core/models/mbc';
 import { formatDuration } from '@utils/helpers/mbc.helper';
 
 export interface CheckOutUseCaseInterface {
