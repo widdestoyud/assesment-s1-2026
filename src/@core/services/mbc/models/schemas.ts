@@ -11,6 +11,7 @@ export const CardDataSchema = z.object({
   b: z.number().int().min(0).max(999999),
   s: z.union([z.literal(0), z.literal(1)]),
   t: z.string().nullable(),
+  m: z.union([z.literal(0), z.literal(1)]).optional(),
   h: z.array(TransactionEntrySchema).max(5).default([]),
 });
 

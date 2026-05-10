@@ -111,14 +111,19 @@ The application provides four role modes within a single app: The Station (admin
 
 ### Requirement 7: Simulation Mode (The Gate)
 
-**User Story:** As a tester or operator, I want to manipulate the check-in timestamp to a past time, so that I can test fee calculations without waiting real hours.
+**User Story:** As a tester or operator, I want to manipulate the check-in timestamp to a past time, so that I can test fee calculations without waiting real hours and without affecting member balance.
 
 #### Acceptance Criteria
 
 1. WHILE The_Gate mode is active, THE MBC_App SHALL provide a toggle to enable Simulation_Mode
-2. WHILE Simulation_Mode is enabled, THE MBC_App SHALL display a date-time picker allowing the operator to set a custom check-in timestamp in the past
-3. WHEN a check-in is performed with Simulation_Mode enabled, THE MBC_App SHALL write the custom timestamp instead of the current time to the NFC card
-4. THE MBC_App SHALL visually distinguish Simulation_Mode from normal operation mode with a clear indicator
+2. WHILE Simulation_Mode is enabled, THE MBC_App SHALL display a date-time picker allowing the operator to set a custom check-in timestamp in the past, with a default value of 3 hours before the current time
+3. WHEN a check-in is performed with Simulation_Mode enabled, THE MBC_App SHALL write the custom timestamp instead of the current time to the NFC card AND set a simulation flag on the card data
+4. THE MBC_App SHALL visually distinguish Simulation_Mode from normal operation mode with a clear indicator (orange/yellow banner)
+5. THE MBC_App SHALL validate that the simulation timestamp is in the past (≤ current time) and reject future timestamps with an error message
+6. WHEN The_Terminal processes a check-out for a card with an active simulation flag, THE MBC_App SHALL calculate the fee normally using the pricing engine BUT SHALL NOT deduct the fee from the card balance
+7. WHEN a simulation check-out completes, THE MBC_App SHALL clear the Check_In_Status and simulation flag from the card WITHOUT recording a Transaction_Log entry
+8. WHEN a simulation check-out completes, THE MBC_App SHALL display the fee breakdown with a clear label indicating "SIMULASI — Saldo tidak dipotong"
+9. THE MBC_App SHALL NOT record any Transaction_Log entry for simulation check-in or simulation check-out operations
 
 ### Requirement 8: Generic Check-Out and Fee Calculation (The Terminal)
 

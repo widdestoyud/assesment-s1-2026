@@ -5,9 +5,10 @@ import type {
   NfcCapabilityStatus,
   NfcStatus,
 } from '@core/services/mbc/models';
+import { NfcServiceError } from '@core/services/mbc/nfc.service';
 
 export type StationPhase = 'home' | 'topup';
-export type ResultType = 'register_success' | 'already_registered' | 'not_registered' | 'topup_success' | 'topup_error' | null;
+export type ResultType = 'register_success' | 'already_registered' | 'not_registered' | 'topup_success' | 'topup_error' | 'nfc_error' | null;
 
 export interface StationControllerInterface {
   phase: StationPhase;
@@ -23,6 +24,7 @@ export interface StationControllerInterface {
   successImage: string;
   alreadyRegisteredImage: string;
   refreshImage: string;
+  nfcErrorImage: string;
   onRegister: () => Promise<void>;
   onStartTopUp: () => Promise<void>;
   onTopUp: (amount: number) => Promise<void>;
@@ -94,7 +96,12 @@ const StationController = (
       }
     } catch (err: unknown) {
       setNfcStatus('error');
-      setError(err instanceof Error ? err.message : String(err));
+      if (err instanceof NfcServiceError) {
+        setError(err.messageKey);
+        setResultType('nfc_error');
+      } else {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -126,7 +133,12 @@ const StationController = (
       }
     } catch (err: unknown) {
       setNfcStatus('error');
-      setError(err instanceof Error ? err.message : String(err));
+      if (err instanceof NfcServiceError) {
+        setError(err.messageKey);
+        setResultType('nfc_error');
+      } else {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -148,8 +160,13 @@ const StationController = (
       setResultType('topup_success');
     } catch (err: unknown) {
       setNfcStatus('error');
-      setResultType('topup_error');
-      setError(err instanceof Error ? err.message : String(err));
+      if (err instanceof NfcServiceError) {
+        setError(err.messageKey);
+        setResultType('nfc_error');
+      } else {
+        setResultType('topup_error');
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -183,6 +200,7 @@ const StationController = (
     successImage: images.success,
     alreadyRegisteredImage: images.nfcSuccessHuman,
     refreshImage: images.tapNfc,
+    nfcErrorImage: images.nfcLoadDataFailed,
     onRegister,
     onStartTopUp,
     onTopUp,

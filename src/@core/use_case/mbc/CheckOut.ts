@@ -30,6 +30,8 @@ export const CheckOutUseCase = (
         throw new Error('mbc_error_not_checked_in');
       }
 
+      const isSimulation = card.m === 1;
+
       // Calculate fee using hardcoded parking config
       const exitTime = new Date().toISOString();
       const feeResult = pricingService.calculateFee(
@@ -38,22 +40,40 @@ export const CheckOutUseCase = (
         exitTime,
       );
 
-      // Validate sufficient balance
+      // Calculate duration for display
+      const duration = formatDuration(card.t, exitTime);
+
+      if (isSimulation) {
+        // Simulation: clear check-in status WITHOUT deducting balance or recording transaction
+        const updatedCard = cardDataService.applySimulationCheckOut(card);
+
+        result = {
+          fee: feeResult.fee,
+          duration,
+          remainingBalance: updatedCard.b,
+          feeBreakdown: feeResult,
+          isSimulation: true,
+        };
+
+        // Serialize → encrypt → return for write
+        const serialized = cardDataService.serialize(updatedCard);
+        return silentShieldService.encrypt(serialized);
+      }
+
+      // Normal flow: validate sufficient balance
       if (feeResult.fee > card.b) {
         throw new Error('mbc_error_insufficient_balance');
       }
 
-      // Apply check-out
+      // Apply check-out (deduct fee, clear status, record transaction)
       const updatedCard = cardDataService.applyCheckOut(card, feeResult.fee);
-
-      // Calculate duration for display
-      const duration = formatDuration(card.t, exitTime);
 
       result = {
         fee: feeResult.fee,
         duration,
         remainingBalance: updatedCard.b,
         feeBreakdown: feeResult,
+        isSimulation: false,
       };
 
       // Serialize → encrypt → return for write

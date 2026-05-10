@@ -1,8 +1,13 @@
 import type { AwilixRegistry } from '@di/container';
 import type { CheckInResult } from '@core/services/mbc/models';
 
+export interface CheckInOptions {
+  /** Custom timestamp for simulation mode (must be in the past) */
+  simulationTimestamp?: string;
+}
+
 export interface CheckInUseCaseInterface {
-  execute(): Promise<CheckInResult>;
+  execute(options?: CheckInOptions): Promise<CheckInResult>;
 }
 
 export const CheckInUseCase = (
@@ -13,8 +18,17 @@ export const CheckInUseCase = (
 ): CheckInUseCaseInterface => {
   const { nfcService, cardDataService, silentShieldService } = deps;
 
-  const execute = async (): Promise<CheckInResult> => {
+  const execute = async (options?: CheckInOptions): Promise<CheckInResult> => {
     let checkInTime = '';
+    const isSimulation = Boolean(options?.simulationTimestamp);
+
+    // Validate simulation timestamp is in the past
+    if (options?.simulationTimestamp) {
+      const simTime = new Date(options.simulationTimestamp).getTime();
+      if (simTime > Date.now()) {
+        throw new Error('mbc_error_simulation_future_time');
+      }
+    }
 
     // Single-tap: read card, validate, apply check-in, write back
     await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
@@ -27,9 +41,9 @@ export const CheckInUseCase = (
         throw new Error('mbc_error_already_checked_in');
       }
 
-      // Apply check-in with current timestamp
-      const timestamp = new Date().toISOString();
-      const updatedCard = cardDataService.applyCheckIn(card, timestamp);
+      // Apply check-in with current or simulation timestamp
+      const timestamp = options?.simulationTimestamp ?? new Date().toISOString();
+      const updatedCard = cardDataService.applyCheckIn(card, timestamp, isSimulation);
       checkInTime = timestamp;
 
       // Serialize → encrypt → return for write
@@ -37,7 +51,7 @@ export const CheckInUseCase = (
       return silentShieldService.encrypt(serialized);
     });
 
-    return { checkInTime };
+    return { checkInTime, isSimulation };
   };
 
   return { execute };

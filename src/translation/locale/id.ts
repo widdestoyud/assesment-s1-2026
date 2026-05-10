@@ -189,6 +189,7 @@ export default {
     'Nomor Telkomsel Anda',
 
   /* MBC - Pesan Error NFC */
+  mbc_nfc_error_title: 'NFC Tidak Tersedia',
   mbc_nfc_error_incompatible_card: 'Gagal membaca kartu. Pastikan kartu NTAG215/216 yang sudah di-format NDEF. Tahan kartu dengan stabil selama 2-3 detik.',
   mbc_nfc_error_blank_card: 'Kartu ini kosong. Silakan daftarkan di The Station terlebih dahulu.',
   mbc_nfc_error_card_not_recognized: 'Kartu ini tidak dikenali sebagai kartu MBC.',
@@ -215,6 +216,9 @@ export default {
   mbc_error_encryption_failed: 'Enkripsi kartu gagal. Silakan coba lagi.',
   mbc_error_decryption_failed: 'Gagal membaca data kartu. Kartu mungkin dari sistem lain.',
   mbc_error_key_derivation_failed: 'Inisialisasi keamanan gagal. Silakan mulai ulang aplikasi.',
+
+  /* MBC - Common */
+  mbc_common_done_button: 'Selesai',
 
   /* MBC - Bottom Navigation */
   mbc_nav_station: 'Station',
@@ -250,13 +254,26 @@ export default {
   mbc_gate_subtitle: 'Check-in member dengan NFC',
   mbc_gate_checkin_button: 'Check-In',
   mbc_gate_checkin_success: '✅ Check-in berhasil',
+  mbc_gate_checkin_simulation_success: '✅ Check-in berhasil (SIMULASI)',
   mbc_gate_entry_time_label: 'Waktu masuk:',
+  mbc_gate_tab_normal: 'Normal',
+  mbc_gate_tab_simulation: 'Simulasi',
+  mbc_gate_tap_card_label: 'TAP\nCheck-In',
+  mbc_gate_simulation_pick_time: 'Pilih Waktu Masuk',
+  mbc_gate_simulation_date_label: 'Tanggal simulasi',
+  mbc_gate_simulation_time_label: 'Jam simulasi',
+  mbc_gate_simulation_use_time: 'Gunakan Waktu Ini',
+  mbc_error_simulation_future_time: 'Waktu simulasi tidak boleh di masa depan',
 
   /* MBC - Terminal */
   mbc_terminal_title: 'The Terminal',
   mbc_terminal_subtitle: 'Check-out dan kalkulasi tarif',
   mbc_terminal_checkout_button: 'Check-Out',
   mbc_terminal_checkout_success: '✅ Check-out berhasil',
+  mbc_terminal_tap_card_label: 'TAP\nCheck-Out',
+  mbc_terminal_simulation_notice: 'SIMULASI — Saldo tidak dipotong',
+  mbc_terminal_duration_label: 'Durasi:',
+  mbc_terminal_parking_label: 'Parkir',
 
   /* MBC - Scout */
   mbc_scout_title: 'The Scout',

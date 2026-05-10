@@ -191,6 +191,7 @@ export default {
     'Your Telkomsel Number',
 
   /* MBC - NFC Error Messages */
+  mbc_nfc_error_title: 'NFC Not Available',
   mbc_nfc_error_incompatible_card: 'Failed to read card. Make sure it is an NDEF-formatted NTAG215/216 card. Hold the card steady for 2-3 seconds.',
   mbc_nfc_error_blank_card: 'This card is blank. Please register it at The Station first.',
   mbc_nfc_error_card_not_recognized: 'This card is not recognized as an MBC card.',
@@ -217,6 +218,9 @@ export default {
   mbc_error_encryption_failed: 'Card encryption failed. Please try again.',
   mbc_error_decryption_failed: 'Failed to read card data. Card may be from a different system.',
   mbc_error_key_derivation_failed: 'Security initialization failed. Please restart the app.',
+
+  /* MBC - Common */
+  mbc_common_done_button: 'Done',
 
   /* MBC - Bottom Navigation */
   mbc_nav_station: 'Station',
@@ -252,13 +256,26 @@ export default {
   mbc_gate_subtitle: 'Check-in member with NFC',
   mbc_gate_checkin_button: 'Check-In',
   mbc_gate_checkin_success: '✅ Check-in successful',
+  mbc_gate_checkin_simulation_success: '✅ Check-in successful (SIMULATION)',
   mbc_gate_entry_time_label: 'Entry time:',
+  mbc_gate_tab_normal: 'Normal',
+  mbc_gate_tab_simulation: 'Simulation',
+  mbc_gate_tap_card_label: 'TAP\nCheck-In',
+  mbc_gate_simulation_pick_time: 'Select Entry Time',
+  mbc_gate_simulation_date_label: 'Simulation date',
+  mbc_gate_simulation_time_label: 'Simulation time',
+  mbc_gate_simulation_use_time: 'Use This Time',
+  mbc_error_simulation_future_time: 'Simulation time cannot be in the future',
 
   /* MBC - Terminal */
   mbc_terminal_title: 'The Terminal',
   mbc_terminal_subtitle: 'Check-out and fee calculation',
   mbc_terminal_checkout_button: 'Check-Out',
   mbc_terminal_checkout_success: '✅ Check-out successful',
+  mbc_terminal_tap_card_label: 'TAP\nCheck-Out',
+  mbc_terminal_simulation_notice: 'SIMULATION — Balance not deducted',
+  mbc_terminal_duration_label: 'Duration:',
+  mbc_terminal_parking_label: 'Parking',
 
   /* MBC - Scout */
   mbc_scout_title: 'The Scout',

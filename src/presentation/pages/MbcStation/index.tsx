@@ -118,6 +118,14 @@ const MbcStation: FC = () => {
           subtitle: ctrl.error ?? t('mbc_station_topup_result_error_subtitle'),
           buttonLabel: t('mbc_station_topup_result_retry_button'),
         };
+      case 'nfc_error':
+        return {
+          variant: 'error' as const,
+          title: t('mbc_nfc_error_title'),
+          subtitle: t(ctrl.error as 'mbc_nfc_error_hardware_unavailable') ?? t('mbc_nfc_error_hardware_unavailable'),
+          buttonLabel: t('mbc_station_topup_result_done_button'),
+          imageSrc: ctrl.nfcErrorImage,
+        };
       default:
         return null;
     }

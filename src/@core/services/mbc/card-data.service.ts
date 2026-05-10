@@ -10,8 +10,9 @@ export interface CardDataServiceInterface {
   deserialize(raw: Uint8Array): CardData;
   createBlank(): CardData;
   applyTopUp(card: CardData, amount: number): CardData;
-  applyCheckIn(card: CardData, timestamp: string): CardData;
+  applyCheckIn(card: CardData, timestamp: string, isSimulation?: boolean): CardData;
   applyCheckOut(card: CardData, fee: number): CardData;
+  applySimulationCheckOut(card: CardData): CardData;
 }
 
 export const CardDataService = (
@@ -57,11 +58,16 @@ export const CardDataService = (
     });
   };
 
-  const applyCheckIn = (card: CardData, timestamp: string): CardData => {
+  const applyCheckIn = (card: CardData, timestamp: string, isSimulation?: boolean): CardData => {
     if (card.s !== 0) {
       throw new Error('mbc_error_already_checked_in');
     }
-    const updated: CardData = { ...card, s: 1, t: timestamp };
+    const updated: CardData = {
+      ...card,
+      s: 1,
+      t: timestamp,
+      ...(isSimulation ? { m: 1 as const } : {}),
+    };
     return addHistory(updated, {
       ts: Math.floor(new Date(timestamp).getTime() / 1000),
       a: 0,
@@ -73,12 +79,20 @@ export const CardDataService = (
     if (card.s !== 1) {
       throw new Error('mbc_error_not_checked_in');
     }
-    const updated: CardData = { ...card, s: 0, t: null, b: card.b - fee };
+    const updated: CardData = { ...card, s: 0, t: null, b: card.b - fee, m: undefined };
     return addHistory(updated, {
       ts: Math.floor(Date.now() / 1000),
       a: -fee,
       tp: 'co',
     });
+  };
+
+  /** Simulation check-out: clear check-in status without deducting balance or recording transaction */
+  const applySimulationCheckOut = (card: CardData): CardData => {
+    if (card.s !== 1) {
+      throw new Error('mbc_error_not_checked_in');
+    }
+    return { ...card, s: 0, t: null, m: undefined };
   };
 
   return {
@@ -88,5 +102,6 @@ export const CardDataService = (
     applyTopUp,
     applyCheckIn,
     applyCheckOut,
+    applySimulationCheckOut,
   };
 };

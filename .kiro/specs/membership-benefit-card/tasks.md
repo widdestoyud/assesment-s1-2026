@@ -669,3 +669,101 @@ This plan implements the MBC feature following a strict bottom-up build order: d
 - All services use the Awilix DI pattern established in the project (factory functions, `asFunction`, typed interfaces)
 - Controllers follow the project's controller pattern: pure functions receiving DI, returning typed interfaces, `import type` only
 - Components follow props-in/events-out pattern with zero business logic
+
+- [ ] 22. Simulation Mode Enhancement — Gate & Terminal Redesign
+  - **Assigned:** @developer
+  - **Scope:** Implement full simulation mode at Gate (custom past timestamp, default 3h back) and no-deduction check-out at Terminal for simulation check-ins
+  - **Steering:** `.kiro/steering/architecture.md`, `.kiro/steering/styling-rules.md`, `.kiro/steering/internasionalization.md`
+
+  - [ ] 22.1 Update CardData model — add simulation flag
+    - Update `src/@core/services/mbc/models/card-data.model.ts`: add optional field `m?: 0 | 1` to `CardData` interface (0 or undefined = normal, 1 = simulation)
+    - Update Zod schema in `schemas.ts` if applicable to include `m` field validation
+    - Ensure backward compatibility: cards without `m` field are treated as normal (non-simulation)
+    - _Requirements: Req 7.3, Req 13.1_
+
+  - [ ] 22.2 Update card-data.service — simulation-aware check-in mutation
+    - Update `applyCheckIn` in `src/@core/services/mbc/card-data.service.ts` to accept optional `isSimulation: boolean` parameter
+    - When `isSimulation = true`, set `m: 1` on the card data alongside timestamp and check-in status
+    - When `isSimulation = false` or undefined, do NOT set `m` field (or set `m: 0`)
+    - _Requirements: Req 7.3_
+
+  - [ ] 22.3 Update CheckIn use case — accept simulation timestamp
+    - Update `src/@core/use_case/mbc/CheckIn.ts` interface: `execute(options?: { simulationTimestamp?: string })` 
+    - When `simulationTimestamp` is provided, use it instead of `new Date().toISOString()` and pass `isSimulation: true` to `applyCheckIn`
+    - Validate that `simulationTimestamp` is in the past (≤ current time), throw error `mbc_error_simulation_future_time` if not
+    - Update `CheckInResult` in `common.model.ts`: add `isSimulation: boolean` field
+    - _Requirements: Req 7.2, Req 7.3_
+
+  - [ ] 22.4 Update CheckOut use case — skip deduction for simulation
+    - Update `src/@core/use_case/mbc/CheckOut.ts`:
+      - After deserializing card, check if `card.m === 1` (simulation flag)
+      - If simulation: calculate fee normally (for display), but do NOT deduct from balance
+      - If simulation: clear check-in status (`s: 0`, `t: null`, `m: undefined`) WITHOUT appending Transaction_Log
+      - If simulation: write updated card (cleared status, original balance preserved)
+    - Update `CheckOutResult` in `common.model.ts`: add `isSimulation: boolean` field
+    - If simulation: skip the `feeResult.fee > card.b` insufficient balance check (saldo tidak relevan)
+    - _Requirements: Req 7 (testing purpose), Req 8.6 exception_
+
+  - [ ] 22.5 Update gate.controller — simulation mode state management
+    - Update `src/controllers/mbc/gate.controller.ts` interface to add:
+      - `simulationMode: boolean` — toggle state
+      - `onToggleSimulation: () => void` — toggle handler
+      - `simulationTimestamp: string` — default: 3 hours before `Date.now()` in ISO 8601
+      - `onSetSimulationTimestamp: (ts: string) => void` — setter for custom timestamp
+    - Validate timestamp is in the past before allowing check-in
+    - When simulation mode enabled, pass `simulationTimestamp` to `checkInUseCase.execute({ simulationTimestamp })`
+    - When simulation mode disabled, call `checkInUseCase.execute()` without options (normal flow)
+    - Disable simulation toggle while `isProcessing = true`
+    - _Requirements: Req 7.1, Req 7.2, Req 7.3, Req 7.4_
+
+  - [ ] 22.6 Update terminal.controller — expose simulation flag from result
+    - Update `src/controllers/mbc/terminal.controller.ts`:
+      - Expose `isSimulation: boolean` from `lastResult` for UI labeling
+      - No logic change needed — CheckOut use case handles the no-deduction internally
+    - _Requirements: Req 8.9 (display), Req 7_
+
+  - [ ] 22.7 Redesign MbcGate page — simulation mode UI
+    - Update `src/presentation/pages/MbcGate/index.tsx`:
+      - Add simulation mode toggle (switch component) with label from `t('mbc_gate_simulation_toggle')`
+      - When simulation active: show `SimulationBanner` component with orange/yellow styling
+      - When simulation active: show DateTime Picker input (type="datetime-local") with max={now} constraint
+      - Default DateTime Picker value: 3 hours before current time
+      - Disable check-in button if simulation active but timestamp is empty or in the future
+      - Show simulation indicator on success result: "✅ Check-in (SIMULASI)"
+    - Update `src/presentation/pages/MbcGate/mbc-gate.module.css`:
+      - Add `.mbc-gate__simulation-section` layout styles
+      - Add `.mbc-gate__simulation-toggle` switch styles
+      - Add `.mbc-gate__datetime-input` input styles
+      - Add `.mbc-gate__success-output--simulation` modifier for simulation result styling
+    - _Requirements: Req 7.1, Req 7.2, Req 7.4_
+
+  - [ ] 22.8 Redesign MbcTerminal page — simulation result display
+    - Update `src/presentation/pages/MbcTerminal/index.tsx`:
+      - When `ctrl.lastResult?.isSimulation === true`, display fee breakdown with prominent label: "SIMULASI — Saldo tidak dipotong"
+      - Use orange/yellow styling for simulation results (distinct from normal green success)
+      - Still show full FeeBreakdown (service type, duration, rate, total) for informational purposes
+      - Do NOT show BalanceDisplay change (since balance unchanged)
+    - Update `src/presentation/pages/MbcTerminal/mbc-terminal.module.css`:
+      - Add `.mbc-terminal__simulation-notice` styles (orange bg, clear label)
+      - Add `.mbc-terminal__result-section--simulation` modifier
+    - _Requirements: Req 7 (testing display), Req 8.9_
+
+  - [ ] 22.9 Add translation keys for simulation mode
+    - Update `src/translation/locale/id.ts` and `src/translation/locale/en.ts` with keys:
+      - `mbc_gate_simulation_toggle` — "Mode Simulasi" / "Simulation Mode"
+      - `mbc_gate_simulation_timestamp_label` — "Waktu Check-in (mundur)" / "Check-in Time (past)"
+      - `mbc_gate_simulation_default_hint` — "Default: 3 jam yang lalu" / "Default: 3 hours ago"
+      - `mbc_gate_simulation_future_error` — "Waktu simulasi harus di masa lalu" / "Simulation time must be in the past"
+      - `mbc_gate_checkin_simulation_success` — "Check-in berhasil (SIMULASI)" / "Check-in successful (SIMULATION)"
+      - `mbc_terminal_simulation_notice` — "SIMULASI — Saldo tidak dipotong" / "SIMULATION — Balance not deducted"
+      - `mbc_error_simulation_future_time` — "Waktu simulasi tidak boleh di masa depan" / "Simulation time cannot be in the future"
+    - _Requirements: i18n steering rules_
+
+  - [ ] 22.10 Verification checkpoint
+    - Build: `npm run build` — zero errors
+    - Tests: `npx vitest --run` — all pass
+    - Manual verification: simulation check-in writes past timestamp + flag to card
+    - Manual verification: simulation check-out shows fee but does NOT deduct balance
+    - No `any` types introduced
+    - Clean Architecture layer boundaries maintained
+    - All translation keys present in both `id.ts` and `en.ts`

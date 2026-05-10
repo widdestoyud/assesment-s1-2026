@@ -38,6 +38,11 @@ export const webNfcAdapter: NfcProtocol = {
       return 'unsupported';
     }
 
+    // Guard: NDEFReader may not exist even when isSupported() returns true (nfcCheckEnabled=false on desktop)
+    if (!('NDEFReader' in globalThis)) {
+      return 'unsupported';
+    }
+
     try {
       const ndef = new NDEFReader();
       const controller = new AbortController();
@@ -62,6 +67,16 @@ export const webNfcAdapter: NfcProtocol = {
       onError({
         type: 'hardware_unavailable',
         message: 'Web NFC is not supported on this device or browser',
+        messageKey: 'mbc_nfc_error_hardware_unavailable',
+      });
+      return { abort: () => controller.abort() };
+    }
+
+    // Guard: NDEFReader may not exist even when isSupported() returns true (nfcCheckEnabled=false on desktop)
+    if (!('NDEFReader' in globalThis)) {
+      onError({
+        type: 'hardware_unavailable',
+        message: 'NDEFReader API is not available in this browser. Use a Chrome Android device with NFC.',
         messageKey: 'mbc_nfc_error_hardware_unavailable',
       });
       return { abort: () => controller.abort() };
@@ -151,6 +166,15 @@ export const webNfcAdapter: NfcProtocol = {
       throw createNfcError(
         'hardware_unavailable',
         'Web NFC is not supported on this device or browser',
+        'mbc_nfc_error_hardware_unavailable',
+      );
+    }
+
+    // Guard: NDEFReader may not exist even when isSupported() returns true (nfcCheckEnabled=false on desktop)
+    if (!('NDEFReader' in globalThis)) {
+      throw createNfcError(
+        'hardware_unavailable',
+        'NDEFReader API is not available in this browser. Use a Chrome Android device with NFC.',
         'mbc_nfc_error_hardware_unavailable',
       );
     }

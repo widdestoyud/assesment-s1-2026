@@ -2,35 +2,67 @@ import type { FC } from 'react';
 import { useState } from 'react';
 import container from '@di/container';
 import type { TerminalControllerInterface } from '@controllers/mbc/terminal.controller';
-import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
+import NfcScanModal from '@components/NfcScanModal';
+import ResultStatusModal from '@components/ResultStatusModal';
 import PageLayout from '@components/PageLayout';
 import FeeBreakdown from '@components/FeeBreakdown';
 import BalanceDisplay from '@components/BalanceDisplay';
-import DebugPanel, { createDebugLog, type DebugLog } from '@components/DebugPanel';
-import { DEFAULT_PARKING_BENEFIT } from '@core/services/mbc/models';
 import styles from './mbc-terminal.module.css';
 
 const MbcTerminal: FC = () => {
   const ctrl = container.resolve<TerminalControllerInterface>('terminalController');
   const { t } = ctrl;
-  const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
-  const [debugLogs, setDebugLogs] = useState<DebugLog[]>([]);
-
-  const addLog = (step: string, data: unknown, level: DebugLog['level'] = 'info') => {
-    setDebugLogs(prev => [...prev, createDebugLog(step, data, level)]);
-  };
+  const [showNfcModal, setShowNfcModal] = useState(false);
 
   const handleCheckOut = async () => {
-    setDebugLogs([]);
-    addLog('Check-Out Start', { nfcCapability: ctrl.nfcCapability });
+    setShowNfcModal(true);
     try {
       await ctrl.onCheckOut();
-      addLog('Check-Out Complete', { lastResult: ctrl.lastResult, nfcStatus: ctrl.nfcStatus }, 'success');
-    } catch (err: unknown) {
-      addLog('Check-Out Error', { error: err instanceof Error ? err.message : String(err) }, 'error');
+    } finally {
+      setShowNfcModal(false);
     }
   };
+
+  const handleCloseNfcModal = () => {
+    ctrl.onCancelScan();
+    setShowNfcModal(false);
+  };
+
+  const handleCloseResult = () => {
+    ctrl.onCloseResult();
+  };
+
+  const getResultProps = () => {
+    if (ctrl.resultType === 'checkout_success' && ctrl.lastResult) {
+      if (ctrl.lastResult.isSimulation) {
+        return {
+          variant: 'success' as const,
+          title: t('mbc_terminal_checkout_success'),
+          subtitle: t('mbc_terminal_simulation_notice'),
+          buttonLabel: t('mbc_common_done_button'),
+        };
+      }
+      return {
+        variant: 'success' as const,
+        title: t('mbc_terminal_checkout_success'),
+        subtitle: `${t('mbc_terminal_duration_label')} ${ctrl.lastResult.duration}`,
+        buttonLabel: t('mbc_common_done_button'),
+      };
+    }
+    if (ctrl.resultType === 'nfc_error' && ctrl.error) {
+      return {
+        variant: 'error' as const,
+        title: t('mbc_nfc_error_title'),
+        subtitle: t(ctrl.error as 'mbc_nfc_error_hardware_unavailable'),
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: ctrl.nfcErrorImage,
+      };
+    }
+    return null;
+  };
+
+  const resultProps = getResultProps();
 
   return (
     <PageLayout
@@ -41,44 +73,66 @@ const MbcTerminal: FC = () => {
     >
       <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
-      {nfcAvailable && (
-        <div className={styles['mbc-terminal__content']}>
+      {/* NFC Scan Modal */}
+      <NfcScanModal
+        isOpen={showNfcModal}
+        nfcStatus={ctrl.nfcStatus}
+        isProcessing={ctrl.isProcessing}
+        error={ctrl.error}
+        onClose={handleCloseNfcModal}
+        onCancel={ctrl.onCancelScan}
+        t={t}
+      />
+
+      {/* Result Modal (success or NFC error) */}
+      {resultProps && (
+        <ResultStatusModal
+          isOpen={ctrl.resultType !== null}
+          variant={resultProps.variant}
+          title={resultProps.title}
+          subtitle={resultProps.subtitle}
+          buttonLabel={resultProps.buttonLabel}
+          imageSrc={resultProps.imageSrc}
+          onClose={handleCloseResult}
+          t={t}
+        />
+      )}
+
+      <div className={styles['mbc-terminal__content']}>
+        {/* NFC Tap Circle */}
+        <div className={styles['mbc-terminal__nfc-section']}>
           <button
             type="button"
             onClick={handleCheckOut}
             disabled={ctrl.isProcessing}
-            className={styles['mbc-terminal__primary-button']}
+            className={styles['mbc-terminal__nfc-circle']}
+            aria-label={t('mbc_terminal_tap_card_label')}
           >
-            {t('mbc_terminal_checkout_button')}
+            <span className={styles['mbc-terminal__nfc-label']}>
+              {t('mbc_terminal_tap_card_label')}
+            </span>
           </button>
-
-          <NfcTapPrompt nfcStatus={ctrl.nfcStatus} isProcessing={ctrl.isProcessing} t={t} />
-
-          {/* Check-Out Result */}
-          {ctrl.lastResult && ctrl.nfcStatus === 'success' && (
-            <div className={styles['mbc-terminal__result-section']}>
-              <output className={styles['mbc-terminal__success-output']}>
-                {t('mbc_terminal_checkout_success')}
-              </output>
-              <FeeBreakdown
-                feeResult={ctrl.lastResult.feeBreakdown}
-                benefitTypeName={DEFAULT_PARKING_BENEFIT.displayName}
-                t={t}
-              />
-              <BalanceDisplay balance={ctrl.lastResult.remainingBalance} t={t} />
-            </div>
-          )}
-
-          {/* Error */}
-          {ctrl.error && (
-            <div role="alert" className={styles['mbc-terminal__error-alert']}>
-              {ctrl.error}
-            </div>
-          )}
         </div>
-      )}
 
-      <DebugPanel logs={debugLogs} title="Terminal NFC Debug" onClear={() => setDebugLogs([])} />
+        {/* Check-Out Result (inline, below circle) */}
+        {ctrl.lastResult && ctrl.resultType === 'checkout_success' && (
+          <div className={styles['mbc-terminal__result-section']}>
+            {ctrl.lastResult.isSimulation && (
+              <div className={styles['mbc-terminal__simulation-notice']}>
+                {t('mbc_terminal_simulation_notice')}
+              </div>
+            )}
+            <FeeBreakdown
+              feeResult={ctrl.lastResult.feeBreakdown}
+              benefitTypeName={t('mbc_terminal_parking_label')}
+              t={t}
+            />
+            {!ctrl.lastResult.isSimulation && (
+              <BalanceDisplay balance={ctrl.lastResult.remainingBalance} t={t} />
+            )}
+          </div>
+        )}
+      </div>
     </PageLayout>
   );
 };

@@ -41,6 +41,7 @@ export interface FeeResult {
 
 export interface CheckInResult {
   checkInTime: string;
+  isSimulation: boolean;
 }
 
 export interface CheckOutResult {
@@ -48,6 +49,7 @@ export interface CheckOutResult {
   duration: string;
   remainingBalance: number;
   feeBreakdown: FeeResult;
+  isSimulation: boolean;
 }
 
 export interface OperationResult {
