@@ -1,0 +1,16 @@
+@reference "tailwindcss";
+
+/* ===== Base ===== */
+.signal-header {
+  @apply flex flex-col gap-1;
+}
+
+/* ===== Title ===== */
+.signal-header__title {
+  @apply text-gray-900;
+}
+
+/* ===== Subtitle ===== */
+.signal-header__subtitle {
+  @apply text-gray-500;
+}

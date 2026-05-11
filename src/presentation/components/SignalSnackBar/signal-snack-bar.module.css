@@ -1,0 +1,34 @@
+@reference "tailwindcss";
+
+/* ===== Individual Snackbar ===== */
+.signal-snack-bar {
+  @apply flex items-center justify-between gap-3 rounded-lg px-4 py-3;
+}
+
+/* Position modifiers (for standalone usage without SignalStackGroup) */
+.signal-snack-bar--top {
+  @apply fixed left-4 right-4 top-4 z-50 mx-auto max-w-lg;
+}
+
+.signal-snack-bar--bottom {
+  @apply fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg;
+}
+
+/* ===== Variant ===== */
+.signal-snack-bar--dark {
+  @apply bg-gray-900;
+}
+
+.signal-snack-bar--warning {
+  @apply bg-amber-500;
+}
+
+/* ===== Message ===== */
+.signal-snack-bar__message {
+  @apply flex-1 text-sm text-white;
+}
+
+/* ===== Action ===== */
+.signal-snack-bar__action {
+  @apply flex-shrink-0;
+}

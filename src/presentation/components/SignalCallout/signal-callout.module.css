@@ -1,0 +1,79 @@
+@reference "tailwindcss";
+
+/* ===== Base ===== */
+.signal-callout {
+  @apply flex items-start gap-3 rounded-xl px-4 py-3;
+}
+
+/* ===== Theme Variants ===== */
+.signal-callout--info {
+  @apply border border-blue-100 bg-blue-50;
+}
+
+.signal-callout--warning {
+  @apply border border-amber-100 bg-amber-50;
+}
+
+/* ===== Icon ===== */
+.signal-callout__icon {
+  @apply mt-0.5 flex-shrink-0 text-lg leading-none;
+}
+
+.signal-callout__icon--info {
+  @apply text-blue-600;
+}
+
+.signal-callout__icon--warning {
+  @apply text-amber-500;
+}
+
+.signal-callout__icon-image {
+  @apply h-5 w-5 object-contain;
+}
+
+/* ===== Content ===== */
+.signal-callout__content {
+  @apply flex flex-1 flex-col gap-0.5;
+}
+
+.signal-callout__title {
+  @apply text-sm font-semibold text-gray-900;
+}
+
+.signal-callout__message {
+  @apply text-xs text-gray-600;
+}
+
+/* ===== Action ===== */
+.signal-callout__action {
+  @apply mt-1 self-start text-xs font-semibold;
+}
+
+.signal-callout__action--info {
+  @apply text-blue-600;
+}
+
+.signal-callout__action--info:hover {
+  @apply text-blue-800;
+}
+
+.signal-callout__action--warning {
+  @apply text-amber-600;
+}
+
+.signal-callout__action--warning:hover {
+  @apply text-amber-800;
+}
+
+/* ===== Dismiss ===== */
+.signal-callout__dismiss {
+  @apply flex-shrink-0 text-lg leading-none text-gray-400 transition-colors;
+}
+
+.signal-callout__dismiss:hover {
+  @apply text-gray-600;
+}
+
+.signal-callout__dismiss:focus {
+  @apply outline-none ring-2 ring-blue-300 rounded;
+}

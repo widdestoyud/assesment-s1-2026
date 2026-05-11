@@ -1,96 +1,34 @@
 @reference "tailwindcss";
 
 .mbc-station {
-  @apply mx-auto flex min-h-screen max-w-lg flex-col px-4 py-4;
+  @apply mx-auto flex min-h-screen max-w-lg flex-col;
 }
 
-/* Home Section */
-.mbc-station__home-section {
-  @apply flex flex-1 flex-col justify-center;
+.mbc-station__main {
+  @apply flex flex-1 flex-col px-4 py-4;
 }
 
-.mbc-station__home-title {
-  @apply mb-1 text-xl font-bold text-gray-900;
+/* ===== Content Layout ===== */
+.mbc-station__content {
+  @apply flex flex-col gap-4 mt-4;
 }
 
-.mbc-station__home-subtitle {
-  @apply mb-8 text-sm text-gray-500;
+/* ===== Action Cards (Home phase) ===== */
+.mbc-station__action-card {
+  @apply flex flex-col gap-2 py-2;
 }
 
-/* NFC Tap Area */
-.mbc-station__nfc-area {
-  @apply flex flex-1 items-center justify-center py-6;
+.mbc-station__action-card-title {
+  @apply text-xl font-bold text-blue-700;
 }
 
-.mbc-station__nfc-circle {
-  @apply flex h-44 w-44 flex-col items-center justify-center rounded-full bg-blue-50;
+.mbc-station__action-card-description {
+  @apply text-sm text-gray-600;
 }
 
-.mbc-station__nfc-circle--processing {
-  @apply animate-pulse bg-blue-100;
-}
-
-.mbc-station__nfc-icon {
-  @apply mb-2 text-4xl text-blue-600;
-}
-
-.mbc-station__nfc-label {
-  @apply text-xs font-bold tracking-wide text-blue-700;
-}
-
-.mbc-station__nfc-sublabel {
-  @apply text-[10px] font-semibold text-blue-600;
-}
-
-/* Quick Actions */
-.mbc-station__actions-section {
-  @apply mt-auto pt-2;
-}
-
-.mbc-station__actions-title {
-  @apply mb-2 text-sm font-medium text-gray-700;
-}
-
-.mbc-station__actions-grid {
-  @apply grid grid-cols-2 gap-3;
-}
-
-.mbc-station__action-button {
-  @apply rounded-xl border border-blue-200 bg-white px-4 py-3 text-center text-sm font-medium text-blue-700 shadow-sm transition-colors;
-}
-
-.mbc-station__action-button:hover {
-  @apply border-blue-400 bg-blue-50;
-}
-
-.mbc-station__action-button:active {
-  @apply bg-blue-100;
-}
-
-.mbc-station__action-button--active {
-  @apply border-blue-500 bg-blue-50 font-semibold;
-}
-
-/* Top-Up Form Section */
-.mbc-station__form-section {
-  @apply flex flex-1 flex-col gap-4;
-}
-
-.mbc-station__form-group {
-  @apply space-y-3;
-}
-
-.mbc-station__label {
-  @apply block text-sm font-medium text-gray-700;
-}
-
-.mbc-station__input {
-  @apply w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
-}
-
-/* Balance Card in Top-Up */
+/* ===== Balance Card (Top-up phase) ===== */
 .mbc-station__balance-card {
-  @apply rounded-xl border border-gray-200 p-4;
+  @apply flex flex-col gap-1;
 }
 
 .mbc-station__balance-label {
@@ -98,16 +36,25 @@
 }
 
 .mbc-station__balance-amount {
-  @apply mt-1 text-2xl font-bold text-blue-600;
+  @apply text-2xl font-bold text-blue-600;
 }
 
-/* Quick Amount Chips */
-.mbc-station__chips-section {
-  @apply space-y-2;
+/* ===== Form Card (Top-up phase) ===== */
+.mbc-station__form-card {
+  @apply flex flex-col gap-3;
 }
 
-.mbc-station__chips-title {
+.mbc-station__form-label {
   @apply text-sm font-medium text-gray-700;
+}
+
+.mbc-station__form-input {
+  @apply w-full rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+}
+
+/* ===== Quick Amount Chips ===== */
+.mbc-station__chips-title {
+  @apply mt-2 text-sm font-medium text-gray-700;
 }
 
 .mbc-station__chips-grid {
@@ -124,71 +71,4 @@
 
 .mbc-station__chip--active {
   @apply border-blue-400 bg-blue-50 font-semibold text-blue-700;
-}
-
-/* Other Amount Input */
-.mbc-station__other-section {
-  @apply space-y-2;
-}
-
-.mbc-station__other-label {
-  @apply text-sm font-medium text-gray-700;
-}
-
-.mbc-station__other-input {
-  @apply w-full rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
-}
-
-/* Top-Up Now Button */
-.mbc-station__topup-button {
-  @apply w-full rounded-xl bg-blue-600 px-4 py-4 text-base font-semibold text-white shadow-sm transition-colors;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-}
-
-.mbc-station__topup-button:hover {
-  @apply bg-blue-700;
-}
-
-.mbc-station__topup-button:disabled {
-  @apply cursor-not-allowed opacity-50;
-}
-
-.mbc-station__primary-button {
-  @apply w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors;
-}
-
-.mbc-station__primary-button:hover {
-  @apply bg-blue-700;
-}
-
-.mbc-station__primary-button:disabled {
-  @apply cursor-not-allowed opacity-50;
-}
-
-.mbc-station__secondary-button {
-  @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors;
-}
-
-.mbc-station__secondary-button:hover {
-  @apply bg-gray-50;
-}
-
-/* Result States */
-.mbc-station__error-alert {
-  @apply rounded-lg bg-red-50 p-3 text-sm text-red-700;
-}
-
-.mbc-station__success-output {
-  @apply rounded-lg bg-green-50 p-3 text-sm font-medium text-green-700;
-}
-
-/* Section spacing */
-.mbc-station__section {
-  @apply flex flex-1 flex-col gap-4;
-}
-
-.mbc-station__instruction {
-  @apply text-sm text-gray-600;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import styles from './offline-indicator.module.css';
+import SignalSnackBar from '@components/SignalSnackBar';
 
 const OfflineIndicator: FC = () => {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -13,7 +13,6 @@ const OfflineIndicator: FC = () => {
     window.addEventListener('offline', handleOffline);
     window.addEventListener('online', handleOnline);
 
-    // Check if browser supports Service Worker (PWA requirement)
     if (!('serviceWorker' in navigator)) {
       setShowPwaNotice(true);
     }
@@ -26,20 +25,23 @@ const OfflineIndicator: FC = () => {
 
   if (showPwaNotice) {
     return (
-      <div role="alert" className={styles['offline-indicator--warning']}>
-        <span className={styles['offline-indicator__icon']} aria-hidden="true">⚠️</span>
-        Browser ini tidak mendukung mode offline. Gunakan Chrome untuk pengalaman terbaik.
-      </div>
+      <SignalSnackBar
+        variant="warning"
+        message="Browser ini tidak mendukung mode offline. Gunakan Chrome untuk pengalaman terbaik."
+        position="bottom"
+        data-testid="pwa-notice"
+      />
     );
   }
 
-  if (!isOffline) return null;
-
   return (
-    <div role="status" aria-live="polite" className={styles['offline-indicator']}>
-      <span className={styles['offline-indicator__icon']} aria-hidden="true">📡</span>
-      Anda sedang offline — aplikasi tetap berjalan
-    </div>
+    <SignalSnackBar
+      variant="dark"
+      message="Anda sedang offline — aplikasi tetap berjalan"
+      position="bottom"
+      visible={isOffline}
+      data-testid="offline-indicator"
+    />
   );
 };
 

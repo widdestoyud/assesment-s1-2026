@@ -1,0 +1,34 @@
+@reference "tailwindcss";
+
+/* ===== Base Container ===== */
+.signal-tab {
+  @apply flex items-center gap-0;
+}
+
+/* ===== Tab Item ===== */
+.signal-tab__item {
+  @apply flex flex-1 flex-col items-center gap-1 border-b-2 border-transparent px-4 py-2 text-sm text-gray-500 transition-colors cursor-pointer;
+}
+
+.signal-tab__item:hover {
+  @apply text-gray-700;
+}
+
+.signal-tab__item:focus {
+  @apply outline-none;
+}
+
+/* ===== Active State ===== */
+.signal-tab__item--active {
+  @apply border-b-2 border-blue-600 font-semibold text-blue-600;
+}
+
+/* ===== Icon ===== */
+.signal-tab__icon {
+  @apply text-base;
+}
+
+/* ===== Label ===== */
+.signal-tab__label {
+  @apply text-sm;
+}

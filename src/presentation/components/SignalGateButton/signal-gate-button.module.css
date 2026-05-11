@@ -1,0 +1,88 @@
+@reference "tailwindcss";
+
+/* ===== Base ===== */
+.signal-gate-button {
+  @apply flex flex-col items-center justify-center rounded-full;
+  aspect-ratio: 1;
+}
+
+.signal-gate-button:disabled {
+  @apply opacity-50;
+}
+
+/* ===== Size Variants ===== */
+.signal-gate-button--sm {
+  width: 5rem;
+  height: 5rem;
+}
+
+.signal-gate-button--lg {
+  width: 14rem;
+  height: 14rem;
+}
+
+/* ===== Color Variants ===== */
+.signal-gate-button--gate {
+  @apply bg-green-600;
+  box-shadow:
+    0 6px 0 0 #166534,
+    0 8px 6px 0 rgba(0, 0, 0, 0.15);
+}
+
+.signal-gate-button--gate:active {
+  @apply bg-green-700;
+  box-shadow: 0 2px 0 0 #166534;
+  transform: translateY(4px);
+}
+
+.signal-gate-button--terminal {
+  @apply bg-red-600;
+  box-shadow:
+    0 6px 0 0 #991b1b,
+    0 8px 6px 0 rgba(0, 0, 0, 0.15);
+}
+
+.signal-gate-button--terminal:active {
+  @apply bg-red-700;
+  box-shadow: 0 2px 0 0 #991b1b;
+  transform: translateY(4px);
+}
+
+.signal-gate-button--station {
+  @apply bg-blue-600;
+  box-shadow:
+    0 6px 0 0 #1e40af,
+    0 8px 6px 0 rgba(0, 0, 0, 0.15);
+}
+
+.signal-gate-button--station:active {
+  @apply bg-blue-700;
+  box-shadow: 0 2px 0 0 #1e40af;
+  transform: translateY(4px);
+}
+
+.signal-gate-button--scout {
+  @apply bg-purple-600;
+  box-shadow:
+    0 6px 0 0 #6b21a8,
+    0 8px 6px 0 rgba(0, 0, 0, 0.15);
+}
+
+.signal-gate-button--scout:active {
+  @apply bg-purple-700;
+  box-shadow: 0 2px 0 0 #6b21a8;
+  transform: translateY(4px);
+}
+
+/* ===== Label ===== */
+.signal-gate-button__label {
+  @apply whitespace-pre-line text-center font-bold text-white;
+}
+
+.signal-gate-button__label--sm {
+  @apply text-xs;
+}
+
+.signal-gate-button__label--lg {
+  @apply text-lg uppercase tracking-wide;
+}

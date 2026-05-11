@@ -1,22 +1,51 @@
-import { describe, expect, it } from 'vitest';
-import { useState, useCallback } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { useState, useCallback, useEffect } from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 
 import RolePickerController from '../../mbc/role-picker.controller';
 
+const mockNavigate = vi.fn();
+const mockUseNavigate = () => mockNavigate;
+
+const mockNfcService = {
+  isAvailable: vi.fn(() => true),
+  read: vi.fn(),
+  write: vi.fn(),
+  cancel: vi.fn(),
+};
+
 function createController() {
   return renderHook(() =>
-    RolePickerController({ useState, useCallback, useTranslation }),
+    RolePickerController({
+      useState,
+      useCallback,
+      useEffect,
+      useTranslation,
+      useNavigate: mockUseNavigate as never,
+      nfcService: mockNfcService,
+    }),
   );
 }
 
 describe('RolePickerController', () => {
-  it('provides 4 role options', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('provides 2 primary role options (gate, terminal)', () => {
     const { result } = createController();
-    expect(result.current.roles).toHaveLength(4);
-    expect(result.current.roles.map((r) => r.id)).toEqual([
-      'gate', 'terminal', 'station', 'scout',
+    expect(result.current.primaryRoles).toHaveLength(2);
+    expect(result.current.primaryRoles.map((r) => r.id)).toEqual([
+      'gate', 'terminal',
+    ]);
+  });
+
+  it('provides 2 secondary role options (station, scout)', () => {
+    const { result } = createController();
+    expect(result.current.secondaryRoles).toHaveLength(2);
+    expect(result.current.secondaryRoles.map((r) => r.id)).toEqual([
+      'station', 'scout',
     ]);
   });
 
@@ -25,40 +54,56 @@ describe('RolePickerController', () => {
     expect(result.current.activeRole).toBeNull();
   });
 
-  it('sets active role on selection', () => {
+  it('sets active role and navigates on onNavigateToRole', () => {
     const { result } = createController();
 
     act(() => {
-      result.current.onSelectRole('gate');
+      result.current.onNavigateToRole('gate');
     });
 
     expect(result.current.activeRole).toBe('gate');
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/gate' });
   });
 
   it('changes active role on re-selection', () => {
     const { result } = createController();
 
     act(() => {
-      result.current.onSelectRole('station');
+      result.current.onNavigateToRole('station');
     });
     expect(result.current.activeRole).toBe('station');
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/station' });
 
     act(() => {
-      result.current.onSelectRole('terminal');
+      result.current.onNavigateToRole('terminal');
     });
     expect(result.current.activeRole).toBe('terminal');
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/terminal' });
   });
 
-  it('each role has label, descriptionKey, icon, and color', () => {
+  it('each role has labelKey, descriptionKey, color, and variant', () => {
     const { result } = createController();
 
-    for (const role of result.current.roles) {
-      expect(role.label).toBeTruthy();
+    const allRoles = [...result.current.primaryRoles, ...result.current.secondaryRoles];
+    for (const role of allRoles) {
+      expect(role.labelKey).toBeTruthy();
       expect(role.descriptionKey).toBeTruthy();
-      expect(role.icon).toBeTruthy();
       expect(role.color).toBeTruthy();
-      expect(['blue', 'green', 'orange', 'purple']).toContain(role.color);
+      expect(['gate', 'terminal', 'station', 'scout']).toContain(role.color);
+      expect(['primary', 'secondary']).toContain(role.variant);
     }
+  });
+
+  it('detects NFC capability as supported', () => {
+    mockNfcService.isAvailable.mockReturnValue(true);
+    const { result } = createController();
+    expect(result.current.nfcCapability).toBe('supported');
+  });
+
+  it('detects NFC capability as unsupported', () => {
+    mockNfcService.isAvailable.mockReturnValue(false);
+    const { result } = createController();
+    expect(result.current.nfcCapability).toBe('unsupported');
   });
 
   it('exposes t function from useTranslation', () => {

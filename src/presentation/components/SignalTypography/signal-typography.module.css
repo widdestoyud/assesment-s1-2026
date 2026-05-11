@@ -1,0 +1,151 @@
+@reference "tailwindcss";
+
+/* ===== Base ===== */
+.signal-typography {
+  @apply m-0 p-0;
+}
+
+/* ===== Headline — Telkomsel Batik Sans, Bold ===== */
+.signal-typography--h1 {
+  font-family: 'TelkomselBatikSans', sans-serif;
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 56px;
+  letter-spacing: 0;
+}
+
+.signal-typography--h2 {
+  font-family: 'TelkomselBatikSans', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 48px;
+  letter-spacing: 0;
+}
+
+.signal-typography--h3 {
+  font-family: 'TelkomselBatikSans', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 40px;
+  letter-spacing: 0;
+}
+
+.signal-typography--h4 {
+  font-family: 'TelkomselBatikSans', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 40px;
+  letter-spacing: 0;
+}
+
+.signal-typography--h5 {
+  font-family: 'TelkomselBatikSans', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+
+.signal-typography--h6 {
+  font-family: 'TelkomselBatikSans', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+
+/* ===== Title — Poppins ===== */
+.signal-typography--title-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+
+.signal-typography--title-regular {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+
+/* ===== Body 1 — Poppins, 14px ===== */
+.signal-typography--body1-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+.signal-typography--body1-regular {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+.signal-typography--body1-caps-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.signal-typography--body1-caps-regular {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* ===== Body 2 — Poppins, 12px ===== */
+.signal-typography--body2-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+.signal-typography--body2-regular {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+/* ===== Label — Poppins, 10px ===== */
+.signal-typography--label-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0;
+}
+
+.signal-typography--label-regular {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 1.5px;
+}
+
+/* ===== Strike Number — Poppins, 12px, Strikethrough ===== */
+.signal-typography--strike-number {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-decoration: line-through;
+}

@@ -1,17 +1,120 @@
 @reference "tailwindcss";
 
+/* ===== Base ===== */
 .mbc-role-picker {
-  @apply mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8;
+  @apply mx-auto flex min-h-screen max-w-lg flex-col gap-5 bg-gray-50 px-4 pb-24 pt-8;
+}
+
+/* ===== Header ===== */
+.mbc-role-picker__header {
+  @apply flex items-start justify-between;
 }
 
 .mbc-role-picker__title {
-  @apply mb-1 text-2xl font-bold text-gray-900;
+  @apply text-2xl font-bold text-gray-900;
 }
 
 .mbc-role-picker__subtitle {
-  @apply mb-8 text-sm text-gray-500;
+  @apply mt-1 text-sm text-gray-500;
 }
 
-.mbc-role-picker__grid {
+.mbc-role-picker__help-button {
+  @apply flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-sm font-semibold text-gray-500 transition-colors;
+}
+
+.mbc-role-picker__help-button:hover {
+  @apply border-gray-400 bg-gray-100 text-gray-700;
+}
+
+.mbc-role-picker__help-button:focus {
+  @apply outline-none ring-2 ring-blue-300;
+}
+
+/* ===== Primary Role Cards Grid ===== */
+.mbc-role-picker__primary-grid {
   @apply grid grid-cols-2 gap-4;
+}
+
+.mbc-role-picker__primary-card {
+  @apply flex flex-col items-center gap-2 text-center;
+}
+
+
+/* Primary Card Label */
+.mbc-role-picker__primary-card-label {
+  @apply mt-2 text-lg font-bold;
+}
+
+.mbc-role-picker__primary-card-label--gate {
+  @apply text-green-700;
+}
+
+.mbc-role-picker__primary-card-label--terminal {
+  @apply text-red-600;
+}
+
+/* Primary Card Description */
+.mbc-role-picker__primary-card-description {
+  @apply mb-3 text-xs leading-relaxed text-gray-500;
+}
+
+/* ===== Secondary Roles Section ===== */
+.mbc-role-picker__secondary-section {
+  @apply flex flex-col gap-3;
+}
+
+.mbc-role-picker__secondary-title {
+  @apply text-sm font-semibold text-gray-700;
+}
+
+.mbc-role-picker__secondary-list {
+  @apply flex flex-col gap-3;
+}
+
+.mbc-role-picker__secondary-item {
+  @apply flex w-full items-center gap-3 text-left;
+}
+
+.mbc-role-picker__secondary-item:hover {
+  @apply opacity-90;
+}
+
+/* Secondary Item Icon */
+.mbc-role-picker__secondary-item-icon {
+  @apply flex h-12 w-12 items-center justify-center rounded-xl text-xl;
+}
+
+.mbc-role-picker__secondary-item-icon--station {
+  @apply bg-blue-100;
+}
+
+.mbc-role-picker__secondary-item-icon--scout {
+  @apply bg-purple-100;
+}
+
+/* Secondary Item Content */
+.mbc-role-picker__secondary-item-content {
+  @apply flex-1;
+}
+
+.mbc-role-picker__secondary-item-label {
+  @apply text-sm font-bold text-gray-900;
+}
+
+.mbc-role-picker__secondary-item-subtitle {
+  @apply text-xs font-medium text-gray-600;
+}
+
+.mbc-role-picker__secondary-item-description {
+  @apply text-xs text-gray-400;
+}
+
+/* Secondary Item Chevron */
+.mbc-role-picker__secondary-item-chevron {
+  @apply text-xl text-gray-400;
+}
+
+/* ===== NFC Status Badge (used in SignalSnackBar action slot) ===== */
+.mbc-role-picker__nfc-status-badge {
+  @apply flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white;
 }

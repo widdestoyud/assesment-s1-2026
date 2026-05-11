@@ -5,7 +5,12 @@ import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
-import PageLayout from '@components/PageLayout';
+import SignalHero from '@components/SignalHero';
+import SignalGateButton from '@components/SignalGateButton';
+import SignalCard from '@components/SignalCard';
+import SignalButton from '@components/SignalButton';
+import SignalTab from '@components/SignalTab';
+import SignalTypography from '@components/SignalTypography';
 import styles from './mbc-gate.module.css';
 
 const MbcGate: FC = () => {
@@ -82,121 +87,107 @@ const MbcGate: FC = () => {
   const resultProps = getResultProps();
 
   return (
-    <PageLayout
-      icon="🚪"
-      title={t('mbc_gate_title')}
-      subtitle={t('mbc_gate_subtitle')}
-      color="green"
-    >
-      <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
+    <div className={styles['mbc-gate']}>
+      <SignalHero title={String(t('mbc_gate_title'))} onBack={() => window.history.back()} />
+      <main className={styles['mbc-gate__main']}>
+        <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
-      {/* NFC Scan Modal */}
-      <NfcScanModal
-        isOpen={showNfcModal}
-        nfcStatus={ctrl.nfcStatus}
-        isProcessing={ctrl.isProcessing}
-        error={ctrl.error}
-        onClose={handleCloseNfcModal}
-        onCancel={ctrl.onCancelScan}
-        scanImageSrc={ctrl.scanImage}
-        t={t}
-      />
-
-      {/* Result Modal (success or NFC error) */}
-      {resultProps && (
-        <ResultStatusModal
-          isOpen={ctrl.resultType !== null}
-          variant={resultProps.variant}
-          title={resultProps.title}
-          subtitle={resultProps.subtitle}
-          buttonLabel={resultProps.buttonLabel}
-          imageSrc={resultProps.imageSrc}
-          onClose={handleCloseResult}
+        {/* NFC Scan Modal */}
+        <NfcScanModal
+          isOpen={showNfcModal}
+          nfcStatus={ctrl.nfcStatus}
+          isProcessing={ctrl.isProcessing}
+          error={ctrl.error}
+          onClose={handleCloseNfcModal}
+          onCancel={ctrl.onCancelScan}
+          scanImageSrc={ctrl.scanImage}
           t={t}
         />
-      )}
 
-      <div className={styles['mbc-gate__content']}>
-        {/* Tab Switcher */}
-        <div className={styles['mbc-gate__tab-container']}>
-          <button
-            type="button"
-            onClick={() => ctrl.onSetActiveTab('normal')}
-            className={`${styles['mbc-gate__tab']} ${ctrl.activeTab === 'normal' ? styles['mbc-gate__tab--active'] : ''}`}
-          >
-            {t('mbc_gate_tab_normal')}
-          </button>
-          <span className={styles['mbc-gate__tab-divider']} aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => ctrl.onSetActiveTab('simulation')}
-            className={`${styles['mbc-gate__tab']} ${ctrl.activeTab === 'simulation' ? styles['mbc-gate__tab--active'] : ''}`}
-          >
-            {t('mbc_gate_tab_simulation')}
-          </button>
+        {/* Result Modal (success or NFC error) */}
+        {resultProps && (
+          <ResultStatusModal
+            isOpen={ctrl.resultType !== null}
+            variant={resultProps.variant}
+            title={resultProps.title}
+            subtitle={resultProps.subtitle}
+            buttonLabel={resultProps.buttonLabel}
+            imageSrc={resultProps.imageSrc}
+            onClose={handleCloseResult}
+            t={t}
+          />
+        )}
+
+        <div className={styles['mbc-gate__content']}>
+          {/* Tab Switcher */}
+          <SignalTab
+            items={[
+              { key: 'normal', label: String(t('mbc_gate_tab_normal')) },
+              { key: 'simulation', label: String(t('mbc_gate_tab_simulation')) },
+            ]}
+            activeKey={ctrl.activeTab}
+            onSelect={(key) => ctrl.onSetActiveTab(key as 'normal' | 'simulation')}
+            activeClassName={styles['mbc-gate__tab--active']}
+          />
+
+          {/* Normal Tab — NFC Tap Circle */}
+          {ctrl.activeTab === 'normal' && (
+            <SignalCard className={styles['mbc-gate__nfc-section']}>
+                <SignalGateButton
+                  color="gate"
+                  onClick={handleNormalCheckIn}
+                  disabled={ctrl.isProcessing}
+                  aria-label={t('mbc_gate_tap_card_label')}
+                >
+                  {t('mbc_gate_tap_card_label')}
+                </SignalGateButton>
+            </SignalCard>
+          )}
+
+          {/* Simulation Tab — Date/Time Picker */}
+          {ctrl.activeTab === 'simulation' && (
+            <SignalCard className={styles['mbc-gate__simulation-section']}>
+                  <SignalTypography variant="body1-regular" as="p" className={styles['mbc-gate__simulation-title']}>
+                    {t('mbc_gate_simulation_pick_time')}
+                  </SignalTypography>
+                  <div className={styles['mbc-gate__simulation-inputs']}>
+                    <input
+                      type="date"
+                      value={ctrl.simulationDate}
+                      max={maxDate}
+                      onChange={(e) => ctrl.onSetSimulationDate(e.target.value)}
+                      className={styles['mbc-gate__simulation-input']}
+                      aria-label={t('mbc_gate_simulation_date_label')}
+                    />
+                    <input
+                      type="time"
+                      value={ctrl.simulationTime}
+                      onChange={(e) => ctrl.onSetSimulationTime(e.target.value)}
+                      className={styles['mbc-gate__simulation-input']}
+                      aria-label={t('mbc_gate_simulation_time_label')}
+                    />
+                  </div>
+
+                {ctrl.error && ctrl.resultType !== 'nfc_error' && (
+                  <div role="alert" className={styles['mbc-gate__error-alert']}>
+                    {ctrl.error}
+                  </div>
+                )}
+
+                <SignalButton
+                  variant="primary"
+                  size="xl"
+                  fullWidth
+                  onClick={handleSimulationCheckIn}
+                  disabled={ctrl.isProcessing}
+                >
+                  {t('mbc_gate_simulation_use_time')}
+                </SignalButton>
+            </SignalCard>
+          )}
         </div>
-
-        {/* Normal Tab — NFC Tap Circle */}
-        {ctrl.activeTab === 'normal' && (
-          <div className={styles['mbc-gate__nfc-section']}>
-            <button
-              type="button"
-              onClick={handleNormalCheckIn}
-              disabled={ctrl.isProcessing}
-              className={styles['mbc-gate__nfc-circle']}
-              aria-label={t('mbc_gate_tap_card_label')}
-            >
-              <span className={styles['mbc-gate__nfc-label']}>
-                {t('mbc_gate_tap_card_label')}
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* Simulation Tab — Date/Time Picker */}
-        {ctrl.activeTab === 'simulation' && (
-          <div className={styles['mbc-gate__simulation-section']}>
-            <div className={styles['mbc-gate__simulation-card']}>
-              <p className={styles['mbc-gate__simulation-title']}>
-                {t('mbc_gate_simulation_pick_time')}
-              </p>
-              <div className={styles['mbc-gate__simulation-inputs']}>
-                <input
-                  type="date"
-                  value={ctrl.simulationDate}
-                  max={maxDate}
-                  onChange={(e) => ctrl.onSetSimulationDate(e.target.value)}
-                  className={styles['mbc-gate__simulation-input']}
-                  aria-label={t('mbc_gate_simulation_date_label')}
-                />
-                <input
-                  type="time"
-                  value={ctrl.simulationTime}
-                  onChange={(e) => ctrl.onSetSimulationTime(e.target.value)}
-                  className={styles['mbc-gate__simulation-input']}
-                  aria-label={t('mbc_gate_simulation_time_label')}
-                />
-              </div>
-            </div>
-
-            {ctrl.error && ctrl.resultType !== 'nfc_error' && (
-              <div role="alert" className={styles['mbc-gate__error-alert']}>
-                {ctrl.error}
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={handleSimulationCheckIn}
-              disabled={ctrl.isProcessing}
-              className={styles['mbc-gate__simulation-button']}
-            >
-              {t('mbc_gate_simulation_use_time')}
-            </button>
-          </div>
-        )}
-      </div>
-    </PageLayout>
+      </main>
+    </div>
   );
 };
 

@@ -1,5 +1,13 @@
 @reference "tailwindcss";
 
+.mbc-gate {
+  @apply mx-auto flex min-h-screen max-w-lg flex-col;
+}
+
+.mbc-gate__main {
+  @apply flex flex-1 flex-col px-4 py-4;
+}
+
 .mbc-gate__content {
   @apply mt-4 space-y-6;
 }
@@ -14,7 +22,7 @@
 }
 
 .mbc-gate__tab--active {
-  @apply font-semibold text-gray-900;
+  @apply border-b-2 border-green-600 font-semibold text-green-600;
 }
 
 .mbc-gate__tab-divider {
@@ -23,7 +31,7 @@
 
 /* Normal Tab — NFC Circle */
 .mbc-gate__nfc-section {
-  @apply flex items-center justify-center rounded-xl bg-white p-8 shadow-sm;
+  @apply flex items-center justify-center rounded-xl p-8 shadow-sm;
 }
 
 .mbc-gate__nfc-circle {

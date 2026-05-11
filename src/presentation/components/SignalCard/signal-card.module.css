@@ -1,0 +1,23 @@
+@reference "tailwindcss";
+
+/* ===== Base ===== */
+.signal-card {
+  @apply rounded-xl bg-white p-4 shadow-sm;
+}
+
+/* ===== State: Clickable ===== */
+.signal-card--clickable {
+  @apply cursor-pointer transition-shadow;
+}
+
+.signal-card--clickable:hover {
+  @apply shadow-md;
+}
+
+.signal-card--clickable:focus {
+  @apply outline-none ring-2 ring-blue-300;
+}
+
+.signal-card--clickable:active {
+  @apply shadow-sm;
+}

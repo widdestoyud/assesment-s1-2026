@@ -10,7 +10,7 @@ export interface PageHeaderProps {
   /** Page subtitle / description */
   subtitle: string;
   /** Header color theme */
-  color?: 'blue' | 'green' | 'orange' | 'purple';
+  color?: 'blue' | 'green' | 'orange' | 'purple' | 'red';
 }
 
 const PageHeader: FC<PageHeaderProps> = ({ icon, title, subtitle, color = 'blue' }) => {

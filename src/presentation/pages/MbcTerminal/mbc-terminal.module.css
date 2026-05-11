@@ -1,12 +1,20 @@
 @reference "tailwindcss";
 
+.mbc-terminal {
+  @apply mx-auto flex min-h-screen max-w-lg flex-col;
+}
+
+.mbc-terminal__main {
+  @apply flex flex-1 flex-col px-4 py-4;
+}
+
 .mbc-terminal__content {
   @apply mt-4 space-y-6;
 }
 
 /* NFC Circle */
 .mbc-terminal__nfc-section {
-  @apply flex items-center justify-center rounded-xl bg-white p-8 shadow-sm;
+  @apply flex items-center justify-center;
 }
 
 .mbc-terminal__nfc-circle {

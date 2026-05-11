@@ -1,7 +1,11 @@
 @reference "tailwindcss";
 
 .mbc-scout {
-    @apply mx-auto max-w-lg px-4 py-6;
+  @apply mx-auto flex min-h-screen max-w-lg flex-col;
+}
+
+.mbc-scout__main {
+  @apply flex flex-1 flex-col px-4 py-4;
 }
 
 .mbc-scout__title {
