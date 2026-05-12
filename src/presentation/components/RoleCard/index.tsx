@@ -18,11 +18,8 @@ const RoleCard: FC<RoleCardProps> = ({ role, onSelect, t }) => {
       data-testid={`role-card-${role.id}`}
       className={`${styles['role-card']} ${styles[`role-card--${role.color}`]}`}
     >
-      <span className={styles['role-card__icon']} aria-hidden="true">
-        {role.icon}
-      </span>
       <h3 className={`${styles['role-card__label']} ${styles[`role-card__label--${role.color}`]}`}>
-        {role.label}
+        {String(t(role.labelKey as never))}
       </h3>
       <p className={styles['role-card__description']}>
         {String(t(role.descriptionKey as never))}
