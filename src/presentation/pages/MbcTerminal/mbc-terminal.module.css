@@ -5,7 +5,7 @@
 }
 
 .mbc-terminal__main {
-  @apply flex flex-1 flex-col px-4 py-4;
+  @apply flex flex-1 flex-col;
 }
 
 .mbc-terminal__content {
@@ -27,7 +27,7 @@
 
 /* Result Section */
 .mbc-terminal__result-section {
-  @apply space-y-3;
+  @apply space-y-3 w-full;
 }
 
 .mbc-terminal__simulation-notice {
@@ -36,4 +36,37 @@
 
 .mbc-terminal__error-alert {
   @apply rounded-lg bg-red-50 p-3 text-sm text-red-700;
+}
+
+/* Time Info */
+.mbc-terminal__time-info {
+  @apply rounded-lg border border-gray-100 bg-gray-50 p-4;
+}
+
+.mbc-terminal__time-row {
+  @apply flex items-center justify-between py-2;
+}
+
+.mbc-terminal__time-row:not(:last-child) {
+  @apply border-b border-gray-100;
+}
+
+.mbc-terminal__time-label {
+  @apply text-sm text-gray-500;
+}
+
+.mbc-terminal__time-value {
+  @apply text-sm font-semibold text-gray-800;
+}
+
+.mbc-terminal__time-row--total {
+  @apply flex items-center justify-between border-t border-gray-200 pt-2;
+}
+
+.mbc-terminal__time-label--bold {
+  @apply text-sm font-bold text-gray-800;
+}
+
+.mbc-terminal__time-value--bold {
+  @apply text-sm font-bold text-gray-900;
 }

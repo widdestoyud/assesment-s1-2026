@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import SignalSnackBar from '@components/SignalSnackBar';
+import { SignalSnackBar } from '@components/SignalReact';
 
 const OfflineIndicator: FC = () => {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);

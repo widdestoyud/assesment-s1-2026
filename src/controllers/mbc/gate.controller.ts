@@ -9,7 +9,7 @@ import { NfcServiceError } from '@core/services/mbc/nfc.service';
 
 export type GateTab = 'normal' | 'simulation';
 
-export type GateResultType = 'checkin_success' | 'nfc_error' | null;
+export type GateResultType = 'checkin_success' | 'already_checked_in' | 'nfc_error' | null;
 
 export interface GateControllerInterface {
   nfcStatus: NfcStatus;
@@ -30,6 +30,7 @@ export interface GateControllerInterface {
   resultType: GateResultType;
   nfcErrorImage: string;
   scanImage: string;
+  successImage: string;
   t: TFunction;
 }
 
@@ -92,7 +93,10 @@ const GateController = (
 
   const handleNfcError = (err: unknown) => {
     setNfcStatus('error');
-    if (err instanceof NfcServiceError) {
+    if (err instanceof Error && err.message === 'mbc_error_already_checked_in') {
+      setError(err.message);
+      setResultType('already_checked_in');
+    } else if (err instanceof NfcServiceError) {
       // NFC hardware/API error — show error modal with illustration
       setError(err.messageKey);
       setResultType('nfc_error');
@@ -181,6 +185,7 @@ const GateController = (
     resultType,
     nfcErrorImage: images.nfcLoadDataFailed,
     scanImage: images.tapNfc,
+    successImage: images.success,
     t,
   };
 };

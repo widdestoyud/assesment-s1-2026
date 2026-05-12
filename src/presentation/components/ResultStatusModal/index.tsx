@@ -1,7 +1,5 @@
-import { useEffect, useRef } from 'react';
-import type { FC } from 'react';
-import type { TFunction } from 'i18next';
-import SignalButton from '@components/SignalButton';
+import { useEffect, useRef, type FC, type ReactNode } from 'react';
+import { SignalButton } from '@components/SignalReact';
 import styles from './result-status-modal.module.css';
 
 export interface ResultStatusDetail {
@@ -26,8 +24,10 @@ export interface ResultStatusModalProps {
   buttonLabel: string;
   /** Called when user clicks the button or dismisses the modal */
   onClose: () => void;
-  /** Translation function */
-  t: TFunction;
+  /** Optional extra content rendered between detail and button */
+  children?: ReactNode;
+  /** Hide illustration, title, and subtitle (show only children + button) */
+  hideHeader?: boolean;
 }
 
 const ResultStatusModal: FC<ResultStatusModalProps> = ({
@@ -39,6 +39,8 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
   imageSrc,
   buttonLabel,
   onClose,
+  children,
+  hideHeader = false,
 }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +91,7 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
     >
       <div className={styles['result-status-modal']}>
         {/* Icon / Image */}
-        {imageSrc ? (
+        {!hideHeader && (imageSrc ? (
           <img
             src={imageSrc}
             alt=""
@@ -116,17 +118,21 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
               </span>
             </div>
           </div>
-        )}
+        ))}
 
         {/* Title */}
-        <h2 id="result-status-modal-title" className={styles['result-status-modal__title']}>
-          {title}
-        </h2>
+        {!hideHeader && (
+          <h2 id="result-status-modal-title" className={styles['result-status-modal__title']}>
+            {title}
+          </h2>
+        )}
 
         {/* Subtitle */}
-        <p className={styles['result-status-modal__subtitle']}>
-          {subtitle}
-        </p>
+        {!hideHeader && (
+          <p className={styles['result-status-modal__subtitle']}>
+            {subtitle}
+          </p>
+        )}
 
         {/* Detail Card (optional) */}
         {detail && (
@@ -140,12 +146,16 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
           </div>
         )}
 
+        {/* Extra content (optional) */}
+        {children}
+
         {/* Action Button */}
         <SignalButton
           variant="primary"
           size="lg"
           fullWidth
           onClick={onClose}
+          className={styles['result-status-modal__cta']}
         >
           {buttonLabel}
         </SignalButton>

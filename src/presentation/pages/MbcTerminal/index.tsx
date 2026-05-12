@@ -5,11 +5,10 @@ import type { TerminalControllerInterface } from '@controllers/mbc/terminal.cont
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
-import SignalHero from '@components/SignalHero';
-import FeeBreakdown from '@components/FeeBreakdown';
+import PageHeader from '@components/PageHeader';
 import BalanceDisplay from '@components/BalanceDisplay';
-import SignalGateButton from '@components/SignalGateButton';
-import SignalCard from '@components/SignalCard';
+import { SignalCard, SignalGateButton } from '@components/SignalReact';
+import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './mbc-terminal.module.css';
 
 const MbcTerminal: FC = () => {
@@ -43,20 +42,41 @@ const MbcTerminal: FC = () => {
           title: t('mbc_terminal_checkout_success'),
           subtitle: t('mbc_terminal_simulation_notice'),
           buttonLabel: t('mbc_common_done_button'),
+          imageSrc: ctrl.successImage,
         };
       }
       return {
         variant: 'success' as const,
         title: t('mbc_terminal_checkout_success'),
-        subtitle: `${t('mbc_terminal_duration_label')} ${ctrl.lastResult.duration}`,
+        subtitle: '',
         buttonLabel: t('mbc_common_done_button'),
+        imageSrc: ctrl.successImage,
+      };
+    }
+    if (ctrl.resultType === 'insufficient_balance') {
+      return {
+        variant: 'error' as const,
+        title: String(t('mbc_terminal_insufficient_balance_title')),
+        subtitle: '',
+        buttonLabel: String(t('mbc_terminal_insufficient_balance_button')),
+        imageSrc: ctrl.warningImage,
+      };
+    }
+    if (ctrl.resultType === 'not_checked_in') {
+      return {
+        variant: 'error' as const,
+        title: String(t('mbc_terminal_not_checked_in_title')),
+        subtitle: String(t('mbc_error_not_checked_in')),
+        buttonLabel: String(t('mbc_common_close_button')),
+        imageSrc: ctrl.nfcErrorImage,
       };
     }
     if (ctrl.resultType === 'nfc_error' && ctrl.error) {
+      const isTranslationKey = ctrl.error.startsWith('mbc_');
       return {
         variant: 'error' as const,
         title: t('mbc_nfc_error_title'),
-        subtitle: t(ctrl.error as 'mbc_nfc_error_hardware_unavailable'),
+        subtitle: isTranslationKey ? String(t(ctrl.error as 'mbc_nfc_error_hardware_unavailable')) : ctrl.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: ctrl.nfcErrorImage,
       };
@@ -68,7 +88,7 @@ const MbcTerminal: FC = () => {
 
   return (
     <div className={styles['mbc-terminal']}>
-      <SignalHero title={String(t('mbc_terminal_title'))} onBack={() => window.history.back()} />
+      <PageHeader title={String(t('mbc_terminal_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-terminal__main']}>
         <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
@@ -94,8 +114,60 @@ const MbcTerminal: FC = () => {
             buttonLabel={resultProps.buttonLabel}
             imageSrc={resultProps.imageSrc}
             onClose={handleCloseResult}
-            t={t}
-          />
+          >
+            {ctrl.resultType === 'checkout_success' && ctrl.lastResult && (
+              <div className={styles['mbc-terminal__result-section']}>
+                <div className={styles['mbc-terminal__time-info']}>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_entry_time_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{new Date(ctrl.lastResult.checkInTime).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_exit_time_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{new Date(ctrl.lastResult.checkOutTime).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_duration_info_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{ctrl.lastResult.duration}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_rate_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{formatIDR(ctrl.lastResult.feeBreakdown.ratePerUnit)} / {ctrl.lastResult.feeBreakdown.unitLabel}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row--total']}>
+                    <span className={styles['mbc-terminal__time-label--bold']}>{t('mbc_terminal_total_label')}</span>
+                    <span className={styles['mbc-terminal__time-value--bold']}>{formatIDR(ctrl.lastResult.feeBreakdown.fee)}</span>
+                  </div>
+                </div>
+                {!ctrl.lastResult.isSimulation && (
+                  <BalanceDisplay balance={ctrl.lastResult.remainingBalance} t={t} />
+                )}
+              </div>
+            )}
+            {ctrl.resultType === 'insufficient_balance' && ctrl.insufficientBalanceData && (
+              <div className={styles['mbc-terminal__result-section']}>
+                <div className={styles['mbc-terminal__time-info']}>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_entry_time_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{new Date(ctrl.insufficientBalanceData.checkInTime).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_exit_time_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{new Date(ctrl.insufficientBalanceData.checkOutTime).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row']}>
+                    <span className={styles['mbc-terminal__time-label']}>{t('mbc_terminal_duration_info_label')}</span>
+                    <span className={styles['mbc-terminal__time-value']}>{ctrl.insufficientBalanceData.duration}</span>
+                  </div>
+                  <div className={styles['mbc-terminal__time-row--total']}>
+                    <span className={styles['mbc-terminal__time-label--bold']}>{t('mbc_terminal_total_label')}</span>
+                    <span className={styles['mbc-terminal__time-value--bold']}>{formatIDR(ctrl.insufficientBalanceData.feeBreakdown.fee)}</span>
+                  </div>
+                </div>
+                <BalanceDisplay balance={ctrl.insufficientBalanceData.balance} t={t} />
+              </div>
+            )}
+          </ResultStatusModal>
         )}
 
         <div className={styles['mbc-terminal__content']}>
@@ -111,26 +183,7 @@ const MbcTerminal: FC = () => {
               </SignalGateButton>
           </SignalCard>
 
-          {/* Check-Out Result (inline, below circle) */}
-          {ctrl.lastResult && ctrl.resultType === 'checkout_success' && (
-            <SignalCard>
-              <div className={styles['mbc-terminal__result-section']}>
-                {ctrl.lastResult.isSimulation && (
-                  <div className={styles['mbc-terminal__simulation-notice']}>
-                    {t('mbc_terminal_simulation_notice')}
-                  </div>
-                )}
-                <FeeBreakdown
-                  feeResult={ctrl.lastResult.feeBreakdown}
-                  benefitTypeName={t('mbc_terminal_parking_label')}
-                  t={t}
-                />
-                {!ctrl.lastResult.isSimulation && (
-                  <BalanceDisplay balance={ctrl.lastResult.remainingBalance} t={t} />
-                )}
-              </div>
-            </SignalCard>
-          )}
+          {/* Check-Out Result moved into ResultStatusModal above */}
         </div>
       </main>
     </div>

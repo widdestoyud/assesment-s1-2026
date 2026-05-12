@@ -1,7 +1,25 @@
 import type { AwilixRegistry } from '@di/container';
-import type { CheckOutResult } from '@src/@core/models/mbc';
+import type { CheckOutResult, FeeResult } from '@src/@core/models/mbc';
 import { DEFAULT_PARKING_BENEFIT } from '@src/@core/models/mbc';
 import { formatDuration } from '@utils/helpers/mbc.helper';
+
+export class InsufficientBalanceError extends Error {
+  readonly checkInTime: string;
+  readonly checkOutTime: string;
+  readonly duration: string;
+  readonly feeBreakdown: FeeResult;
+  readonly balance: number;
+
+  constructor(checkInTime: string, checkOutTime: string, duration: string, feeBreakdown: FeeResult, balance: number) {
+    super('mbc_error_insufficient_balance');
+    this.name = 'InsufficientBalanceError';
+    this.checkInTime = checkInTime;
+    this.checkOutTime = checkOutTime;
+    this.duration = duration;
+    this.feeBreakdown = feeBreakdown;
+    this.balance = balance;
+  }
+}
 
 export interface CheckOutUseCaseInterface {
   execute(): Promise<CheckOutResult>;
@@ -50,6 +68,8 @@ export const CheckOutUseCase = (
         result = {
           fee: feeResult.fee,
           duration,
+          checkInTime: card.t,
+          checkOutTime: exitTime,
           remainingBalance: updatedCard.b,
           feeBreakdown: feeResult,
           isSimulation: true,
@@ -62,7 +82,7 @@ export const CheckOutUseCase = (
 
       // Normal flow: validate sufficient balance
       if (feeResult.fee > card.b) {
-        throw new Error('mbc_error_insufficient_balance');
+        throw new InsufficientBalanceError(card.t, exitTime, duration, feeResult, card.b);
       }
 
       // Apply check-out (deduct fee, clear status, record transaction)
@@ -71,6 +91,8 @@ export const CheckOutUseCase = (
       result = {
         fee: feeResult.fee,
         duration,
+        checkInTime: card.t,
+        checkOutTime: exitTime,
         remainingBalance: updatedCard.b,
         feeBreakdown: feeResult,
         isSimulation: false,

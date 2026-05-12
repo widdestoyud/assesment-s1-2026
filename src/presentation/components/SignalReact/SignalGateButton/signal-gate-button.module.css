@@ -62,15 +62,15 @@
 }
 
 .signal-gate-button--scout {
-  @apply bg-purple-600;
+  @apply bg-yellow-500;
   box-shadow:
-    0 6px 0 0 #6b21a8,
+    0 6px 0 0 #b45309,
     0 8px 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .signal-gate-button--scout:active {
-  @apply bg-purple-700;
-  box-shadow: 0 2px 0 0 #6b21a8;
+  @apply bg-yellow-600;
+  box-shadow: 0 2px 0 0 #b45309;
   transform: translateY(4px);
 }
 

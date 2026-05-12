@@ -5,6 +5,9 @@ import type {
   NfcCapabilityStatus,
   NfcStatus,
 } from '@src/@core/models/mbc';
+import { NfcServiceError } from '@core/services/mbc/nfc.service';
+
+export type ScoutResultType = 'read_success' | 'nfc_error' | null;
 
 export interface ScoutControllerInterface {
   nfcStatus: NfcStatus;
@@ -14,7 +17,12 @@ export interface ScoutControllerInterface {
   isReading: boolean;
   error: string | null;
   nfcCapability: NfcCapabilityStatus;
+  resultType: ScoutResultType;
   onReadCard: () => Promise<void>;
+  onCloseResult: () => void;
+  successImage: string;
+  nfcErrorImage: string;
+  scanImage: string;
   t: TFunction;
 }
 
@@ -28,6 +36,7 @@ const ScoutController = (
     | 'nfcService'
     | 'silentShieldService'
     | 'cardDataService'
+    | 'images'
   >,
 ): ScoutControllerInterface => {
   const {
@@ -37,6 +46,7 @@ const ScoutController = (
     nfcService,
     silentShieldService,
     cardDataService,
+    images,
   } = deps;
 
   const { t } = useTranslation();
@@ -48,6 +58,7 @@ const ScoutController = (
   const [isReading, setIsReading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
+  const [resultType, setResultType] = useState<ScoutResultType>(null);
 
   useEffect(() => {
     const isNfcAvailable = nfcService.isAvailable();
@@ -92,9 +103,15 @@ const ScoutController = (
 
       setNfcStatus('success');
       setCardData(card);
+      setResultType('read_success');
     } catch (err: unknown) {
       setNfcStatus('error');
-      setError(err instanceof Error ? err.message : String(err));
+      if (err instanceof NfcServiceError) {
+        setError(err.messageKey);
+      } else {
+        setError(err instanceof Error ? err.message : String(err));
+      }
+      setResultType('nfc_error');
     } finally {
       setIsReading(false);
     }
@@ -108,7 +125,19 @@ const ScoutController = (
     isReading,
     error,
     nfcCapability,
+    resultType,
     onReadCard,
+    onCloseResult: () => {
+      setCardData(null);
+      setRawEncryptedBase64(null);
+      setRawDecryptedJson(null);
+      setNfcStatus('idle');
+      setError(null);
+      setResultType(null);
+    },
+    successImage: images.success,
+    nfcErrorImage: images.nfcLoadDataFailed,
+    scanImage: images.tapNfc,
     t,
   };
 };

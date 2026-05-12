@@ -21,7 +21,7 @@ const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, benefitTypeName, t }) 
           <dd className={styles['fee-breakdown__value']}>{benefitTypeName}</dd>
         </div>
         <div className={styles['fee-breakdown__row']}>
-          <dt className={styles['fee-breakdown__label']}>{t('mbc_fee_usage_label')}</dt>
+          <dt className={styles['fee-breakdown__label']}>{t('mbc_terminal_duration_label')}</dt>
           <dd className={styles['fee-breakdown__value']}>
             {feeResult.usageUnits} {feeResult.unitLabel}
           </dd>
@@ -32,12 +32,6 @@ const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, benefitTypeName, t }) 
             {formatIDR(feeResult.ratePerUnit)} / {feeResult.unitLabel}
           </dd>
         </div>
-        {feeResult.roundingApplied !== 'none' && (
-          <div className={styles['fee-breakdown__row']}>
-            <dt className={styles['fee-breakdown__label']}>{t('mbc_fee_rounding_label')}</dt>
-            <dd className={styles['fee-breakdown__value']}>{feeResult.roundingApplied}</dd>
-          </div>
-        )}
         <div className={styles['fee-breakdown__total-row']}>
           <dt>{t('mbc_fee_total_label')}</dt>
           <dd>{formatIDR(feeResult.fee)}</dd>

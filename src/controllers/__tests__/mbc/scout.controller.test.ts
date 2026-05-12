@@ -56,6 +56,11 @@ function createController(mocks = createMocks()) {
       useState,
       useEffect,
       useTranslation,
+      images: {
+        success: '/mock/success.svg',
+        nfcLoadDataFailed: '/mock/nfc-load-data-failed.svg',
+        tapNfc: '/mock/tap-nfc.svg',
+      },
       ...mocks,
     }),
   );

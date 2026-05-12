@@ -7,7 +7,8 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { z } from 'zod';
 import config from '@src/infrastructure/config';
-import OfflineIndicator from '@components/OfflineIndicator';
+import MainLayout from '@src/presentation/layouts/MainLayout';
+import ErrorBoundary from '@components/ErrorBoundary';
 
 const globalSearchSchema = z.object({
   isMobile: z.boolean().optional(),
@@ -21,8 +22,11 @@ function RootLayout() {
   return (
     <>
       <HeadContent />
-      <Outlet />
-      <OfflineIndicator />
+      <ErrorBoundary>
+        <MainLayout>
+          <Outlet />
+        </MainLayout>
+      </ErrorBoundary>
       <>
         {activeQueryDevTool && (
           <ReactQueryDevtools buttonPosition="bottom-left" />

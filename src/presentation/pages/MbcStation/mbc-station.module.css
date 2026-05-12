@@ -5,7 +5,7 @@
 }
 
 .mbc-station__main {
-  @apply flex flex-1 flex-col px-4 py-4;
+  @apply flex flex-1 flex-col;
 }
 
 /* ===== Content Layout ===== */

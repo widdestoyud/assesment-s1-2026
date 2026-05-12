@@ -45,6 +45,8 @@ export interface CheckInResult {
 export interface CheckOutResult {
   fee: number;
   duration: string;
+  checkInTime: string;
+  checkOutTime: string;
   remainingBalance: number;
   feeBreakdown: FeeResult;
   isSimulation: boolean;

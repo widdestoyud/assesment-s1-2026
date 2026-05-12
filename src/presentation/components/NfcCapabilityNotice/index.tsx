@@ -50,7 +50,6 @@ const NfcCapabilityNotice: FC<NfcCapabilityNoticeProps> = ({ status, t }) => {
       buttonLabel={t('app_popup_close_button_label')}
       imageSrc={images.nfcFailed}
       onClose={handleClose}
-      t={t}
     />
   );
 };

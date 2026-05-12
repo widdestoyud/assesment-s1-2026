@@ -5,12 +5,8 @@ import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
-import SignalHero from '@components/SignalHero';
-import SignalGateButton from '@components/SignalGateButton';
-import SignalCard from '@components/SignalCard';
-import SignalButton from '@components/SignalButton';
-import SignalTab from '@components/SignalTab';
-import SignalTypography from '@components/SignalTypography';
+import PageHeader from '@components/PageHeader';
+import { SignalButton, SignalCard, SignalGateButton, SignalTab, SignalTypography } from '@components/SignalReact';
 import styles from './mbc-gate.module.css';
 
 const MbcGate: FC = () => {
@@ -61,22 +57,33 @@ const MbcGate: FC = () => {
         return {
           variant: 'success' as const,
           title: t('mbc_gate_checkin_simulation_success'),
-          subtitle: `${t('mbc_gate_entry_time_label')} ${new Date(ctrl.lastResult.checkInTime).toLocaleString('id-ID')}`,
+          subtitle: `${t('mbc_common_entry_time_label')} ${new Date(ctrl.lastResult.checkInTime).toLocaleString('id-ID')}`,
           buttonLabel: t('mbc_common_done_button'),
+          imageSrc: ctrl.successImage,
         };
       }
       return {
         variant: 'success' as const,
         title: t('mbc_gate_checkin_success'),
-        subtitle: `${t('mbc_gate_entry_time_label')} ${new Date(ctrl.lastResult.checkInTime).toLocaleString('id-ID')}`,
+        subtitle: `${t('mbc_common_entry_time_label')} ${new Date(ctrl.lastResult.checkInTime).toLocaleString('id-ID')}`,
         buttonLabel: t('mbc_common_done_button'),
+        imageSrc: ctrl.successImage,
+      };
+    }
+    if (ctrl.resultType === 'already_checked_in') {
+      return {
+        variant: 'error' as const,
+        title: t('mbc_gate_already_checked_in_title'),
+        subtitle: t('mbc_error_already_checked_in'),
+        buttonLabel: t('mbc_common_close_button'),
+        imageSrc: ctrl.nfcErrorImage,
       };
     }
     if (ctrl.resultType === 'nfc_error' && ctrl.error) {
       return {
         variant: 'error' as const,
         title: t('mbc_nfc_error_title'),
-        subtitle: t(ctrl.error as 'mbc_nfc_error_hardware_unavailable'),
+        subtitle: ctrl.error.startsWith('mbc_') ? String(t(ctrl.error as 'mbc_nfc_error_hardware_unavailable')) : ctrl.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: ctrl.nfcErrorImage,
       };
@@ -88,7 +95,7 @@ const MbcGate: FC = () => {
 
   return (
     <div className={styles['mbc-gate']}>
-      <SignalHero title={String(t('mbc_gate_title'))} onBack={() => window.history.back()} />
+      <PageHeader title={String(t('mbc_gate_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-gate__main']}>
         <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
@@ -114,7 +121,6 @@ const MbcGate: FC = () => {
             buttonLabel={resultProps.buttonLabel}
             imageSrc={resultProps.imageSrc}
             onClose={handleCloseResult}
-            t={t}
           />
         )}
 

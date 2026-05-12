@@ -1,11 +1,8 @@
 import type { FC } from 'react';
 import container from '@di/container';
 import type { RolePickerControllerInterface } from '@controllers/mbc/role-picker.controller';
-import SignalCallout from '@components/SignalCallout';
-import SignalCard from '@components/SignalCard';
-import SignalGateButton from '@components/SignalGateButton';
-import SignalHero from '@components/SignalHero';
-import SignalTypography from '@components/SignalTypography';
+import { SignalCallout, SignalCard, SignalGateButton, SignalTypography } from '@components/SignalReact';
+import PageHeader from '@components/PageHeader';
 import styles from './mbc-role-picker.module.css';
 
 const MbcRolePicker: FC = () => {
@@ -16,9 +13,10 @@ const MbcRolePicker: FC = () => {
   return (
     <main className={styles['mbc-role-picker']} data-testid="mbc-role-picker">
       {/* Header */}
-      <SignalHero
+      <PageHeader
         title={String(t('mbc_role_picker_title'))}
         subtitle={String(t('mbc_role_picker_subtitle'))}
+        showMenu={false}
       />
 
       {/* NFC Info Banner */}
@@ -61,7 +59,7 @@ const MbcRolePicker: FC = () => {
 
       {/* Secondary Roles Section */}
       <section className={styles['mbc-role-picker__secondary-section']} data-testid="secondary-roles">
-        <SignalTypography variant="title-bold" className={styles['mbc-role-picker__secondary-title']}>
+        <SignalTypography variant="body1-bold" className={styles['mbc-role-picker__secondary-title']}>
           {t('mbc_role_picker_other_access')}
         </SignalTypography>
         <div className={styles['mbc-role-picker__secondary-list']}>
@@ -77,9 +75,6 @@ const MbcRolePicker: FC = () => {
                 <div className={styles['mbc-role-picker__secondary-item-content']}>
                   <SignalTypography variant="body1-bold" as="p" className={styles['mbc-role-picker__secondary-item-label']}>
                     {t(role.labelKey as never)}
-                  </SignalTypography>
-                  <SignalTypography variant="body2-bold" as="p" className={styles['mbc-role-picker__secondary-item-subtitle']}>
-                    {t(role.subtitleKey as never)}
                   </SignalTypography>
                   <SignalTypography variant="body2-regular" as="p" className={styles['mbc-role-picker__secondary-item-description']}>
                     {t(role.descriptionKey as never)}

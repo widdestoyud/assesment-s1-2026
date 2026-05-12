@@ -1,54 +1,36 @@
 @reference "tailwindcss";
 
+/* ===== Base ===== */
 .page-header {
-  @apply flex items-center gap-4 rounded-b-2xl px-5 py-5;
+  @apply flex items-center gap-4 p-4;
 }
 
-/* Color variants */
-.page-header--blue {
-  @apply bg-blue-600;
-}
-
-.page-header--green {
-  @apply bg-green-600;
-}
-
-.page-header--orange {
-  @apply bg-orange-500;
-}
-
-.page-header--purple {
-  @apply bg-purple-600;
-}
-
-.page-header--red {
-  @apply bg-red-600;
-}
-
-.page-header__icon {
-  @apply flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-2xl;
-}
-
+/* ===== Content ===== */
 .page-header__content {
-  @apply flex-1;
+  @apply flex flex-1 flex-col gap-1;
 }
 
+/* ===== Title ===== */
 .page-header__title {
-  @apply text-lg font-bold text-white;
+  @apply text-2xl font-bold;
+  font-family: 'TelkomselBatikSans', sans-serif;
 }
 
+/* ===== Subtitle ===== */
 .page-header__subtitle {
-  @apply text-sm text-white/70;
+  @apply text-sm;
 }
 
+/* ===== Menu Button ===== */
 .page-header__menu {
-  @apply flex h-10 w-10 items-center justify-center rounded-lg text-white transition-colors;
+  @apply flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md transition-shadow;
 }
 
 .page-header__menu:hover {
-  @apply bg-white/10;
+  @apply shadow-lg;
 }
 
 .page-header__menu-icon {
-  @apply text-2xl;
+  @apply text-xl font-bold;
+  color: #1a6b2a;
 }

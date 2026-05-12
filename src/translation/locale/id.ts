@@ -219,6 +219,8 @@ export default {
 
   /* MBC - Common */
   mbc_common_done_button: 'Selesai',
+  mbc_common_close_button: 'Tutup',
+  mbc_common_entry_time_label: 'Waktu masuk:',
 
   /* MBC - Bottom Navigation */
   mbc_nav_station: 'Station',
@@ -279,12 +281,12 @@ export default {
   mbc_gate_title: 'The Gate',
   mbc_gate_subtitle: 'Check-in member dengan NFC',
   mbc_gate_checkin_button: 'Check-In',
-  mbc_gate_checkin_success: '✅ Check-in berhasil',
-  mbc_gate_checkin_simulation_success: '✅ Check-in berhasil (SIMULASI)',
-  mbc_gate_entry_time_label: 'Waktu masuk:',
+  mbc_gate_checkin_success: 'Check-in berhasil',
+  mbc_gate_already_checked_in_title: 'Anda Sudah Check-in',
+  mbc_gate_checkin_simulation_success: 'Check-in berhasil (SIMULASI)',
   mbc_gate_tab_normal: 'Normal',
   mbc_gate_tab_simulation: 'Simulasi',
-  mbc_gate_tap_card_label: 'TAP\nCheck-In',
+  mbc_gate_tap_card_label: 'Tekan\nCheck-In',
   mbc_gate_simulation_pick_time: 'Pilih Waktu Masuk',
   mbc_gate_simulation_date_label: 'Tanggal simulasi',
   mbc_gate_simulation_time_label: 'Jam simulasi',
@@ -295,18 +297,28 @@ export default {
   mbc_terminal_title: 'The Terminal',
   mbc_terminal_subtitle: 'Check-out dan kalkulasi tarif',
   mbc_terminal_checkout_button: 'Check-Out',
-  mbc_terminal_checkout_success: '✅ Check-out berhasil',
-  mbc_terminal_tap_card_label: 'TAP\nCheck-Out',
+  mbc_terminal_checkout_success: 'Check-out berhasil',
+  mbc_terminal_insufficient_balance_title: 'Saldo Tidak Cukup',
+  mbc_terminal_insufficient_balance_button: 'Isi Ke Station Terdekat',
+  mbc_terminal_not_checked_in_title: 'Kartu Belum Check-In',
+  mbc_terminal_tap_card_label: 'Tekan\nCheck-Out',
   mbc_terminal_simulation_notice: 'SIMULASI — Saldo tidak dipotong',
   mbc_terminal_duration_label: 'Durasi:',
+  mbc_terminal_entry_time_label: 'Waktu Masuk',
+  mbc_terminal_exit_time_label: 'Waktu Keluar',
+  mbc_terminal_duration_info_label: 'Durasi',
+  mbc_terminal_rate_label: 'Tarif',
+  mbc_terminal_total_label: 'Total',
   mbc_terminal_parking_label: 'Parkir',
 
   /* MBC - Scout */
   mbc_scout_title: 'The Scout',
   mbc_scout_subtitle: 'Lihat isi kartu member',
-  mbc_scout_read_button: 'Baca Kartu',
+  mbc_scout_read_button: 'TAP\nBaca Kartu',
+  mbc_scout_read_success_title: 'Kartu Berhasil Dibaca',
+  mbc_scout_read_success_subtitle: 'Berikut informasi kartu member.',
   mbc_scout_checkin_status_label: 'Status Check-In',
-  mbc_scout_status_checked_in: '✅ Checked-In',
+  mbc_scout_status_checked_in: 'Checked-In',
   mbc_scout_status_idle: '⏸️ Idle',
   mbc_scout_checkin_time_label: 'Waktu masuk:',
   mbc_scout_card_detail_title: 'Detail Data Kartu',
@@ -332,7 +344,7 @@ export default {
   mbc_station_topup_amount_label: 'Jumlah (Rp)',
   mbc_station_topup_button: 'Top-Up Saldo',
   mbc_station_topup_again_button: 'Top-Up Lagi',
-  mbc_station_validation_success: '✅ Validasi berhasil',
+  mbc_station_validation_success: 'Validasi berhasil',
   mbc_station_register_success_title: 'Registrasi Berhasil',
   mbc_station_register_success_subtitle: 'Kartu berhasil didaftarkan sebagai kartu anggota baru.',
   mbc_station_already_registered_title: 'Kartu Sudah Terdaftar',
@@ -345,7 +357,6 @@ export default {
   mbc_card_member_id_prefix: 'ID:',
   mbc_card_checkin_active: 'Status Check-In Aktif',
   mbc_card_service_label: 'Layanan:',
-  mbc_card_entry_time_label: 'Waktu masuk:',
 
   /* MBC - Balance Display */
   mbc_balance_label: 'Saldo',
@@ -355,7 +366,6 @@ export default {
   mbc_fee_service_label: 'Layanan',
   mbc_fee_usage_label: 'Penggunaan',
   mbc_fee_rate_label: 'Tarif',
-  mbc_fee_rounding_label: 'Pembulatan',
   mbc_fee_total_label: 'Total',
 
   /* MBC - Transaction Log */

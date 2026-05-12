@@ -63,3 +63,7 @@
 .result-status-modal__button {
   @apply mt-10 w-full rounded-lg bg-blue-600 py-3 text-center font-semibold text-white transition-colors hover:bg-blue-700;
 }
+
+.result-status-modal__cta{
+  @apply mt-4;
+}

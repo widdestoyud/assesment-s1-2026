@@ -2,7 +2,7 @@
 
 /* ===== Base ===== */
 .mbc-role-picker {
-  @apply mx-auto flex min-h-screen max-w-lg flex-col gap-5 bg-gray-50 px-4 pb-24 pt-8;
+  @apply mx-auto flex min-h-screen max-w-lg flex-col gap-5;
 }
 
 /* ===== Header ===== */
@@ -98,7 +98,7 @@
 }
 
 .mbc-role-picker__secondary-item-label {
-  @apply text-sm font-bold text-gray-900;
+  @apply text-sm font-bold;
 }
 
 .mbc-role-picker__secondary-item-subtitle {

@@ -5,11 +5,8 @@ import type { StationControllerInterface } from '@controllers/mbc/station.contro
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
-import SignalButton from '@components/SignalButton';
-import SignalCard from '@components/SignalCard';
-import SignalCallout from '@components/SignalCallout';
-import SignalHero from '@components/SignalHero';
-import SignalTypography from '@components/SignalTypography';
+import { SignalButton, SignalCard, SignalCallout, SignalTypography } from '@components/SignalReact';
+import PageHeader from '@components/PageHeader';
 import { formatIDR, formatThousands, stripThousands } from '@utils/helpers/mbc.helper';
 import styles from './mbc-station.module.css';
 
@@ -73,6 +70,8 @@ const MbcStation: FC = () => {
     ctrl.onCloseResult();
   };
 
+  
+
   const getResultProps = () => {
     switch (ctrl.resultType) {
       case 'register_success':
@@ -128,13 +127,14 @@ const MbcStation: FC = () => {
     }
   };
 
+
   const resultProps = getResultProps();
   const topUpAmount = Number.parseInt(ctrl.topUpAmount, 10);
   const isTopUpValid = !Number.isNaN(topUpAmount) && topUpAmount > 0;
 
   return (
     <div className={styles['mbc-station']}>
-      <SignalHero title={String(t('mbc_station_title'))} onBack={() => window.history.back()} />
+      <PageHeader title={String(t('mbc_station_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-station__main']}>
         <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
@@ -161,7 +161,6 @@ const MbcStation: FC = () => {
             imageSrc={resultProps.imageSrc}
             detail={resultProps.detail}
             onClose={handleCloseResult}
-            t={t}
           />
         )}
 

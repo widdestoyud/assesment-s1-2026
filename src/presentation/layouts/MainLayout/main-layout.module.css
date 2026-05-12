@@ -1,0 +1,11 @@
+@reference "tailwindcss";
+
+.main-layout {
+    background: #ecf3fb;
+    @apply pt-4 pb-4;
+}
+
+.main-layout__card-main{
+    @apply mx-4 px-2 pb-4 rounded-md border-2 border border-white;
+    background-color: rgb(255 255 255 / 70%);
+}

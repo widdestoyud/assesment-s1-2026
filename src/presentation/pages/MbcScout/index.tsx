@@ -3,178 +3,176 @@ import { useState } from 'react';
 import container from '@di/container';
 import type { ScoutControllerInterface } from '@controllers/mbc/scout.controller';
 import type { TransactionType } from '@src/@core/models/mbc';
-import NfcTapPrompt from '@components/NfcTapPrompt';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
-import SignalHero from '@components/SignalHero';
-import BalanceDisplay from '@components/BalanceDisplay';
+import NfcScanModal from '@components/NfcScanModal';
+import ResultStatusModal from '@components/ResultStatusModal';
+import PageHeader from '@components/PageHeader';
+import { SignalCard, SignalGateButton } from '@components/SignalReact';
 import { formatIDR } from '@utils/helpers/mbc.helper';
-import DebugPanel, { createDebugLog, type DebugLog } from '@components/DebugPanel';
 import styles from './mbc-scout.module.css';
 
 const MbcScout: FC = () => {
   const ctrl = container.resolve<ScoutControllerInterface>('scoutController');
   const { t } = ctrl;
-  const [debugLogs, setDebugLogs] = useState<DebugLog[]>([]);
+  const [showNfcModal, setShowNfcModal] = useState(false);
 
   const getTransactionLabel = (tp: TransactionType): string => {
     switch (tp) {
-      case 'tu': return t('mbc_scout_history_topup');
-      case 'ci': return t('mbc_scout_history_checkin');
-      case 'co': return t('mbc_scout_history_checkout');
+      case 'tu': return String(t('mbc_scout_history_topup'));
+      case 'ci': return String(t('mbc_scout_history_checkin'));
+      case 'co': return String(t('mbc_scout_history_checkout'));
     }
-  };
-
-  const addLog = (step: string, data: unknown, level: DebugLog['level'] = 'info') => {
-    setDebugLogs(prev => [...prev, createDebugLog(step, data, level)]);
   };
 
   const handleReadCard = async () => {
-    setDebugLogs([]);
-    addLog('NFC Read Start', { nfcCapability: ctrl.nfcCapability, nfcStatus: ctrl.nfcStatus });
+    setShowNfcModal(true);
     try {
       await ctrl.onReadCard();
-      addLog('NFC Read Complete', { cardData: ctrl.cardData, nfcStatus: ctrl.nfcStatus }, 'success');
-    } catch (err: unknown) {
-      addLog('NFC Read Error', { error: err instanceof Error ? err.message : String(err) }, 'error');
+    } finally {
+      setShowNfcModal(false);
     }
   };
 
+  const handleCloseNfcModal = () => {
+    setShowNfcModal(false);
+  };
+
+  const handleCloseResult = () => {
+    ctrl.onCloseResult();
+  };
+
+  const getResultProps = () => {
+    if (ctrl.resultType === 'read_success' && ctrl.cardData) {
+      return {
+        variant: 'success' as const,
+        title: String(t('mbc_scout_read_success_title')),
+        subtitle: String(t('mbc_scout_read_success_subtitle')),
+        buttonLabel: String(t('mbc_common_close_button')),
+        imageSrc: ctrl.successImage,
+      };
+    }
+    if (ctrl.resultType === 'nfc_error' && ctrl.error) {
+      return {
+        variant: 'error' as const,
+        title: String(t('mbc_nfc_error_title')),
+        subtitle: ctrl.error.startsWith('mbc_') ? String(t(ctrl.error as 'mbc_nfc_error_hardware_unavailable')) : ctrl.error,
+        buttonLabel: String(t('mbc_common_close_button')),
+        imageSrc: ctrl.nfcErrorImage,
+      };
+    }
+    return null;
+  };
+
+  const resultProps = getResultProps();
+  const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
+
   return (
     <div className={styles['mbc-scout']}>
-      <SignalHero title={String(t('mbc_scout_title'))} onBack={() => window.history.back()} />
+      <PageHeader title={String(t('mbc_scout_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-scout__main']}>
         <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
 
-        {(ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending') && (
-          <div className={styles['mbc-scout__content']}>
-            <button
-              type="button"
-              onClick={handleReadCard}
-              disabled={ctrl.isReading}
-              className={styles['mbc-scout__primary-button']}
-            >
-              {t('mbc_scout_read_button')}
-            </button>
+        {/* NFC Scan Modal */}
+        <NfcScanModal
+          isOpen={showNfcModal}
+          nfcStatus={ctrl.nfcStatus}
+          isProcessing={ctrl.isReading}
+          error={ctrl.error}
+          onClose={handleCloseNfcModal}
+          onCancel={handleCloseNfcModal}
+          scanImageSrc={ctrl.scanImage}
+          t={t}
+        />
 
-            <NfcTapPrompt
-              nfcStatus={ctrl.nfcStatus}
-              isProcessing={ctrl.isReading}
-              t={t}
-            />
-
-            {ctrl.error && (
-              <div role="alert" className={styles['mbc-scout__error-alert']}>
-                {ctrl.error}
-              </div>
-            )}
-
-            {/* Raw data section — always show when data was read */}
-            {(ctrl.rawEncryptedBase64 || ctrl.rawDecryptedJson) && (
-              <div className={styles['mbc-scout__detail-card']}>
-                <p className={styles['mbc-scout__detail-title']}>
-                  {t('mbc_scout_raw_data_title')}
-                </p>
-                {ctrl.rawEncryptedBase64 && (
-                  <>
-                    <p className={styles['mbc-scout__raw-data-label']}>{t('mbc_scout_raw_encrypted_label')}</p>
-                    <div className={styles['mbc-scout__raw-data']}>
-                      <code>{ctrl.rawEncryptedBase64}</code>
+        {/* Result Modal — card info on success, error on failure */}
+        {resultProps && (
+          <ResultStatusModal
+            isOpen={ctrl.resultType !== null}
+            variant={resultProps.variant}
+            title={resultProps.title}
+            subtitle={resultProps.subtitle}
+            buttonLabel={resultProps.buttonLabel}
+            imageSrc={resultProps.imageSrc}
+            hideHeader={ctrl.resultType === 'read_success'}
+            onClose={handleCloseResult}
+          >
+            {ctrl.resultType === 'read_success' && ctrl.cardData && (
+              <div className={styles['mbc-scout__modal-content']}>
+                <SignalCard>
+                  <div className={styles['mbc-scout__info-grid']}>
+                    <div className={styles['mbc-scout__info-balance']}>
+                      <span className={styles['mbc-scout__info-label']}>{t('mbc_scout_card_balance_label')}</span>
+                      <span className={styles['mbc-scout__info-balance-value']}>{formatIDR(ctrl.cardData.b)}</span>
                     </div>
-                  </>
-                )}
-                {ctrl.rawDecryptedJson && (
-                  <>
-                    <p className={styles['mbc-scout__raw-data-label']}>{t('mbc_scout_raw_decrypted_label')}</p>
-                    <div className={styles['mbc-scout__raw-data']}>
-                      <code>{ctrl.rawDecryptedJson}</code>
+                    <div className={styles['mbc-scout__info-status']}>
+                      <span className={styles['mbc-scout__info-label']}>{t('mbc_scout_checkin_status_label')}</span>
+                      <span className={styles['mbc-scout__info-status-value']}>
+                        {ctrl.cardData.s === 1 ? `${t('mbc_scout_status_checked_in')}` : t('mbc_scout_status_idle')}
+                      </span>
+                      {ctrl.cardData.t && (
+                        <span className={styles['mbc-scout__info-timestamp']}>
+                          {t('mbc_common_entry_time_label')}{' '}
+                          <strong>{new Date(ctrl.cardData.t).toLocaleString('id-ID')}</strong>
+                        </span>
+                      )}
                     </div>
-                  </>
-                )}
-              </div>
-            )}
+                  </div>
+                </SignalCard>
 
-            {ctrl.cardData && (
-              <div className={styles['mbc-scout__card-info']}>
-                <BalanceDisplay balance={ctrl.cardData.b} t={t} />
-                <div className={styles['mbc-scout__status-card']}>
-                  <p className={styles['mbc-scout__status-label']}>
-                    {t('mbc_scout_checkin_status_label')}
-                  </p>
-                  <p className={styles['mbc-scout__status-value']}>
-                    {ctrl.cardData.s === 1 ? t('mbc_scout_status_checked_in') : t('mbc_scout_status_idle')}
-                  </p>
-                  {ctrl.cardData.t && (
-                    <p className={styles['mbc-scout__status-timestamp']}>
-                      {t('mbc_scout_checkin_time_label')}{' '}
-                      <strong>{new Date(ctrl.cardData.t).toLocaleString('id-ID')}</strong>
+                <SignalCard>
+                  <div className={styles['mbc-scout__history-section']}>
+                    <p className={styles['mbc-scout__history-title']}>
+                      {t('mbc_scout_history_title')}
                     </p>
-                  )}
-                </div>
-                <div className={styles['mbc-scout__detail-card']}>
-                  <p className={styles['mbc-scout__detail-title']}>
-                    {t('mbc_scout_card_detail_title')}
-                  </p>
-                  <div className={styles['mbc-scout__detail-row']}>
-                    <span className={styles['mbc-scout__detail-label']}>{t('mbc_scout_card_version_label')}</span>
-                    <span className={styles['mbc-scout__detail-value']}>v{ctrl.cardData.v}</span>
-                  </div>
-                  <div className={styles['mbc-scout__detail-row']}>
-                    <span className={styles['mbc-scout__detail-label']}>{t('mbc_scout_card_balance_label')}</span>
-                    <span className={styles['mbc-scout__detail-value']}>Rp {ctrl.cardData.b.toLocaleString('id-ID')}</span>
-                  </div>
-                  <div className={styles['mbc-scout__detail-row']}>
-                    <span className={styles['mbc-scout__detail-label']}>{t('mbc_scout_card_status_label')}</span>
-                    <span className={styles['mbc-scout__detail-value']}>
-                      {ctrl.cardData.s === 1 ? 'Checked-In' : 'Idle'}
-                    </span>
-                  </div>
-                  <div className={styles['mbc-scout__detail-row']}>
-                    <span className={styles['mbc-scout__detail-label']}>{t('mbc_scout_card_timestamp_label')}</span>
-                    <span className={styles['mbc-scout__detail-value']}>
-                      {ctrl.cardData.t ? new Date(ctrl.cardData.t).toLocaleString('id-ID') : '-'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Transaction History */}
-                <div className={styles['mbc-scout__detail-card']}>
-                  <p className={styles['mbc-scout__detail-title']}>
-                    {t('mbc_scout_history_title')}
-                  </p>
-                  {ctrl.cardData.h.length === 0 ? (
-                    <p className={styles['mbc-scout__history-empty']}>
-                      {t('mbc_scout_history_empty')}
-                    </p>
-                  ) : (
-                    <div className={styles['mbc-scout__history-list']}>
-                      {ctrl.cardData.h.map((entry, idx) => (
-                        <div key={idx} className={styles['mbc-scout__history-item']}>
-                          <div className={styles['mbc-scout__history-left']}>
-                            <span className={styles['mbc-scout__history-type']}>
-                              {getTransactionLabel(entry.tp)}
-                            </span>
-                            <span className={styles['mbc-scout__history-time']}>
-                              {new Date(entry.ts * 1000).toLocaleString('id-ID')}
-                            </span>
+                    {ctrl.cardData.h.length === 0 ? (
+                      <p className={styles['mbc-scout__history-empty']}>
+                        {t('mbc_scout_history_empty')}
+                      </p>
+                    ) : (
+                      <div className={styles['mbc-scout__history-list']}>
+                        {ctrl.cardData.h.map((entry, idx) => (
+                          <div key={idx} className={styles['mbc-scout__history-item']}>
+                            <div className={styles['mbc-scout__history-left']}>
+                              <span className={styles['mbc-scout__history-type']}>
+                                {getTransactionLabel(entry.tp)}
+                              </span>
+                              <span className={styles['mbc-scout__history-time']}>
+                                {new Date(entry.ts * 1000).toLocaleString('id-ID')}
+                              </span>
+                            </div>
+                            {entry.tp === 'ci' ? (
+                              <span className={styles['mbc-scout__history-amount']}>—</span>
+                            ) : (
+                              <span className={`${styles['mbc-scout__history-amount']} ${entry.a >= 0 ? styles['mbc-scout__history-amount--positive'] : styles['mbc-scout__history-amount--negative']}`}>
+                                {entry.a >= 0 ? '+' : ''}{formatIDR(entry.a)}
+                              </span>
+                            )}
                           </div>
-                          {entry.tp === 'ci' ? (
-                            <span className={styles['mbc-scout__history-amount']}>—</span>
-                          ) : (
-                            <span className={`${styles['mbc-scout__history-amount']} ${entry.a >= 0 ? styles['mbc-scout__history-amount--positive'] : styles['mbc-scout__history-amount--negative']}`}>
-                              {entry.a >= 0 ? '+' : ''}{formatIDR(entry.a)}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </SignalCard>
               </div>
             )}
-          </div>
+          </ResultStatusModal>
         )}
 
-        <DebugPanel logs={debugLogs} title="Scout NFC Debug" onClear={() => setDebugLogs([])} />
+        {/* Main Content — Tap Button */}
+        {nfcAvailable && (
+          <div className={styles['mbc-scout__content']}>
+            <SignalCard className={styles['mbc-scout__nfc-section']}>
+              <SignalGateButton
+                color="scout"
+                onClick={handleReadCard}
+                disabled={ctrl.isReading}
+                aria-label={String(t('mbc_scout_read_button'))}
+              >
+                {t('mbc_scout_read_button')}
+              </SignalGateButton>
+            </SignalCard>
+          </div>
+        )}
       </main>
     </div>
   );
