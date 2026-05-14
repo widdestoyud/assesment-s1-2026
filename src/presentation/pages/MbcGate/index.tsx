@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import container from '@di/container';
 import type { GateControllerInterface } from '@controllers/mbc/gate.controller';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
@@ -7,11 +8,13 @@ import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
 import PageHeader from '@components/PageHeader';
 import { SignalButton, SignalCard, SignalGateButton, SignalTab, SignalTypography } from '@components/SignalReact';
+import images from '@infra/images';
 import styles from './mbc-gate.module.css';
 
 const MbcGate: FC = () => {
   const ctrl = container.resolve<GateControllerInterface>('gateController');
   const { t } = ctrl;
+  const navigate = useNavigate();
   const [showNfcModal, setShowNfcModal] = useState(false);
 
   const handleNormalCheckIn = async () => {
@@ -97,7 +100,7 @@ const MbcGate: FC = () => {
     <div className={styles['mbc-gate']}>
       <PageHeader title={String(t('mbc_gate_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-gate__main']}>
-        <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
+        <NfcCapabilityNotice status={ctrl.nfcCapability} onClose={() => navigate({ to: '/' })} imageSrc={images.nfcFailed} t={t} />
 
         {/* NFC Scan Modal */}
         <NfcScanModal

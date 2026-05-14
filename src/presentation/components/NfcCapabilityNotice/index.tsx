@@ -1,23 +1,16 @@
 import type { FC } from 'react';
-import type { TFunction } from 'i18next';
-import type { NfcCapabilityStatus } from '@src/@core/models/mbc';
-import { useNavigate } from '@tanstack/react-router';
+import type { NfcCapabilityStatus } from '../types';
 import ResultStatusModal from '@components/ResultStatusModal';
-import images from '@infra/images';
 
 export interface NfcCapabilityNoticeProps {
   status: NfcCapabilityStatus;
-  t: TFunction;
+  onClose: () => void;
+  imageSrc: string;
+  t: (key: string) => string;
 }
 
-const NfcCapabilityNotice: FC<NfcCapabilityNoticeProps> = ({ status, t }) => {
-  const navigate = useNavigate();
-
+const NfcCapabilityNotice: FC<NfcCapabilityNoticeProps> = ({ status, onClose, imageSrc, t }) => {
   if (status === 'supported') return null;
-
-  const handleClose = () => {
-    navigate({ to: '/' });
-  };
 
   const getContent = () => {
     switch (status) {
@@ -48,8 +41,8 @@ const NfcCapabilityNotice: FC<NfcCapabilityNoticeProps> = ({ status, t }) => {
       title={content.title}
       subtitle={content.message}
       buttonLabel={t('app_popup_close_button_label')}
-      imageSrc={images.nfcFailed}
-      onClose={handleClose}
+      imageSrc={imageSrc}
+      onClose={onClose}
     />
   );
 };

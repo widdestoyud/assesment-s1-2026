@@ -1,16 +1,23 @@
 import type { FC } from 'react';
-import type { TFunction } from 'i18next';
-import type { FeeResult } from '@src/@core/models/mbc';
-import { formatIDR } from '@utils/helpers/mbc.helper';
 import styles from './fee-breakdown.module.css';
 
 export interface FeeBreakdownProps {
-  feeResult: FeeResult;
+  formattedRatePerUnit: string;
+  formattedFee: string;
+  usageUnits: number;
+  unitLabel: string;
   benefitTypeName: string;
-  t: TFunction;
+  t: (key: string) => string;
 }
 
-const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, benefitTypeName, t }) => {
+const FeeBreakdown: FC<FeeBreakdownProps> = ({
+  formattedRatePerUnit,
+  formattedFee,
+  usageUnits,
+  unitLabel,
+  benefitTypeName,
+  t,
+}) => {
 
   return (
     <div data-testid="fee-breakdown" className={styles['fee-breakdown']}>
@@ -23,18 +30,18 @@ const FeeBreakdown: FC<FeeBreakdownProps> = ({ feeResult, benefitTypeName, t }) 
         <div className={styles['fee-breakdown__row']}>
           <dt className={styles['fee-breakdown__label']}>{t('mbc_terminal_duration_label')}</dt>
           <dd className={styles['fee-breakdown__value']}>
-            {feeResult.usageUnits} {feeResult.unitLabel}
+            {usageUnits} {unitLabel}
           </dd>
         </div>
         <div className={styles['fee-breakdown__row']}>
           <dt className={styles['fee-breakdown__label']}>{t('mbc_fee_rate_label')}</dt>
           <dd className={styles['fee-breakdown__value']}>
-            {formatIDR(feeResult.ratePerUnit)} / {feeResult.unitLabel}
+            {formattedRatePerUnit} / {unitLabel}
           </dd>
         </div>
         <div className={styles['fee-breakdown__total-row']}>
           <dt>{t('mbc_fee_total_label')}</dt>
-          <dd>{formatIDR(feeResult.fee)}</dd>
+          <dd>{formattedFee}</dd>
         </div>
       </dl>
     </div>

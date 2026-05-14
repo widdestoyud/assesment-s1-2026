@@ -1,5 +1,4 @@
 import type { FC, ReactNode } from 'react';
-import type { TFunction } from 'i18next';
 import styles from './signal-callout.module.css';
 
 export interface SignalCalloutProps {
@@ -20,7 +19,7 @@ export interface SignalCalloutProps {
   /** Callback when dismiss is clicked */
   onDismiss?: () => void;
   /** Translation function */
-  t: TFunction;
+  t: (key: string) => string;
   /** Optional test id */
   'data-testid'?: string;
 }

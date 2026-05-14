@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import container from '@di/container';
 import type { ScoutControllerInterface } from '@controllers/mbc/scout.controller';
 import type { TransactionType } from '@src/@core/models/mbc';
@@ -9,11 +10,13 @@ import ResultStatusModal from '@components/ResultStatusModal';
 import PageHeader from '@components/PageHeader';
 import { SignalCard, SignalGateButton } from '@components/SignalReact';
 import { formatIDR } from '@utils/helpers/mbc.helper';
+import images from '@infra/images';
 import styles from './mbc-scout.module.css';
 
 const MbcScout: FC = () => {
   const ctrl = container.resolve<ScoutControllerInterface>('scoutController');
   const { t } = ctrl;
+  const navigate = useNavigate();
   const [showNfcModal, setShowNfcModal] = useState(false);
 
   const getTransactionLabel = (tp: TransactionType): string => {
@@ -70,7 +73,7 @@ const MbcScout: FC = () => {
     <div className={styles['mbc-scout']}>
       <PageHeader title={String(t('mbc_scout_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-scout__main']}>
-        <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
+        <NfcCapabilityNotice status={ctrl.nfcCapability} onClose={() => navigate({ to: '/' })} imageSrc={images.nfcFailed} t={t} />
 
         {/* NFC Scan Modal */}
         <NfcScanModal

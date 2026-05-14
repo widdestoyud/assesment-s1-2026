@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import container from '@di/container';
 import type { TerminalControllerInterface } from '@controllers/mbc/terminal.controller';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
@@ -9,11 +10,13 @@ import PageHeader from '@components/PageHeader';
 import BalanceDisplay from '@components/BalanceDisplay';
 import { SignalCard, SignalGateButton } from '@components/SignalReact';
 import { formatIDR } from '@utils/helpers/mbc.helper';
+import images from '@infra/images';
 import styles from './mbc-terminal.module.css';
 
 const MbcTerminal: FC = () => {
   const ctrl = container.resolve<TerminalControllerInterface>('terminalController');
   const { t } = ctrl;
+  const navigate = useNavigate();
   const [showNfcModal, setShowNfcModal] = useState(false);
 
   const handleCheckOut = async () => {
@@ -90,7 +93,7 @@ const MbcTerminal: FC = () => {
     <div className={styles['mbc-terminal']}>
       <PageHeader title={String(t('mbc_terminal_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-terminal__main']}>
-        <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
+        <NfcCapabilityNotice status={ctrl.nfcCapability} onClose={() => navigate({ to: '/' })} imageSrc={images.nfcFailed} t={t} />
 
         {/* NFC Scan Modal */}
         <NfcScanModal
@@ -140,7 +143,7 @@ const MbcTerminal: FC = () => {
                   </div>
                 </div>
                 {!ctrl.lastResult.isSimulation && (
-                  <BalanceDisplay balance={ctrl.lastResult.remainingBalance} t={t} />
+                  <BalanceDisplay formattedBalance={formatIDR(ctrl.lastResult.remainingBalance)} t={t} />
                 )}
               </div>
             )}
@@ -164,7 +167,7 @@ const MbcTerminal: FC = () => {
                     <span className={styles['mbc-terminal__time-value--bold']}>{formatIDR(ctrl.insufficientBalanceData.feeBreakdown.fee)}</span>
                   </div>
                 </div>
-                <BalanceDisplay balance={ctrl.insufficientBalanceData.balance} t={t} />
+                <BalanceDisplay formattedBalance={formatIDR(ctrl.insufficientBalanceData.balance)} t={t} />
               </div>
             )}
           </ResultStatusModal>

@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useRef, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import container from '@di/container';
 import type { StationControllerInterface } from '@controllers/mbc/station.controller';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
@@ -8,6 +9,7 @@ import ResultStatusModal from '@components/ResultStatusModal';
 import { SignalButton, SignalCard, SignalCallout, SignalTypography } from '@components/SignalReact';
 import PageHeader from '@components/PageHeader';
 import { formatIDR, formatThousands, stripThousands } from '@utils/helpers/mbc.helper';
+import images from '@infra/images';
 import styles from './mbc-station.module.css';
 
 const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
@@ -15,6 +17,7 @@ const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
 const MbcStation: FC = () => {
   const ctrl = container.resolve<StationControllerInterface>('stationController');
   const { t } = ctrl;
+  const navigate = useNavigate();
   const nfcAvailable = ctrl.nfcCapability === 'supported' || ctrl.nfcCapability === 'permission_pending';
   const [showNfcModal, setShowNfcModal] = useState(false);
   const [selectedChip, setSelectedChip] = useState<number | null>(null);
@@ -136,7 +139,7 @@ const MbcStation: FC = () => {
     <div className={styles['mbc-station']}>
       <PageHeader title={String(t('mbc_station_title'))} onBack={() => window.history.back()} />
       <main className={styles['mbc-station__main']}>
-        <NfcCapabilityNotice status={ctrl.nfcCapability} t={t} />
+        <NfcCapabilityNotice status={ctrl.nfcCapability} onClose={() => navigate({ to: '/' })} imageSrc={images.nfcFailed} t={t} />
 
         {/* NFC Scan Modal */}
         <NfcScanModal

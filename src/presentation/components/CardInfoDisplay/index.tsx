@@ -1,29 +1,31 @@
 import type { FC } from 'react';
-import type { TFunction } from 'i18next';
-import type { CardData } from '@src/@core/models/mbc';
 import BalanceDisplay from '@components/BalanceDisplay';
 import styles from './card-info-display.module.css';
 
-export interface CardInfoDisplayProps {
-  cardData: CardData;
-  t: TFunction;
+export interface CardInfoProps {
+  formattedBalance: string;
+  isCheckedIn: boolean;
+  formattedEntryTime?: string;
 }
 
-const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardData, t }) => {
+export interface CardInfoDisplayProps {
+  cardInfo: CardInfoProps;
+  t: (key: string) => string;
+}
+
+const CardInfoDisplay: FC<CardInfoDisplayProps> = ({ cardInfo, t }) => {
   return (
     <div data-testid="card-info-display" className={styles['card-info-display']}>
-      {/* Balance */}
-      <BalanceDisplay balance={cardData.b} t={t} />
+      <BalanceDisplay formattedBalance={cardInfo.formattedBalance} t={t} />
 
-      {/* Check-in Status */}
-      {cardData.s === 1 && cardData.t && (
+      {cardInfo.isCheckedIn && cardInfo.formattedEntryTime && (
         <div className={styles['card-info-display__check-in-card']}>
-          <h3 className={styles['card-info-display__check-in-label']}>{t('mbc_card_checkin_active')}</h3>
+          <h3 className={styles['card-info-display__check-in-label']}>
+            {t('mbc_card_checkin_active')}
+          </h3>
           <p className={styles['card-info-display__check-in-detail']}>
             {t('mbc_common_entry_time_label')}{' '}
-            <strong>
-              {new Date(cardData.t).toLocaleString('id-ID')}
-            </strong>
+            <strong>{cardInfo.formattedEntryTime}</strong>
           </p>
         </div>
       )}
