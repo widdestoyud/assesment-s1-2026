@@ -1,5 +1,6 @@
 import type { AwilixRegistry } from '@di/container';
 import type { OperationResult } from '@src/@core/models/mbc';
+import { MBC_KEYS } from '@utils/constants/mbc-keys';
 
 export interface TopUpBalanceInput {
   amount: number;
@@ -18,8 +19,8 @@ export const TopUpBalanceUseCase = (
   const { nfcService, cardDataService, silentShieldService } = deps;
 
   const execute = async (input: TopUpBalanceInput): Promise<OperationResult> => {
-    if (input.amount <= 0) {
-      throw new Error('mbc_error_topup_amount_invalid');
+    if (input.amount < MBC_KEYS.MIN_TOPUP) {
+      throw new Error('mbc_error_min_topup');
     }
 
     let newBalance = 0;
@@ -31,8 +32,8 @@ export const TopUpBalanceUseCase = (
       const card = cardDataService.deserialize(decrypted);
 
       // Validate max balance
-      if (card.b + input.amount > 999999) {
-        throw new Error('mbc_error_balance_exceeds_max');
+      if (card.b + input.amount > MBC_KEYS.MAX_BALANCE) {
+        throw new Error('mbc_error_max_balance_exceeded');
       }
 
       // Apply top-up

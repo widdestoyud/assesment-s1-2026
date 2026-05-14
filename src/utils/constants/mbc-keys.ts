@@ -6,6 +6,10 @@ export const MBC_KEYS = {
   // Storage config
   MBC_STORE_NAME: 'mbc-config',
 
+  // Balance constraints
+  MIN_TOPUP: 2000,
+  MAX_BALANCE: 300000,
+
   // Silent Shield config
   SILENT_SHIELD_ALGORITHM: 'AES-GCM',
   // Encryption key material — acceptable for offline-first app with no backend.

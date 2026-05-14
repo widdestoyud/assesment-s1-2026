@@ -7,6 +7,7 @@ import type {
 } from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
 import { formatIDR, formatThousands, stripThousands } from '@utils/helpers/mbc.helper';
+import { MBC_KEYS } from '@utils/constants/mbc-keys';
 import { useNfcCapability, useNfcOperation } from './hooks';
 import type { ResultModalProps } from './shared.types';
 
@@ -61,6 +62,9 @@ export interface StationControllerInterface {
 
   // Computed
   formattedBalance: string;
+  formattedMaxRemaining: string;
+  maxRemainingTopUp: number;
+  canTopUp: boolean;
 }
 
 const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
@@ -217,9 +221,14 @@ const StationController = (
 
   const pageTitle = String(t('mbc_station_title'));
   const parsedAmount = Number.parseInt(topUpAmount, 10);
-  const isTopUpValid = !Number.isNaN(parsedAmount) && parsedAmount > 0;
+  const currentBalance = cardData?.b ?? 0;
+  const maxRemainingTopUp = MBC_KEYS.MAX_BALANCE - currentBalance;
+  const isTopUpValid = !Number.isNaN(parsedAmount)
+    && parsedAmount >= MBC_KEYS.MIN_TOPUP
+    && (currentBalance + parsedAmount) <= MBC_KEYS.MAX_BALANCE;
   const formattedTopUpAmount = formatThousands(topUpAmount);
   const formattedBalance = cardData ? formatIDR(cardData.b) : '';
+  const formattedMaxRemaining = formatIDR(Math.max(0, maxRemainingTopUp));
 
   // --- Result modal props ---
 
@@ -328,6 +337,9 @@ const StationController = (
 
     // Computed
     formattedBalance,
+    formattedMaxRemaining,
+    maxRemainingTopUp,
+    canTopUp: maxRemainingTopUp >= MBC_KEYS.MIN_TOPUP,
   };
 };
 
