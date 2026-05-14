@@ -2,11 +2,11 @@ import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
   CardData,
-  NfcCapabilityStatus,
-  NfcStatus,
+  ChipTransferCapabilityStatus,
+  ChipTransferStatus,
 } from '@src/@core/models/mbc';
-import { NfcServiceError } from '@core/services/mbc/nfc.service';
-import { useNfcCapability, useNfcOperation } from './hooks';
+import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
+import { useChipTransferCapability, useChipTransferOperation } from './hooks';
 import type { ResultModalProps } from './shared.types';
 
 export type { ResultModalProps } from './shared.types';
@@ -29,15 +29,15 @@ export interface ScoutControllerInterface {
   pageTitle: string;
   onBack: () => void;
 
-  // NFC capability
-  nfcCapability: NfcCapabilityStatus;
-  nfcAvailable: boolean;
+  // Chip transfer capability
+  chipTransferCapability: ChipTransferCapabilityStatus;
+  chipTransferAvailable: boolean;
   onNfcNoticeClose: () => void;
-  nfcFailedImage: string;
+  chipTransferFailedImage: string;
 
-  // NFC scan modal
+  // Chip transfer scan modal
   showNfcModal: boolean;
-  nfcStatus: NfcStatus;
+  chipTransferStatus: ChipTransferStatus;
   isReading: boolean;
   error: string | null;
   onCloseNfcModal: () => void;
@@ -64,7 +64,7 @@ export interface ScoutControllerInterface {
 
   // Legacy (kept for compatibility)
   successImage: string;
-  nfcErrorImage: string;
+  chipTransferErrorImage: string;
 }
 
 const ScoutController = (
@@ -75,7 +75,7 @@ const ScoutController = (
     | 'useTranslation'
     | 'useNavigate'
     | 'readCardUseCase'
-    | 'nfcService'
+    | 'chipTransferService'
     | 'silentShieldService'
     | 'cardDataService'
     | 'images'
@@ -87,7 +87,7 @@ const ScoutController = (
     useEffect,
     useTranslation,
     useNavigate,
-    nfcService,
+    chipTransferService,
     silentShieldService,
     cardDataService,
     images,
@@ -97,8 +97,8 @@ const ScoutController = (
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { nfcCapability, nfcAvailable } = useNfcCapability({ useState, useEffect, nfcService });
-  const nfcOp = useNfcOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
+  const chipOp = useChipTransferOperation({ useState });
 
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [rawEncryptedBase64, setRawEncryptedBase64] = useState<string | null>(null);
@@ -114,17 +114,17 @@ const ScoutController = (
   };
 
   const onReadCard = async () => {
-    if (nfcOp.isProcessing) return;
+    if (chipOp.isProcessing) return;
 
     setCardData(null);
     setRawEncryptedBase64(null);
     setRawDecryptedJson(null);
     setResultType(null);
 
-    await nfcOp.execute(async () => {
+    await chipOp.execute(async () => {
       try {
         // Step 1: Read raw bytes from card
-        const rawEncrypted = await nfcService.readCard();
+        const rawEncrypted = await chipTransferService.readCard();
 
         // Store encrypted raw data
         if (rawEncrypted.length > 0) {
@@ -141,15 +141,15 @@ const ScoutController = (
         // Step 3: Try to deserialize
         const card = cardDataService.deserialize(decrypted);
 
-        nfcOp.setNfcStatus('success');
+        chipOp.setChipTransferStatus('success');
         setCardData(card);
         setResultType('read_success');
       } catch (err: unknown) {
-        nfcOp.setNfcStatus('error');
-        if (err instanceof NfcServiceError) {
-          nfcOp.setError(err.messageKey);
+        chipOp.setChipTransferStatus('error');
+        if (err instanceof ChipTransferServiceError) {
+          chipOp.setError(err.messageKey);
         } else {
-          nfcOp.setError(err instanceof Error ? err.message : String(err));
+          chipOp.setError(err instanceof Error ? err.message : String(err));
         }
         setResultType('nfc_error');
       }
@@ -160,8 +160,8 @@ const ScoutController = (
     setCardData(null);
     setRawEncryptedBase64(null);
     setRawDecryptedJson(null);
-    nfcOp.setNfcStatus('idle');
-    nfcOp.setError(null);
+    chipOp.setChipTransferStatus('idle');
+    chipOp.setError(null);
     setResultType(null);
   };
 
@@ -187,13 +187,13 @@ const ScoutController = (
         imageSrc: images.success,
       };
     }
-    if (resultType === 'nfc_error' && nfcOp.error) {
+    if (resultType === 'nfc_error' && chipOp.error) {
       return {
         variant: 'error',
         title: String(t('mbc_nfc_error_title')),
-        subtitle: nfcOp.error.startsWith('mbc_')
-          ? String(t(nfcOp.error as 'mbc_nfc_error_hardware_unavailable'))
-          : nfcOp.error,
+        subtitle: chipOp.error.startsWith('mbc_')
+          ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable'))
+          : chipOp.error,
         buttonLabel: String(t('mbc_common_close_button')),
         imageSrc: images.nfcLoadDataFailed,
       };
@@ -242,18 +242,18 @@ const ScoutController = (
     pageTitle,
     onBack,
 
-    // NFC capability
-    nfcCapability,
-    nfcAvailable,
+    // Chip transfer capability
+    chipTransferCapability,
+    chipTransferAvailable,
     onNfcNoticeClose,
-    nfcFailedImage: images.nfcFailed,
+    chipTransferFailedImage: images.nfcFailed,
 
-    // NFC scan modal
-    showNfcModal: nfcOp.showNfcModal,
-    nfcStatus: nfcOp.nfcStatus,
-    isReading: nfcOp.isProcessing,
-    error: nfcOp.error,
-    onCloseNfcModal: nfcOp.onCloseNfcModal,
+    // Chip transfer scan modal
+    showNfcModal: chipOp.showNfcModal,
+    chipTransferStatus: chipOp.chipTransferStatus,
+    isReading: chipOp.isProcessing,
+    error: chipOp.error,
+    onCloseNfcModal: chipOp.onCloseNfcModal,
     scanImage: images.tapNfc,
 
     // Result modal
@@ -277,7 +277,7 @@ const ScoutController = (
 
     // Legacy (kept for compatibility)
     successImage: images.success,
-    nfcErrorImage: images.nfcLoadDataFailed,
+    chipTransferErrorImage: images.nfcLoadDataFailed,
   };
 };
 

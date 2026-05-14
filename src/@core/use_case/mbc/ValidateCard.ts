@@ -8,16 +8,16 @@ export interface ValidateCardUseCaseInterface {
 export const ValidateCardUseCase = (
   deps: Pick<
     AwilixRegistry,
-    'nfcService' | 'cardDataService' | 'silentShieldService'
+    'chipTransferService' | 'cardDataService' | 'silentShieldService'
   >,
 ): ValidateCardUseCaseInterface => {
-  const { nfcService, cardDataService, silentShieldService } = deps;
+  const { chipTransferService, cardDataService, silentShieldService } = deps;
 
   const execute = async (): Promise<OperationResult> => {
     let result: OperationResult = { type: 'new', balance: 0 };
 
     // Single-tap: read card, validate, and if invalid overwrite with blank
-    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+    await chipTransferService.readThenWrite(async (rawEncrypted: Uint8Array) => {
       try {
         // Try decrypt + deserialize
         const decrypted = await silentShieldService.decrypt(rawEncrypted);

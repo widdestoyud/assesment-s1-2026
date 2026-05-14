@@ -2,13 +2,13 @@ import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
   CardData,
-  NfcCapabilityStatus,
-  NfcStatus,
+  ChipTransferCapabilityStatus,
+  ChipTransferStatus,
 } from '@src/@core/models/mbc';
-import { NfcServiceError } from '@core/services/mbc/nfc.service';
+import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
 import { formatIDR, formatThousands, stripThousands } from '@utils/helpers/mbc.helper';
 import { MBC_KEYS } from '@utils/constants/mbc-keys';
-import { useNfcCapability, useNfcOperation } from './hooks';
+import { useChipTransferCapability, useChipTransferOperation } from './hooks';
 import type { ResultModalProps } from './shared.types';
 
 export type { ResultModalProps } from './shared.types';
@@ -24,15 +24,15 @@ export interface StationControllerInterface {
   pageTitle: string;
   onBack: () => void;
 
-  // NFC capability
-  nfcCapability: NfcCapabilityStatus;
-  nfcAvailable: boolean;
+  // Chip transfer capability
+  chipTransferCapability: ChipTransferCapabilityStatus;
+  chipTransferAvailable: boolean;
   onNfcNoticeClose: () => void;
-  nfcFailedImage: string;
+  chipTransferFailedImage: string;
 
-  // NFC scan modal
+  // Chip transfer scan modal
   showNfcModal: boolean;
-  nfcStatus: NfcStatus;
+  chipTransferStatus: ChipTransferStatus;
   isProcessing: boolean;
   error: string | null;
   onCloseNfcModal: () => void;
@@ -78,7 +78,7 @@ const StationController = (
     | 'useNavigate'
     | 'validateCardUseCase'
     | 'topUpBalanceUseCase'
-    | 'nfcService'
+    | 'chipTransferService'
     | 'images'
   >,
 ): StationControllerInterface => {
@@ -89,15 +89,15 @@ const StationController = (
     useNavigate,
     validateCardUseCase,
     topUpBalanceUseCase,
-    nfcService,
+    chipTransferService,
     images,
   } = deps;
 
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { nfcCapability, nfcAvailable } = useNfcCapability({ useState, useEffect, nfcService });
-  const nfcOp = useNfcOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
+  const chipOp = useChipTransferOperation({ useState });
 
   const [phase, setPhase] = useState<StationPhase>('home');
   const [cardData, setCardData] = useState<CardData | null>(null);
@@ -106,14 +106,14 @@ const StationController = (
   const [resultAmount, setResultAmount] = useState(0);
   const [selectedChip, setSelectedChip] = useState<number | null>(null);
 
-  // --- NFC error handler ---
-  const handleNfcError = (err: unknown) => {
-    nfcOp.setNfcStatus('error');
-    if (err instanceof NfcServiceError) {
-      nfcOp.setError(err.messageKey);
+  // --- Chip transfer error handler ---
+  const handleChipTransferError = (err: unknown) => {
+    chipOp.setChipTransferStatus('error');
+    if (err instanceof ChipTransferServiceError) {
+      chipOp.setError(err.messageKey);
       setResultType('nfc_error');
     } else {
-      nfcOp.setError(err instanceof Error ? err.message : String(err));
+      chipOp.setError(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -122,10 +122,10 @@ const StationController = (
   const onRegister = async () => {
     setResultType(null);
 
-    await nfcOp.execute(async () => {
+    await chipOp.execute(async () => {
       try {
         const result = await validateCardUseCase.execute();
-        nfcOp.setNfcStatus('success');
+        chipOp.setChipTransferStatus('success');
         if (result.type === 'new') {
           setResultType('register_success');
         } else {
@@ -133,7 +133,7 @@ const StationController = (
           setCardData({ v: 2, b: result.balance, s: 0, t: null, h: [] });
         }
       } catch (err: unknown) {
-        handleNfcError(err);
+        handleChipTransferError(err);
       }
     });
   };
@@ -141,10 +141,10 @@ const StationController = (
   const onStartTopUp = async () => {
     setResultType(null);
 
-    await nfcOp.execute(async () => {
+    await chipOp.execute(async () => {
       try {
         const result = await validateCardUseCase.execute();
-        nfcOp.setNfcStatus('success');
+        chipOp.setChipTransferStatus('success');
 
         if (result.type === 'new') {
           setResultType('not_registered');
@@ -153,7 +153,7 @@ const StationController = (
           setPhase('topup');
         }
       } catch (err: unknown) {
-        handleNfcError(err);
+        handleChipTransferError(err);
       }
     });
   };
@@ -165,19 +165,19 @@ const StationController = (
     setResultType(null);
     setResultAmount(amount);
 
-    await nfcOp.execute(async () => {
+    await chipOp.execute(async () => {
       try {
         await topUpBalanceUseCase.execute({ amount });
-        nfcOp.setNfcStatus('success');
+        chipOp.setChipTransferStatus('success');
         setResultType('topup_success');
       } catch (err: unknown) {
-        nfcOp.setNfcStatus('error');
-        if (err instanceof NfcServiceError) {
-          nfcOp.setError(err.messageKey);
+        chipOp.setChipTransferStatus('error');
+        if (err instanceof ChipTransferServiceError) {
+          chipOp.setError(err.messageKey);
           setResultType('nfc_error');
         } else {
           setResultType('topup_error');
-          nfcOp.setError(err instanceof Error ? err.message : String(err));
+          chipOp.setError(err instanceof Error ? err.message : String(err));
         }
       }
     });
@@ -202,8 +202,8 @@ const StationController = (
     setResultType(null);
     setPhase('home');
     setTopUpAmount('');
-    nfcOp.setError(null);
-    nfcOp.setNfcStatus('idle');
+    chipOp.setError(null);
+    chipOp.setChipTransferStatus('idle');
     setSelectedChip(null);
   };
 
@@ -273,14 +273,14 @@ const StationController = (
         return {
           variant: 'error',
           title: t('mbc_station_topup_result_error_title'),
-          subtitle: nfcOp.error ?? t('mbc_station_topup_result_error_subtitle'),
+          subtitle: chipOp.error ?? t('mbc_station_topup_result_error_subtitle'),
           buttonLabel: t('mbc_station_topup_result_retry_button'),
         };
       case 'nfc_error':
         return {
           variant: 'error',
           title: t('mbc_nfc_error_title'),
-          subtitle: t(nfcOp.error as 'mbc_nfc_error_hardware_unavailable') ?? t('mbc_nfc_error_hardware_unavailable'),
+          subtitle: t(chipOp.error as 'mbc_nfc_error_hardware_unavailable') ?? t('mbc_nfc_error_hardware_unavailable'),
           buttonLabel: t('mbc_station_topup_result_done_button'),
           imageSrc: images.nfcLoadDataFailed,
         };
@@ -299,19 +299,19 @@ const StationController = (
     pageTitle,
     onBack,
 
-    // NFC capability
-    nfcCapability,
-    nfcAvailable,
+    // Chip transfer capability
+    chipTransferCapability,
+    chipTransferAvailable,
     onNfcNoticeClose,
-    nfcFailedImage: images.nfcFailed,
+    chipTransferFailedImage: images.nfcFailed,
 
-    // NFC scan modal
-    showNfcModal: nfcOp.showNfcModal,
-    nfcStatus: nfcOp.nfcStatus,
-    isProcessing: nfcOp.isProcessing,
-    error: nfcOp.error,
-    onCloseNfcModal: nfcOp.onCloseNfcModal,
-    onCancelScan: nfcOp.onCancelScan,
+    // Chip transfer scan modal
+    showNfcModal: chipOp.showNfcModal,
+    chipTransferStatus: chipOp.chipTransferStatus,
+    isProcessing: chipOp.isProcessing,
+    error: chipOp.error,
+    onCloseNfcModal: chipOp.onCloseNfcModal,
+    onCancelScan: chipOp.onCancelScan,
     scanImage: images.tapNfc,
 
     // Result modal

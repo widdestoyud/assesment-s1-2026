@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
-import type { NfcStatus } from '../types';
+import type { ChipTransferStatus } from '../types';
 import styles from './nfc-scan-modal.module.css';
 
 export interface NfcScanModalProps {
   /** Whether the modal is visible */
   isOpen: boolean;
-  /** Current NFC operation status */
-  nfcStatus: NfcStatus;
+  /** Current chip transfer operation status */
+  chipTransferStatus: ChipTransferStatus;
   /** Whether an NFC operation is in progress */
   isProcessing: boolean;
   /** Optional error message to display */
@@ -30,7 +30,7 @@ export interface NfcScanModalProps {
 
 const NfcScanModal: FC<NfcScanModalProps> = ({
   isOpen,
-  nfcStatus,
+  chipTransferStatus,
   isProcessing,
   error,
   onClose,
@@ -74,10 +74,10 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
 
   if (!isOpen) return null;
 
-  const isScanning = nfcStatus === 'idle' || nfcStatus === 'scanning';
-  const isWorking = nfcStatus === 'reading' || nfcStatus === 'writing' || nfcStatus === 'verifying';
-  const isSuccess = nfcStatus === 'success';
-  const isError = nfcStatus === 'error';
+  const isScanning = chipTransferStatus === 'idle' || chipTransferStatus === 'scanning';
+  const isWorking = chipTransferStatus === 'reading' || chipTransferStatus === 'writing' || chipTransferStatus === 'verifying';
+  const isSuccess = chipTransferStatus === 'success';
+  const isError = chipTransferStatus === 'error';
 
   const getCircleModifier = (): string => {
     if (isSuccess) return styles['nfc-scan-modal__circle--success'];
@@ -95,9 +95,9 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
   const getLabel = (): string => {
     if (isSuccess) return t('mbc_nfc_status_success');
     if (isError) return t('mbc_nfc_status_error');
-    if (nfcStatus === 'reading') return t('mbc_nfc_status_reading');
-    if (nfcStatus === 'writing') return t('mbc_nfc_status_writing');
-    if (nfcStatus === 'verifying') return t('mbc_nfc_status_verifying');
+    if (chipTransferStatus === 'reading') return t('mbc_nfc_status_reading');
+    if (chipTransferStatus === 'writing') return t('mbc_nfc_status_writing');
+    if (chipTransferStatus === 'verifying') return t('mbc_nfc_status_verifying');
     return t('mbc_nfc_scan_modal_waiting');
   };
 

@@ -1,23 +1,23 @@
 import type { AwilixRegistry } from '@di/container';
-import type { NfcCapabilityStatus } from '@src/@core/models/mbc';
+import type { ChipTransferCapabilityStatus } from '@src/@core/models/mbc';
 
-export interface UseNfcCapabilityReturn {
-  nfcCapability: NfcCapabilityStatus;
-  nfcAvailable: boolean;
+export interface UseChipTransferCapabilityReturn {
+  chipTransferCapability: ChipTransferCapabilityStatus;
+  chipTransferAvailable: boolean;
 }
 
-export const useNfcCapability = (
-  deps: Pick<AwilixRegistry, 'useState' | 'useEffect' | 'nfcService'>,
-): UseNfcCapabilityReturn => {
-  const { useState, useEffect, nfcService } = deps;
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
+export const useChipTransferCapability = (
+  deps: Pick<AwilixRegistry, 'useState' | 'useEffect' | 'chipTransferService'>,
+): UseChipTransferCapabilityReturn => {
+  const { useState, useEffect, chipTransferService } = deps;
+  const [chipTransferCapability, setChipTransferCapability] = useState<ChipTransferCapabilityStatus>('permission_pending');
 
   useEffect(() => {
-    const isAvailable = nfcService.isAvailable();
-    setNfcCapability(isAvailable ? 'supported' : 'unsupported');
+    const isAvailable = chipTransferService.isAvailable();
+    setChipTransferCapability(isAvailable ? 'supported' : 'unsupported');
   }, []);
 
-  const nfcAvailable = nfcCapability === 'supported' || nfcCapability === 'permission_pending';
+  const chipTransferAvailable = chipTransferCapability === 'supported' || chipTransferCapability === 'permission_pending';
 
-  return { nfcCapability, nfcAvailable };
+  return { chipTransferCapability, chipTransferAvailable };
 };

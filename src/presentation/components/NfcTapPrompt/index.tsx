@@ -1,22 +1,22 @@
 import type { FC } from 'react';
-import type { NfcStatus } from '../types';
+import type { ChipTransferStatus } from '../types';
 import styles from './nfc-tap-prompt.module.css';
 
 export interface NfcTapPromptProps {
-  nfcStatus: NfcStatus;
+  chipTransferStatus: ChipTransferStatus;
   isProcessing: boolean;
   label?: string;
   t: (key: string) => string;
 }
 
 const NfcTapPrompt: FC<NfcTapPromptProps> = ({
-  nfcStatus,
+  chipTransferStatus,
   isProcessing,
   label,
   t,
 }) => {
 
-  const statusMap: Record<NfcStatus, { emoji: string; text: string }> = {
+  const statusMap: Record<ChipTransferStatus, { emoji: string; text: string }> = {
     idle: { emoji: '📱', text: t('mbc_nfc_status_idle') },
     scanning: { emoji: '🔍', text: t('mbc_nfc_status_scanning') },
     reading: { emoji: '📖', text: t('mbc_nfc_status_reading') },
@@ -26,7 +26,7 @@ const NfcTapPrompt: FC<NfcTapPromptProps> = ({
     error: { emoji: '❌', text: t('mbc_nfc_status_error') },
   };
 
-  const config = statusMap[nfcStatus];
+  const config = statusMap[chipTransferStatus];
 
   return (
     <div

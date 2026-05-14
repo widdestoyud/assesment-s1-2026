@@ -1,12 +1,12 @@
 /**
- * Shared presentation-layer types for NFC-related components.
+ * Shared presentation-layer types for chip-transfer-related components.
  * Contains only type definitions — zero runtime code.
  */
 
 /**
- * NFC operation status used by NfcScanModal and NfcTapPrompt.
+ * Chip transfer operation status used by NfcScanModal and NfcTapPrompt.
  */
-export type NfcStatus =
+export type ChipTransferStatus =
   | 'idle'
   | 'scanning'
   | 'reading'
@@ -16,9 +16,9 @@ export type NfcStatus =
   | 'error';
 
 /**
- * NFC hardware capability status used by NfcCapabilityNotice.
+ * Chip transfer hardware capability status used by NfcCapabilityNotice.
  */
-export type NfcCapabilityStatus =
+export type ChipTransferCapabilityStatus =
   | 'supported'
   | 'unsupported'
   | 'permission_pending'

@@ -1,11 +1,11 @@
 import type { TFunction } from 'i18next';
-import type { NfcCapabilityStatus, NfcStatus, ResultModalProps } from '@src/@core/models/mbc';
+import type { ChipTransferCapabilityStatus, ChipTransferStatus, ResultModalProps } from '@src/@core/models/mbc';
 
 export type { ResultModalProps } from '@src/@core/models/mbc';
 
-export interface NfcOperationState {
+export interface ChipTransferOperationState {
   showNfcModal: boolean;
-  nfcStatus: NfcStatus;
+  chipTransferStatus: ChipTransferStatus;
   isProcessing: boolean;
   error: string | null;
   onCloseNfcModal: () => void;
@@ -13,14 +13,14 @@ export interface NfcOperationState {
   scanImage: string;
 }
 
-export interface NfcCapabilityState {
-  nfcCapability: NfcCapabilityStatus;
-  nfcAvailable: boolean;
+export interface ChipTransferCapabilityState {
+  chipTransferCapability: ChipTransferCapabilityStatus;
+  chipTransferAvailable: boolean;
   onNfcNoticeClose: () => void;
-  nfcFailedImage: string;
+  chipTransferFailedImage: string;
 }
 
-export interface NfcPageState extends NfcOperationState, NfcCapabilityState {
+export interface ChipTransferPageState extends ChipTransferOperationState, ChipTransferCapabilityState {
   t: TFunction;
   pageTitle: string;
   onBack: () => void;

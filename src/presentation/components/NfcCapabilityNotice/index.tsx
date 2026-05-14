@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import type { NfcCapabilityStatus } from '../types';
+import type { ChipTransferCapabilityStatus } from '../types';
 import ResultStatusModal from '@components/ResultStatusModal';
 
 export interface NfcCapabilityNoticeProps {
-  status: NfcCapabilityStatus;
+  status: ChipTransferCapabilityStatus;
   onClose: () => void;
   imageSrc: string;
   t: (key: string) => string;

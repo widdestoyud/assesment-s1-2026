@@ -1,14 +1,14 @@
-import type { NfcProtocol } from '@core/protocols/nfc';
+import type { ChipTransferProtocol } from '@core/protocols/chip-transfer';
 import type {
-  NfcError,
-  NfcScanSession,
+  ChipTransferError,
+  ChipTransferScanSession,
 } from '@src/@core/models/mbc';
 import config from '@src/infrastructure/config';
 
 const MBC_MIME_TYPE = 'application/octet-stream';
 
 /**
- * Web NFC API adapter implementing NfcProtocol.
+ * Web NFC API adapter implementing ChipTransferProtocol.
  *
  * Wraps the browser's NDEFReader API behind a clean interface.
  * Card data is stored as a single NDEF MIME record (application/octet-stream)
@@ -20,7 +20,7 @@ const MBC_MIME_TYPE = 'application/octet-stream';
  * Browser support: Chrome Android 89+.
  * Requires HTTPS context and user gesture for first scan.
  */
-export const webNfcAdapter: NfcProtocol = {
+export const webNfcAdapter: ChipTransferProtocol = {
   isSupported(): boolean {
     // When NFC check is disabled, always report as supported (for UI development)
     if (!config.nfcCheckEnabled) return true;
@@ -34,8 +34,8 @@ export const webNfcAdapter: NfcProtocol = {
 
   startScan(
     onRead: (data: Uint8Array) => void,
-    onError: (err: NfcError) => void,
-  ): NfcScanSession {
+    onError: (err: ChipTransferError) => void,
+  ): ChipTransferScanSession {
     const controller = new AbortController();
 
     if (!this.isSupported()) {
@@ -138,7 +138,7 @@ export const webNfcAdapter: NfcProtocol = {
 
   async write(data: Uint8Array): Promise<void> {
     if (!this.isSupported()) {
-      throw createNfcError(
+      throw createChipTransferError(
         'hardware_unavailable',
         'Web NFC is not supported on this device or browser',
         'mbc_nfc_error_hardware_unavailable',
@@ -147,7 +147,7 @@ export const webNfcAdapter: NfcProtocol = {
 
     // Guard: NDEFReader may not exist even when isSupported() returns true (nfcCheckEnabled=false on desktop)
     if (!('NDEFReader' in globalThis)) {
-      throw createNfcError(
+      throw createChipTransferError(
         'hardware_unavailable',
         'NDEFReader API is not available in this browser. Use a Chrome Android device with NFC.',
         'mbc_nfc_error_hardware_unavailable',
@@ -168,32 +168,32 @@ export const webNfcAdapter: NfcProtocol = {
       if (error instanceof DOMException) {
         switch (error.name) {
           case 'NotAllowedError':
-            throw createNfcError(
+            throw createChipTransferError(
               'permission_denied',
               'NFC permission was denied by the user',
               'mbc_nfc_error_permission_denied',
             );
           case 'NotSupportedError':
-            throw createNfcError(
+            throw createChipTransferError(
               'hardware_unavailable',
               'NFC hardware is not available on this device',
               'mbc_nfc_error_hardware_unavailable',
             );
           case 'NetworkError':
-            throw createNfcError(
+            throw createChipTransferError(
               'connection_lost',
               'NFC connection lost during write — tag may have been removed',
               'mbc_nfc_error_connection_lost',
             );
           default:
-            throw createNfcError(
+            throw createChipTransferError(
               'write_failed',
               `NFC write failed: ${error.message}`,
               'mbc_nfc_error_write_failed',
             );
         }
       }
-      throw createNfcError(
+      throw createChipTransferError(
         'write_failed',
         'An unexpected error occurred during NFC write',
         'mbc_nfc_error_write_failed',
@@ -257,12 +257,12 @@ function base64ToUint8Array(base64: string): Uint8Array {
   return bytes;
 }
 
-/** Helper to create a typed NfcError with locale key */
-function createNfcError(
-  type: NfcError['type'],
+/** Helper to create a typed ChipTransferError with locale key */
+function createChipTransferError(
+  type: ChipTransferError['type'],
   message: string,
   messageKey: string,
   messageParams?: Record<string, string | number>,
-): NfcError {
+): ChipTransferError {
   return { type, message, messageKey, ...(messageParams && { messageParams }) };
 }

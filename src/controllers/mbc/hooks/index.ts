@@ -1,4 +1,4 @@
-export { useNfcCapability } from './useNfcCapability';
-export type { UseNfcCapabilityReturn } from './useNfcCapability';
-export { useNfcOperation } from './useNfcOperation';
-export type { UseNfcOperationReturn } from './useNfcOperation';
+export { useChipTransferCapability } from './useNfcCapability';
+export type { UseChipTransferCapabilityReturn } from './useNfcCapability';
+export { useChipTransferOperation } from './useNfcOperation';
+export type { UseChipTransferOperationReturn } from './useNfcOperation';

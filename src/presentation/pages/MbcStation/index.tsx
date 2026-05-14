@@ -14,12 +14,12 @@ const MbcStation: FC = () => {
     t,
     pageTitle,
     onBack,
-    nfcCapability,
-    nfcAvailable,
+    chipTransferCapability,
+    chipTransferAvailable,
     onNfcNoticeClose,
-    nfcFailedImage,
+    chipTransferFailedImage,
     showNfcModal,
-    nfcStatus,
+    chipTransferStatus,
     isProcessing,
     error,
     onCloseNfcModal,
@@ -46,11 +46,11 @@ const MbcStation: FC = () => {
     <div className={styles['mbc-station']}>
       <PageHeader title={pageTitle} onBack={onBack} />
       <main className={styles['mbc-station__main']}>
-        <NfcCapabilityNotice status={nfcCapability} onClose={onNfcNoticeClose} imageSrc={nfcFailedImage} t={t} />
+        <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 
         <NfcScanModal
           isOpen={showNfcModal}
-          nfcStatus={nfcStatus}
+          chipTransferStatus={chipTransferStatus}
           isProcessing={isProcessing}
           error={error}
           onClose={onCloseNfcModal}
@@ -73,7 +73,7 @@ const MbcStation: FC = () => {
         )}
 
         {/* Phase: Home */}
-        {nfcAvailable && phase === 'home' && (
+        {chipTransferAvailable && phase === 'home' && (
           <div className={styles['mbc-station__content']}>
             {/* Info Banner */}
             <SignalCallout
@@ -116,7 +116,7 @@ const MbcStation: FC = () => {
         )}
 
         {/* Phase: Top-Up form */}
-        {nfcAvailable && phase === 'topup' && (
+        {chipTransferAvailable && phase === 'topup' && (
           <div className={styles['mbc-station__content']}>
             {/* Current balance info */}
             {cardData && (

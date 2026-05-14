@@ -5,14 +5,14 @@ export { DEFAULT_PARKING_BENEFIT } from './benefit-type.model.ts';
 
 export type {
   RoleMode,
-  NfcStatus,
-  NfcError,
-  NfcScanSession,
+  ChipTransferStatus,
+  ChipTransferError,
+  ChipTransferScanSession,
   FeeResult,
   CheckInResult,
   CheckOutResult,
   OperationResult,
-  NfcCapabilityStatus,
+  ChipTransferCapabilityStatus,
   ResultModalProps,
 } from './common.model.ts';
 

@@ -1,32 +1,32 @@
 import type { AwilixRegistry } from '@di/container';
-import type { NfcStatus } from '@src/@core/models/mbc';
+import type { ChipTransferStatus } from '@src/@core/models/mbc';
 
-export interface UseNfcOperationReturn {
+export interface UseChipTransferOperationReturn {
   showNfcModal: boolean;
-  nfcStatus: NfcStatus;
+  chipTransferStatus: ChipTransferStatus;
   isProcessing: boolean;
   error: string | null;
   onCloseNfcModal: () => void;
   onCancelScan: () => void;
   execute: (asyncFn: () => Promise<void>) => Promise<void>;
   setError: (error: string | null) => void;
-  setNfcStatus: (status: NfcStatus) => void;
+  setChipTransferStatus: (status: ChipTransferStatus) => void;
   resetState: () => void;
 }
 
-export const useNfcOperation = (
+export const useChipTransferOperation = (
   deps: Pick<AwilixRegistry, 'useState'>,
-): UseNfcOperationReturn => {
+): UseChipTransferOperationReturn => {
   const { useState } = deps;
 
   const [showNfcModal, setShowNfcModal] = useState(false);
-  const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
+  const [chipTransferStatus, setChipTransferStatus] = useState<ChipTransferStatus>('idle');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const onCancelScan = () => {
     setIsProcessing(false);
-    setNfcStatus('idle');
+    setChipTransferStatus('idle');
   };
 
   const onCloseNfcModal = () => {
@@ -37,7 +37,7 @@ export const useNfcOperation = (
   const execute = async (asyncFn: () => Promise<void>) => {
     setShowNfcModal(true);
     setIsProcessing(true);
-    setNfcStatus('scanning');
+    setChipTransferStatus('scanning');
     setError(null);
 
     try {
@@ -50,21 +50,21 @@ export const useNfcOperation = (
 
   const resetState = () => {
     setShowNfcModal(false);
-    setNfcStatus('idle');
+    setChipTransferStatus('idle');
     setIsProcessing(false);
     setError(null);
   };
 
   return {
     showNfcModal,
-    nfcStatus,
+    chipTransferStatus,
     isProcessing,
     error,
     onCloseNfcModal,
     onCancelScan,
     execute,
     setError,
-    setNfcStatus,
+    setChipTransferStatus,
     resetState,
   };
 };

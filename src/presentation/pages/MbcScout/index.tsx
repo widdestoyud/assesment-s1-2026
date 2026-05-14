@@ -14,11 +14,11 @@ const MbcScout: FC = () => {
     t,
     pageTitle,
     onBack,
-    nfcCapability,
+    chipTransferCapability,
     onNfcNoticeClose,
-    nfcFailedImage,
+    chipTransferFailedImage,
     showNfcModal,
-    nfcStatus,
+    chipTransferStatus,
     isReading,
     error,
     onCloseNfcModal,
@@ -27,7 +27,7 @@ const MbcScout: FC = () => {
     resultType,
     onCloseResult,
     onReadCard,
-    nfcAvailable,
+    chipTransferAvailable,
     formattedBalance,
     formattedTransactions,
     checkinStatusLabel,
@@ -95,11 +95,11 @@ const MbcScout: FC = () => {
     <div className={styles['mbc-scout']}>
       <PageHeader title={pageTitle} onBack={onBack} />
       <main className={styles['mbc-scout__main']}>
-        <NfcCapabilityNotice status={nfcCapability} onClose={onNfcNoticeClose} imageSrc={nfcFailedImage} t={t} />
+        <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 
         <NfcScanModal
           isOpen={showNfcModal}
-          nfcStatus={nfcStatus}
+          chipTransferStatus={chipTransferStatus}
           isProcessing={isReading}
           error={error}
           onClose={onCloseNfcModal}
@@ -125,7 +125,7 @@ const MbcScout: FC = () => {
         )}
 
         {/* Main Content — Tap Button */}
-        {nfcAvailable && (
+        {chipTransferAvailable && (
           <div className={styles['mbc-scout__content']}>
             <SignalCard className={styles['mbc-scout__nfc-section']}>
               <SignalGateButton

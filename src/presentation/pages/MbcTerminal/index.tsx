@@ -15,11 +15,11 @@ const MbcTerminal: FC = () => {
     t,
     pageTitle,
     onBack,
-    nfcCapability,
+    chipTransferCapability,
     onNfcNoticeClose,
-    nfcFailedImage,
+    chipTransferFailedImage,
     showNfcModal,
-    nfcStatus,
+    chipTransferStatus,
     isProcessing,
     error,
     onCloseNfcModal,
@@ -94,11 +94,11 @@ const MbcTerminal: FC = () => {
     <div className={styles['mbc-terminal']}>
       <PageHeader title={pageTitle} onBack={onBack} />
       <main className={styles['mbc-terminal__main']}>
-        <NfcCapabilityNotice status={nfcCapability} onClose={onNfcNoticeClose} imageSrc={nfcFailedImage} t={t} />
+        <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 
         <NfcScanModal
           isOpen={showNfcModal}
-          nfcStatus={nfcStatus}
+          chipTransferStatus={chipTransferStatus}
           isProcessing={isProcessing}
           error={error}
           onClose={onCloseNfcModal}

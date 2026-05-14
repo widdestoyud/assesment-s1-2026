@@ -1,6 +1,6 @@
 export type RoleMode = 'station' | 'gate' | 'terminal' | 'scout';
 
-export type NfcStatus =
+export type ChipTransferStatus =
   | 'idle'
   | 'scanning'
   | 'reading'
@@ -9,7 +9,7 @@ export type NfcStatus =
   | 'success'
   | 'error';
 
-export interface NfcError {
+export interface ChipTransferError {
   type:
     | 'permission_denied'
     | 'hardware_unavailable'
@@ -25,7 +25,7 @@ export interface NfcError {
   messageParams?: Record<string, string | number>;
 }
 
-export interface NfcScanSession {
+export interface ChipTransferScanSession {
   abort(): void;
 }
 
@@ -57,7 +57,7 @@ export interface OperationResult {
   balance: number;
 }
 
-export type NfcCapabilityStatus =
+export type ChipTransferCapabilityStatus =
   | 'supported'
   | 'unsupported'
   | 'permission_pending'

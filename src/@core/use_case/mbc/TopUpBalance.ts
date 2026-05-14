@@ -13,10 +13,10 @@ export interface TopUpBalanceUseCaseInterface {
 export const TopUpBalanceUseCase = (
   deps: Pick<
     AwilixRegistry,
-    'nfcService' | 'cardDataService' | 'silentShieldService'
+    'chipTransferService' | 'cardDataService' | 'silentShieldService'
   >,
 ): TopUpBalanceUseCaseInterface => {
-  const { nfcService, cardDataService, silentShieldService } = deps;
+  const { chipTransferService, cardDataService, silentShieldService } = deps;
 
   const execute = async (input: TopUpBalanceInput): Promise<OperationResult> => {
     if (input.amount < MBC_KEYS.MIN_TOPUP) {
@@ -26,7 +26,7 @@ export const TopUpBalanceUseCase = (
     let newBalance = 0;
 
     // Single-tap: read card, process, write back
-    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+    await chipTransferService.readThenWrite(async (rawEncrypted: Uint8Array) => {
       // Decrypt → deserialize
       const decrypted = await silentShieldService.decrypt(rawEncrypted);
       const card = cardDataService.deserialize(decrypted);

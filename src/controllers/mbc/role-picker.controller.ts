@@ -1,7 +1,7 @@
 import type { AwilixRegistry } from '@di/container';
-import type { RoleMode, NfcCapabilityStatus } from '@src/@core/models/mbc';
+import type { RoleMode, ChipTransferCapabilityStatus } from '@src/@core/models/mbc';
 import type { TFunction } from 'i18next';
-import { useNfcCapability } from './hooks';
+import { useChipTransferCapability } from './hooks';
 
 export interface RoleOption {
   id: RoleMode;
@@ -17,7 +17,7 @@ export interface RolePickerControllerInterface {
   primaryRoles: RoleOption[];
   secondaryRoles: RoleOption[];
   activeRole: RoleMode | null;
-  nfcCapability: NfcCapabilityStatus;
+  chipTransferCapability: ChipTransferCapabilityStatus;
   onNavigateToRole: (role: RoleMode) => void;
   t: TFunction;
 }
@@ -63,14 +63,14 @@ const SECONDARY_ROLES: RoleOption[] = [
 ];
 
 const RolePickerController = (
-  deps: Pick<AwilixRegistry, 'useState' | 'useCallback' | 'useEffect' | 'useTranslation' | 'useNavigate' | 'nfcService'>,
+  deps: Pick<AwilixRegistry, 'useState' | 'useCallback' | 'useEffect' | 'useTranslation' | 'useNavigate' | 'chipTransferService'>,
 ): RolePickerControllerInterface => {
-  const { useState, useCallback, useEffect, useTranslation, useNavigate, nfcService } = deps;
+  const { useState, useCallback, useEffect, useTranslation, useNavigate, chipTransferService } = deps;
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [activeRole, setActiveRole] = useState<RoleMode | null>(null);
-  const { nfcCapability } = useNfcCapability({ useState, useEffect, nfcService });
+  const { chipTransferCapability } = useChipTransferCapability({ useState, useEffect, chipTransferService });
 
   const onNavigateToRole = useCallback((role: RoleMode) => {
     setActiveRole(role);
@@ -81,7 +81,7 @@ const RolePickerController = (
     primaryRoles: PRIMARY_ROLES,
     secondaryRoles: SECONDARY_ROLES,
     activeRole,
-    nfcCapability,
+    chipTransferCapability,
     onNavigateToRole,
     t,
   };

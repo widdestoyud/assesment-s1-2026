@@ -3,13 +3,13 @@ import type { TFunction } from 'i18next';
 import type {
   CheckOutResult,
   FeeResult,
-  NfcCapabilityStatus,
-  NfcStatus,
+  ChipTransferCapabilityStatus,
+  ChipTransferStatus,
 } from '@src/@core/models/mbc';
-import { NfcServiceError } from '@core/services/mbc/nfc.service';
+import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
 import { InsufficientBalanceError } from '@core/use_case/mbc/CheckOut';
 import { formatIDR } from '@utils/helpers/mbc.helper';
-import { useNfcCapability, useNfcOperation } from './hooks';
+import { useChipTransferCapability, useChipTransferOperation } from './hooks';
 import type { ResultModalProps } from './shared.types';
 
 export type { ResultModalProps } from './shared.types';
@@ -51,15 +51,15 @@ export interface TerminalControllerInterface {
   pageTitle: string;
   onBack: () => void;
 
-  // NFC capability
-  nfcCapability: NfcCapabilityStatus;
-  nfcAvailable: boolean;
+  // Chip transfer capability
+  chipTransferCapability: ChipTransferCapabilityStatus;
+  chipTransferAvailable: boolean;
   onNfcNoticeClose: () => void;
-  nfcFailedImage: string;
+  chipTransferFailedImage: string;
 
-  // NFC scan modal
+  // Chip transfer scan modal
   showNfcModal: boolean;
-  nfcStatus: NfcStatus;
+  chipTransferStatus: ChipTransferStatus;
   isProcessing: boolean;
   error: string | null;
   onCloseNfcModal: () => void;
@@ -81,7 +81,7 @@ export interface TerminalControllerInterface {
   // Legacy (kept for compatibility)
   lastResult: CheckOutResult | null;
   insufficientBalanceData: InsufficientBalanceData | null;
-  nfcErrorImage: string;
+  chipTransferErrorImage: string;
   successImage: string;
   warningImage: string;
 }
@@ -94,7 +94,7 @@ const TerminalController = (
     | 'useTranslation'
     | 'useNavigate'
     | 'checkOutUseCase'
-    | 'nfcService'
+    | 'chipTransferService'
     | 'images'
   >,
 ): TerminalControllerInterface => {
@@ -104,15 +104,15 @@ const TerminalController = (
     useTranslation,
     useNavigate,
     checkOutUseCase,
-    nfcService,
+    chipTransferService,
     images,
   } = deps;
 
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { nfcCapability, nfcAvailable } = useNfcCapability({ useState, useEffect, nfcService });
-  const nfcOp = useNfcOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
+  const chipOp = useChipTransferOperation({ useState });
 
   const [lastResult, setLastResult] = useState<CheckOutResult | null>(null);
   const [insufficientBalanceData, setInsufficientBalanceData] = useState<InsufficientBalanceData | null>(null);
@@ -122,16 +122,16 @@ const TerminalController = (
     setLastResult(null);
     setResultType(null);
 
-    await nfcOp.execute(async () => {
+    await chipOp.execute(async () => {
       try {
         const result = await checkOutUseCase.execute();
-        nfcOp.setNfcStatus('success');
+        chipOp.setChipTransferStatus('success');
         setLastResult(result);
         setResultType('checkout_success');
       } catch (err: unknown) {
-        nfcOp.setNfcStatus('error');
+        chipOp.setChipTransferStatus('error');
         if (err instanceof InsufficientBalanceError) {
-          nfcOp.setError(err.message);
+          chipOp.setError(err.message);
           setInsufficientBalanceData({
             checkInTime: err.checkInTime,
             checkOutTime: err.checkOutTime,
@@ -141,14 +141,14 @@ const TerminalController = (
           });
           setResultType('insufficient_balance');
         } else if (err instanceof Error && err.message === 'mbc_error_not_checked_in') {
-          nfcOp.setError(err.message);
+          chipOp.setError(err.message);
           setResultType('not_checked_in');
-        } else if (err instanceof NfcServiceError) {
-          nfcOp.setError(err.messageKey);
+        } else if (err instanceof ChipTransferServiceError) {
+          chipOp.setError(err.messageKey);
           setResultType('nfc_error');
         } else {
           const message = err instanceof Error ? err.message : String(err);
-          nfcOp.setError(message);
+          chipOp.setError(message);
           setResultType('nfc_error');
         }
       }
@@ -158,8 +158,8 @@ const TerminalController = (
   const onCloseResult = () => {
     setLastResult(null);
     setInsufficientBalanceData(null);
-    nfcOp.setNfcStatus('idle');
-    nfcOp.setError(null);
+    chipOp.setChipTransferStatus('idle');
+    chipOp.setError(null);
     setResultType(null);
   };
 
@@ -212,12 +212,12 @@ const TerminalController = (
         imageSrc: images.nfcLoadDataFailed,
       };
     }
-    if (resultType === 'nfc_error' && nfcOp.error) {
-      const isTranslationKey = nfcOp.error.startsWith('mbc_');
+    if (resultType === 'nfc_error' && chipOp.error) {
+      const isTranslationKey = chipOp.error.startsWith('mbc_');
       return {
         variant: 'error',
         title: t('mbc_nfc_error_title'),
-        subtitle: isTranslationKey ? String(t(nfcOp.error as 'mbc_nfc_error_hardware_unavailable')) : nfcOp.error,
+        subtitle: isTranslationKey ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable')) : chipOp.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: images.nfcLoadDataFailed,
       };
@@ -265,19 +265,19 @@ const TerminalController = (
     pageTitle,
     onBack,
 
-    // NFC capability
-    nfcCapability,
-    nfcAvailable,
+    // Chip transfer capability
+    chipTransferCapability,
+    chipTransferAvailable,
     onNfcNoticeClose,
-    nfcFailedImage: images.nfcFailed,
+    chipTransferFailedImage: images.nfcFailed,
 
-    // NFC scan modal
-    showNfcModal: nfcOp.showNfcModal,
-    nfcStatus: nfcOp.nfcStatus,
-    isProcessing: nfcOp.isProcessing,
-    error: nfcOp.error,
-    onCloseNfcModal: nfcOp.onCloseNfcModal,
-    onCancelScan: nfcOp.onCancelScan,
+    // Chip transfer scan modal
+    showNfcModal: chipOp.showNfcModal,
+    chipTransferStatus: chipOp.chipTransferStatus,
+    isProcessing: chipOp.isProcessing,
+    error: chipOp.error,
+    onCloseNfcModal: chipOp.onCloseNfcModal,
+    onCancelScan: chipOp.onCancelScan,
     scanImage: images.tapNfc,
 
     // Result modal
@@ -295,7 +295,7 @@ const TerminalController = (
     // Legacy (kept for compatibility)
     lastResult,
     insufficientBalanceData,
-    nfcErrorImage: images.nfcLoadDataFailed,
+    chipTransferErrorImage: images.nfcLoadDataFailed,
     successImage: images.success,
     warningImage: images.nfcWarningHuman,
   };

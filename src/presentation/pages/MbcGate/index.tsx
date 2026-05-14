@@ -14,11 +14,11 @@ const MbcGate: FC = () => {
     t,
     pageTitle,
     onBack,
-    nfcCapability,
+    chipTransferCapability,
     onNfcNoticeClose,
-    nfcFailedImage,
+    chipTransferFailedImage,
     showNfcModal,
-    nfcStatus,
+    chipTransferStatus,
     isProcessing,
     error,
     onCloseNfcModal,
@@ -42,11 +42,11 @@ const MbcGate: FC = () => {
     <div className={styles['mbc-gate']}>
       <PageHeader title={pageTitle} onBack={onBack} />
       <main className={styles['mbc-gate__main']}>
-        <NfcCapabilityNotice status={nfcCapability} onClose={onNfcNoticeClose} imageSrc={nfcFailedImage} t={t} />
+        <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 
         <NfcScanModal
           isOpen={showNfcModal}
-          nfcStatus={nfcStatus}
+          chipTransferStatus={chipTransferStatus}
           isProcessing={isProcessing}
           error={error}
           onClose={onCloseNfcModal}
