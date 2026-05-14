@@ -62,3 +62,13 @@ export type NfcCapabilityStatus =
   | 'unsupported'
   | 'permission_pending'
   | 'permission_denied';
+
+export interface ResultModalProps {
+  variant: 'success' | 'error';
+  title: string;
+  subtitle: string;
+  buttonLabel: string;
+  imageSrc?: string;
+  detail?: { label: string; value: string };
+  hideHeader?: boolean;
+}

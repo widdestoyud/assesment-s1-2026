@@ -6,32 +6,60 @@ import type {
   NfcStatus,
 } from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
+import { useNfcCapability, useNfcOperation } from './hooks';
+import type { ResultModalProps } from './shared.types';
+
+export type { ResultModalProps } from './shared.types';
 
 export type GateTab = 'normal' | 'simulation';
 
 export type GateResultType = 'checkin_success' | 'already_checked_in' | 'nfc_error' | null;
 
 export interface GateControllerInterface {
+  // Translation
+  t: TFunction;
+
+  // Page metadata
+  pageTitle: string;
+  onBack: () => void;
+
+  // NFC capability
+  nfcCapability: NfcCapabilityStatus;
+  nfcAvailable: boolean;
+  onNfcNoticeClose: () => void;
+  nfcFailedImage: string;
+
+  // NFC scan modal
+  showNfcModal: boolean;
   nfcStatus: NfcStatus;
-  lastResult: CheckInResult | null;
   isProcessing: boolean;
   error: string | null;
-  nfcCapability: NfcCapabilityStatus;
+  onCloseNfcModal: () => void;
+  onCancelScan: () => void;
+  scanImage: string;
+
+  // Result modal — pre-mapped, ready to spread
+  resultProps: ResultModalProps | null;
+  resultType: GateResultType;
+  onCloseResult: () => void;
+
+  // Actions — controller handles async + modal internally
+  onCheckIn: () => void;
+  onSimulationCheckIn: () => void;
+
+  // Form state
   activeTab: GateTab;
   onSetActiveTab: (tab: GateTab) => void;
   simulationDate: string;
   simulationTime: string;
+  maxDate: string;
   onSetSimulationDate: (date: string) => void;
   onSetSimulationTime: (time: string) => void;
-  onCheckIn: () => Promise<void>;
-  onSimulationCheckIn: () => Promise<void>;
-  onCancelScan: () => void;
-  onCloseResult: () => void;
-  resultType: GateResultType;
+
+  // Legacy (kept for compatibility)
+  lastResult: CheckInResult | null;
   nfcErrorImage: string;
-  scanImage: string;
   successImage: string;
-  t: TFunction;
 }
 
 const GateController = (
@@ -40,6 +68,7 @@ const GateController = (
     | 'useState'
     | 'useEffect'
     | 'useTranslation'
+    | 'useNavigate'
     | 'checkInUseCase'
     | 'nfcService'
     | 'images'
@@ -49,18 +78,20 @@ const GateController = (
     useState,
     useEffect,
     useTranslation,
+    useNavigate,
     checkInUseCase,
     nfcService,
     images,
   } = deps;
 
+  const navigate = useNavigate();
+
   const { t } = useTranslation();
 
-  const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
+  const { nfcCapability, nfcAvailable } = useNfcCapability({ useState, useEffect, nfcService });
+  const nfcOp = useNfcOperation({ useState });
+
   const [lastResult, setLastResult] = useState<CheckInResult | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
   const [activeTab, setActiveTab] = useState<GateTab>('normal');
   const [resultType, setResultType] = useState<GateResultType>(null);
 
@@ -79,114 +110,176 @@ const GateController = (
     defaultDate.toTimeString().slice(0, 5),
   );
 
-  useEffect(() => {
-    const isNfcAvailable = nfcService.isAvailable();
-    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-  }, []);
-
   const onSetActiveTab = (tab: GateTab) => {
     setActiveTab(tab);
-    setError(null);
+    nfcOp.setError(null);
     setLastResult(null);
     setResultType(null);
   };
 
   const handleNfcError = (err: unknown) => {
-    setNfcStatus('error');
+    nfcOp.setNfcStatus('error');
     if (err instanceof Error && err.message === 'mbc_error_already_checked_in') {
-      setError(err.message);
+      nfcOp.setError(err.message);
       setResultType('already_checked_in');
     } else if (err instanceof NfcServiceError) {
-      // NFC hardware/API error — show error modal with illustration
-      setError(err.messageKey);
+      nfcOp.setError(err.messageKey);
       setResultType('nfc_error');
     } else {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message);
+      nfcOp.setError(message);
       setResultType('nfc_error');
     }
   };
 
   const onCheckIn = async () => {
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
     setLastResult(null);
     setResultType(null);
 
-    try {
-      const result = await checkInUseCase.execute();
-      setNfcStatus('success');
-      setLastResult(result);
-      setResultType('checkin_success');
-    } catch (err: unknown) {
-      handleNfcError(err);
-    } finally {
-      setIsProcessing(false);
-    }
+    await nfcOp.execute(async () => {
+      try {
+        const result = await checkInUseCase.execute();
+        nfcOp.setNfcStatus('success');
+        setLastResult(result);
+        setResultType('checkin_success');
+      } catch (err: unknown) {
+        handleNfcError(err);
+      }
+    });
   };
 
   const onSimulationCheckIn = async () => {
     // Validate timestamp is in the past
     const simTimestamp = new Date(`${simulationDate}T${simulationTime}:00`);
     if (simTimestamp.getTime() > Date.now()) {
-      setError(t('mbc_error_simulation_future_time'));
+      nfcOp.setError(t('mbc_error_simulation_future_time'));
       return;
     }
 
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
     setLastResult(null);
     setResultType(null);
 
-    try {
-      const result = await checkInUseCase.execute({
-        simulationTimestamp: simTimestamp.toISOString(),
-      });
-      setNfcStatus('success');
-      setLastResult(result);
-      setResultType('checkin_success');
-    } catch (err: unknown) {
-      handleNfcError(err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const onCancelScan = () => {
-    setIsProcessing(false);
-    setNfcStatus('idle');
+    await nfcOp.execute(async () => {
+      try {
+        const result = await checkInUseCase.execute({
+          simulationTimestamp: simTimestamp.toISOString(),
+        });
+        nfcOp.setNfcStatus('success');
+        setLastResult(result);
+        setResultType('checkin_success');
+      } catch (err: unknown) {
+        handleNfcError(err);
+      }
+    });
   };
 
   const onCloseResult = () => {
     setLastResult(null);
-    setNfcStatus('idle');
-    setError(null);
+    nfcOp.setNfcStatus('idle');
+    nfcOp.setError(null);
     setResultType(null);
   };
 
+  const onBack = () => {
+    window.history.back();
+  };
+
+  const onNfcNoticeClose = () => {
+    navigate({ to: '/' });
+  };
+
+  // Computed values
+  const maxDate = new Date().toISOString().split('T')[0];
+  const pageTitle = String(t('mbc_gate_title'));
+
+  // Result modal props — pre-mapped, ready to spread
+  const getResultProps = (): ResultModalProps | null => {
+    if (resultType === 'checkin_success' && lastResult) {
+      if (lastResult.isSimulation) {
+        return {
+          variant: 'success',
+          title: t('mbc_gate_checkin_simulation_success'),
+          subtitle: `${t('mbc_common_entry_time_label')} ${new Date(lastResult.checkInTime).toLocaleString('id-ID')}`,
+          buttonLabel: t('mbc_common_done_button'),
+          imageSrc: images.success,
+        };
+      }
+      return {
+        variant: 'success',
+        title: t('mbc_gate_checkin_success'),
+        subtitle: `${t('mbc_common_entry_time_label')} ${new Date(lastResult.checkInTime).toLocaleString('id-ID')}`,
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: images.success,
+      };
+    }
+    if (resultType === 'already_checked_in') {
+      return {
+        variant: 'error',
+        title: t('mbc_gate_already_checked_in_title'),
+        subtitle: t('mbc_error_already_checked_in'),
+        buttonLabel: t('mbc_common_close_button'),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    if (resultType === 'nfc_error' && nfcOp.error) {
+      return {
+        variant: 'error',
+        title: t('mbc_nfc_error_title'),
+        subtitle: nfcOp.error.startsWith('mbc_') ? String(t(nfcOp.error as 'mbc_nfc_error_hardware_unavailable')) : nfcOp.error,
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    return null;
+  };
+
+  const resultProps = getResultProps();
+
   return {
-    nfcStatus,
-    lastResult,
-    isProcessing,
-    error,
+    // Translation
+    t,
+
+    // Page metadata
+    pageTitle,
+    onBack,
+
+    // NFC capability
     nfcCapability,
+    nfcAvailable,
+    onNfcNoticeClose,
+    nfcFailedImage: images.nfcFailed,
+
+    // NFC scan modal
+    showNfcModal: nfcOp.showNfcModal,
+    nfcStatus: nfcOp.nfcStatus,
+    isProcessing: nfcOp.isProcessing,
+    error: nfcOp.error,
+    onCloseNfcModal: nfcOp.onCloseNfcModal,
+    onCancelScan: nfcOp.onCancelScan,
+    scanImage: images.tapNfc,
+
+    // Result modal
+    resultProps,
+    resultType,
+    onCloseResult,
+
+    // Actions
+    onCheckIn,
+    onSimulationCheckIn,
+
+    // Form state
     activeTab,
     onSetActiveTab,
     simulationDate,
     simulationTime,
+    maxDate,
     onSetSimulationDate: setSimulationDate,
     onSetSimulationTime: setSimulationTime,
-    onCheckIn,
-    onSimulationCheckIn,
-    onCancelScan,
-    onCloseResult,
-    resultType,
+
+    // Legacy (kept for compatibility)
+    lastResult,
     nfcErrorImage: images.nfcLoadDataFailed,
-    scanImage: images.tapNfc,
     successImage: images.success,
-    t,
   };
 };
 

@@ -6,24 +6,65 @@ import type {
   NfcStatus,
 } from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
+import { useNfcCapability, useNfcOperation } from './hooks';
+import type { ResultModalProps } from './shared.types';
+
+export type { ResultModalProps } from './shared.types';
 
 export type ScoutResultType = 'read_success' | 'nfc_error' | null;
 
+export interface FormattedTransaction {
+  label: string;
+  time: string;
+  amount: string;
+  isPositive: boolean;
+  isCheckin: boolean;
+}
+
 export interface ScoutControllerInterface {
+  // Translation
+  t: TFunction;
+
+  // Page metadata
+  pageTitle: string;
+  onBack: () => void;
+
+  // NFC capability
+  nfcCapability: NfcCapabilityStatus;
+  nfcAvailable: boolean;
+  onNfcNoticeClose: () => void;
+  nfcFailedImage: string;
+
+  // NFC scan modal
+  showNfcModal: boolean;
   nfcStatus: NfcStatus;
+  isReading: boolean;
+  error: string | null;
+  onCloseNfcModal: () => void;
+  scanImage: string;
+
+  // Result modal — pre-mapped, ready to spread
+  resultProps: ResultModalProps | null;
+  resultType: ScoutResultType;
+  onCloseResult: () => void;
+
+  // Actions
+  onReadCard: () => void;
+
+  // Card data (raw, for advanced display)
   cardData: CardData | null;
   rawEncryptedBase64: string | null;
   rawDecryptedJson: string | null;
-  isReading: boolean;
-  error: string | null;
-  nfcCapability: NfcCapabilityStatus;
-  resultType: ScoutResultType;
-  onReadCard: () => Promise<void>;
-  onCloseResult: () => void;
+
+  // Pre-formatted card display values
+  formattedBalance: string;
+  formattedTransactions: FormattedTransaction[];
+  checkinStatusLabel: string;
+  formattedEntryTime: string | null;
+
+  // Legacy (kept for compatibility)
   successImage: string;
   nfcErrorImage: string;
-  scanImage: string;
-  t: TFunction;
 }
 
 const ScoutController = (
@@ -32,38 +73,37 @@ const ScoutController = (
     | 'useState'
     | 'useEffect'
     | 'useTranslation'
+    | 'useNavigate'
     | 'readCardUseCase'
     | 'nfcService'
     | 'silentShieldService'
     | 'cardDataService'
     | 'images'
+    | 'helpers'
   >,
 ): ScoutControllerInterface => {
   const {
     useState,
     useEffect,
     useTranslation,
+    useNavigate,
     nfcService,
     silentShieldService,
     cardDataService,
     images,
+    helpers,
   } = deps;
 
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
+  const { nfcCapability, nfcAvailable } = useNfcCapability({ useState, useEffect, nfcService });
+  const nfcOp = useNfcOperation({ useState });
+
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [rawEncryptedBase64, setRawEncryptedBase64] = useState<string | null>(null);
   const [rawDecryptedJson, setRawDecryptedJson] = useState<string | null>(null);
-  const [isReading, setIsReading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
   const [resultType, setResultType] = useState<ScoutResultType>(null);
-
-  useEffect(() => {
-    const isNfcAvailable = nfcService.isAvailable();
-    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-  }, []);
 
   const uint8ToBase64 = (bytes: Uint8Array): string => {
     let binary = '';
@@ -74,71 +114,170 @@ const ScoutController = (
   };
 
   const onReadCard = async () => {
-    if (isReading) return;
-    setIsReading(true);
-    setNfcStatus('scanning');
-    setError(null);
+    if (nfcOp.isProcessing) return;
+
     setCardData(null);
     setRawEncryptedBase64(null);
     setRawDecryptedJson(null);
+    setResultType(null);
 
-    try {
-      // Step 1: Read raw bytes from card
-      const rawEncrypted = await nfcService.readCard();
+    await nfcOp.execute(async () => {
+      try {
+        // Step 1: Read raw bytes from card
+        const rawEncrypted = await nfcService.readCard();
 
-      // Store encrypted raw data
-      if (rawEncrypted.length > 0) {
-        setRawEncryptedBase64(uint8ToBase64(rawEncrypted));
+        // Store encrypted raw data
+        if (rawEncrypted.length > 0) {
+          setRawEncryptedBase64(uint8ToBase64(rawEncrypted));
+        }
+
+        // Step 2: Try to decrypt
+        const decrypted = await silentShieldService.decrypt(rawEncrypted);
+
+        // Store decrypted raw data
+        const decoder = new TextDecoder();
+        setRawDecryptedJson(decoder.decode(decrypted));
+
+        // Step 3: Try to deserialize
+        const card = cardDataService.deserialize(decrypted);
+
+        nfcOp.setNfcStatus('success');
+        setCardData(card);
+        setResultType('read_success');
+      } catch (err: unknown) {
+        nfcOp.setNfcStatus('error');
+        if (err instanceof NfcServiceError) {
+          nfcOp.setError(err.messageKey);
+        } else {
+          nfcOp.setError(err instanceof Error ? err.message : String(err));
+        }
+        setResultType('nfc_error');
       }
+    });
+  };
 
-      // Step 2: Try to decrypt
-      const decrypted = await silentShieldService.decrypt(rawEncrypted);
+  const onCloseResult = () => {
+    setCardData(null);
+    setRawEncryptedBase64(null);
+    setRawDecryptedJson(null);
+    nfcOp.setNfcStatus('idle');
+    nfcOp.setError(null);
+    setResultType(null);
+  };
 
-      // Store decrypted raw data
-      const decoder = new TextDecoder();
-      setRawDecryptedJson(decoder.decode(decrypted));
+  const onBack = () => {
+    window.history.back();
+  };
 
-      // Step 3: Try to deserialize
-      const card = cardDataService.deserialize(decrypted);
+  const onNfcNoticeClose = () => {
+    navigate({ to: '/' });
+  };
 
-      setNfcStatus('success');
-      setCardData(card);
-      setResultType('read_success');
-    } catch (err: unknown) {
-      setNfcStatus('error');
-      if (err instanceof NfcServiceError) {
-        setError(err.messageKey);
-      } else {
-        setError(err instanceof Error ? err.message : String(err));
-      }
-      setResultType('nfc_error');
-    } finally {
-      setIsReading(false);
+  // Computed values
+  const pageTitle = String(t('mbc_scout_title'));
+
+  // Result modal props — pre-mapped, ready to spread
+  const getResultProps = (): ResultModalProps | null => {
+    if (resultType === 'read_success' && cardData) {
+      return {
+        variant: 'success',
+        title: String(t('mbc_scout_read_success_title')),
+        subtitle: String(t('mbc_scout_read_success_subtitle')),
+        buttonLabel: String(t('mbc_common_close_button')),
+        imageSrc: images.success,
+      };
+    }
+    if (resultType === 'nfc_error' && nfcOp.error) {
+      return {
+        variant: 'error',
+        title: String(t('mbc_nfc_error_title')),
+        subtitle: nfcOp.error.startsWith('mbc_')
+          ? String(t(nfcOp.error as 'mbc_nfc_error_hardware_unavailable'))
+          : nfcOp.error,
+        buttonLabel: String(t('mbc_common_close_button')),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    return null;
+  };
+
+  const resultProps = getResultProps();
+
+  // Pre-formatted card display values
+  const formattedBalance = cardData ? helpers.formatIDR(cardData.b) : '';
+
+  const getTransactionLabel = (tp: 'tu' | 'ci' | 'co'): string => {
+    switch (tp) {
+      case 'tu': return String(t('mbc_scout_history_topup'));
+      case 'ci': return String(t('mbc_scout_history_checkin'));
+      case 'co': return String(t('mbc_scout_history_checkout'));
     }
   };
 
+  const formattedTransactions: FormattedTransaction[] = cardData
+    ? cardData.h.map((entry) => ({
+        label: getTransactionLabel(entry.tp),
+        time: new Date(entry.ts * 1000).toLocaleString('id-ID'),
+        amount: entry.tp === 'ci' ? '—' : `${entry.a >= 0 ? '+' : ''}${helpers.formatIDR(entry.a)}`,
+        isPositive: entry.a >= 0,
+        isCheckin: entry.tp === 'ci',
+      }))
+    : [];
+
+  const checkinStatusLabel = cardData
+    ? cardData.s === 1
+      ? String(t('mbc_scout_status_checked_in'))
+      : String(t('mbc_scout_status_idle'))
+    : '';
+
+  const formattedEntryTime = cardData?.t
+    ? `${String(t('mbc_common_entry_time_label'))} ${new Date(cardData.t).toLocaleString('id-ID')}`
+    : null;
+
   return {
-    nfcStatus,
+    // Translation
+    t,
+
+    // Page metadata
+    pageTitle,
+    onBack,
+
+    // NFC capability
+    nfcCapability,
+    nfcAvailable,
+    onNfcNoticeClose,
+    nfcFailedImage: images.nfcFailed,
+
+    // NFC scan modal
+    showNfcModal: nfcOp.showNfcModal,
+    nfcStatus: nfcOp.nfcStatus,
+    isReading: nfcOp.isProcessing,
+    error: nfcOp.error,
+    onCloseNfcModal: nfcOp.onCloseNfcModal,
+    scanImage: images.tapNfc,
+
+    // Result modal
+    resultProps,
+    resultType,
+    onCloseResult,
+
+    // Actions
+    onReadCard,
+
+    // Card data (raw)
     cardData,
     rawEncryptedBase64,
     rawDecryptedJson,
-    isReading,
-    error,
-    nfcCapability,
-    resultType,
-    onReadCard,
-    onCloseResult: () => {
-      setCardData(null);
-      setRawEncryptedBase64(null);
-      setRawDecryptedJson(null);
-      setNfcStatus('idle');
-      setError(null);
-      setResultType(null);
-    },
+
+    // Pre-formatted card display values
+    formattedBalance,
+    formattedTransactions,
+    checkinStatusLabel,
+    formattedEntryTime,
+
+    // Legacy (kept for compatibility)
     successImage: images.success,
     nfcErrorImage: images.nfcLoadDataFailed,
-    scanImage: images.tapNfc,
-    t,
   };
 };
 

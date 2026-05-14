@@ -1,6 +1,7 @@
 import type { AwilixRegistry } from '@di/container';
 import type { RoleMode, NfcCapabilityStatus } from '@src/@core/models/mbc';
 import type { TFunction } from 'i18next';
+import { useNfcCapability } from './hooks';
 
 export interface RoleOption {
   id: RoleMode;
@@ -69,12 +70,7 @@ const RolePickerController = (
   const navigate = useNavigate();
 
   const [activeRole, setActiveRole] = useState<RoleMode | null>(null);
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
-
-  useEffect(() => {
-    const isNfcAvailable = nfcService.isAvailable();
-    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-  }, []);
+  const { nfcCapability } = useNfcCapability({ useState, useEffect, nfcService });
 
   const onNavigateToRole = useCallback((role: RoleMode) => {
     setActiveRole(role);

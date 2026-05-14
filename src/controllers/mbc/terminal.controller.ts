@@ -8,6 +8,11 @@ import type {
 } from '@src/@core/models/mbc';
 import { NfcServiceError } from '@core/services/mbc/nfc.service';
 import { InsufficientBalanceError } from '@core/use_case/mbc/CheckOut';
+import { formatIDR } from '@utils/helpers/mbc.helper';
+import { useNfcCapability, useNfcOperation } from './hooks';
+import type { ResultModalProps } from './shared.types';
+
+export type { ResultModalProps } from './shared.types';
 
 export type TerminalResultType = 'checkout_success' | 'insufficient_balance' | 'not_checked_in' | 'nfc_error' | null;
 
@@ -19,22 +24,66 @@ export interface InsufficientBalanceData {
   balance: number;
 }
 
+export interface CheckOutSuccessDisplay {
+  checkInTimeFormatted: string;
+  checkOutTimeFormatted: string;
+  duration: string;
+  rateFormatted: string;
+  unitLabel: string;
+  totalFormatted: string;
+  remainingBalanceFormatted: string;
+  isSimulation: boolean;
+}
+
+export interface InsufficientBalanceDisplay {
+  checkInTimeFormatted: string;
+  checkOutTimeFormatted: string;
+  duration: string;
+  totalFormatted: string;
+  balanceFormatted: string;
+}
+
 export interface TerminalControllerInterface {
+  // Translation
+  t: TFunction;
+
+  // Page metadata
+  pageTitle: string;
+  onBack: () => void;
+
+  // NFC capability
+  nfcCapability: NfcCapabilityStatus;
+  nfcAvailable: boolean;
+  onNfcNoticeClose: () => void;
+  nfcFailedImage: string;
+
+  // NFC scan modal
+  showNfcModal: boolean;
   nfcStatus: NfcStatus;
-  lastResult: CheckOutResult | null;
-  insufficientBalanceData: InsufficientBalanceData | null;
   isProcessing: boolean;
   error: string | null;
-  nfcCapability: NfcCapabilityStatus;
-  onCheckOut: () => Promise<void>;
+  onCloseNfcModal: () => void;
   onCancelScan: () => void;
-  onCloseResult: () => void;
-  resultType: TerminalResultType;
-  nfcErrorImage: string;
   scanImage: string;
+
+  // Result modal — pre-mapped, ready to spread
+  resultProps: ResultModalProps | null;
+  resultType: TerminalResultType;
+  onCloseResult: () => void;
+
+  // Actions — controller handles async + modal internally
+  onCheckOut: () => void;
+
+  // Result detail data (pre-formatted for rendering)
+  checkOutSuccessDisplay: CheckOutSuccessDisplay | null;
+  insufficientBalanceDisplay: InsufficientBalanceDisplay | null;
+
+  // Legacy (kept for compatibility)
+  lastResult: CheckOutResult | null;
+  insufficientBalanceData: InsufficientBalanceData | null;
+  nfcErrorImage: string;
   successImage: string;
   warningImage: string;
-  t: TFunction;
 }
 
 const TerminalController = (
@@ -43,6 +92,7 @@ const TerminalController = (
     | 'useState'
     | 'useEffect'
     | 'useTranslation'
+    | 'useNavigate'
     | 'checkOutUseCase'
     | 'nfcService'
     | 'images'
@@ -52,95 +102,202 @@ const TerminalController = (
     useState,
     useEffect,
     useTranslation,
+    useNavigate,
     checkOutUseCase,
     nfcService,
     images,
   } = deps;
 
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
+  const { nfcCapability, nfcAvailable } = useNfcCapability({ useState, useEffect, nfcService });
+  const nfcOp = useNfcOperation({ useState });
+
   const [lastResult, setLastResult] = useState<CheckOutResult | null>(null);
   const [insufficientBalanceData, setInsufficientBalanceData] = useState<InsufficientBalanceData | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
   const [resultType, setResultType] = useState<TerminalResultType>(null);
 
-  useEffect(() => {
-    const isNfcAvailable = nfcService.isAvailable();
-    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-  }, []);
-
   const onCheckOut = async () => {
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
     setLastResult(null);
     setResultType(null);
 
-    try {
-      const result = await checkOutUseCase.execute();
-      setNfcStatus('success');
-      setLastResult(result);
-      setResultType('checkout_success');
-    } catch (err: unknown) {
-      setNfcStatus('error');
-      if (err instanceof InsufficientBalanceError) {
-        setError(err.message);
-        setInsufficientBalanceData({
-          checkInTime: err.checkInTime,
-          checkOutTime: err.checkOutTime,
-          duration: err.duration,
-          feeBreakdown: err.feeBreakdown,
-          balance: err.balance,
-        });
-        setResultType('insufficient_balance');
-      } else if (err instanceof Error && err.message === 'mbc_error_not_checked_in') {
-        setError(err.message);
-        setResultType('not_checked_in');
-      } else if (err instanceof NfcServiceError) {
-        setError(err.messageKey);
-        setResultType('nfc_error');
-      } else {
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message);
-        setResultType('nfc_error');
+    await nfcOp.execute(async () => {
+      try {
+        const result = await checkOutUseCase.execute();
+        nfcOp.setNfcStatus('success');
+        setLastResult(result);
+        setResultType('checkout_success');
+      } catch (err: unknown) {
+        nfcOp.setNfcStatus('error');
+        if (err instanceof InsufficientBalanceError) {
+          nfcOp.setError(err.message);
+          setInsufficientBalanceData({
+            checkInTime: err.checkInTime,
+            checkOutTime: err.checkOutTime,
+            duration: err.duration,
+            feeBreakdown: err.feeBreakdown,
+            balance: err.balance,
+          });
+          setResultType('insufficient_balance');
+        } else if (err instanceof Error && err.message === 'mbc_error_not_checked_in') {
+          nfcOp.setError(err.message);
+          setResultType('not_checked_in');
+        } else if (err instanceof NfcServiceError) {
+          nfcOp.setError(err.messageKey);
+          setResultType('nfc_error');
+        } else {
+          const message = err instanceof Error ? err.message : String(err);
+          nfcOp.setError(message);
+          setResultType('nfc_error');
+        }
       }
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const onCancelScan = () => {
-    setIsProcessing(false);
-    setNfcStatus('idle');
+    });
   };
 
   const onCloseResult = () => {
     setLastResult(null);
     setInsufficientBalanceData(null);
-    setNfcStatus('idle');
-    setError(null);
+    nfcOp.setNfcStatus('idle');
+    nfcOp.setError(null);
     setResultType(null);
   };
 
+  const onBack = () => {
+    window.history.back();
+  };
+
+  const onNfcNoticeClose = () => {
+    navigate({ to: '/' });
+  };
+
+  // Computed values
+  const pageTitle = String(t('mbc_terminal_title'));
+
+  // Result modal props — pre-mapped, ready to spread
+  const getResultProps = (): ResultModalProps | null => {
+    if (resultType === 'checkout_success' && lastResult) {
+      if (lastResult.isSimulation) {
+        return {
+          variant: 'success',
+          title: t('mbc_terminal_checkout_success'),
+          subtitle: t('mbc_terminal_simulation_notice'),
+          buttonLabel: t('mbc_common_done_button'),
+          imageSrc: images.success,
+        };
+      }
+      return {
+        variant: 'success',
+        title: t('mbc_terminal_checkout_success'),
+        subtitle: '',
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: images.success,
+      };
+    }
+    if (resultType === 'insufficient_balance') {
+      return {
+        variant: 'error',
+        title: String(t('mbc_terminal_insufficient_balance_title')),
+        subtitle: '',
+        buttonLabel: String(t('mbc_terminal_insufficient_balance_button')),
+        imageSrc: images.nfcWarningHuman,
+      };
+    }
+    if (resultType === 'not_checked_in') {
+      return {
+        variant: 'error',
+        title: String(t('mbc_terminal_not_checked_in_title')),
+        subtitle: String(t('mbc_error_not_checked_in')),
+        buttonLabel: String(t('mbc_common_close_button')),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    if (resultType === 'nfc_error' && nfcOp.error) {
+      const isTranslationKey = nfcOp.error.startsWith('mbc_');
+      return {
+        variant: 'error',
+        title: t('mbc_nfc_error_title'),
+        subtitle: isTranslationKey ? String(t(nfcOp.error as 'mbc_nfc_error_hardware_unavailable')) : nfcOp.error,
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    return null;
+  };
+
+  const resultProps = getResultProps();
+
+  // Pre-formatted display data for checkout success
+  const getCheckOutSuccessDisplay = (): CheckOutSuccessDisplay | null => {
+    if (resultType !== 'checkout_success' || !lastResult) return null;
+    return {
+      checkInTimeFormatted: new Date(lastResult.checkInTime).toLocaleString('id-ID'),
+      checkOutTimeFormatted: new Date(lastResult.checkOutTime).toLocaleString('id-ID'),
+      duration: lastResult.duration,
+      rateFormatted: formatIDR(lastResult.feeBreakdown.ratePerUnit),
+      unitLabel: lastResult.feeBreakdown.unitLabel,
+      totalFormatted: formatIDR(lastResult.feeBreakdown.fee),
+      remainingBalanceFormatted: formatIDR(lastResult.remainingBalance),
+      isSimulation: lastResult.isSimulation,
+    };
+  };
+
+  // Pre-formatted display data for insufficient balance
+  const getInsufficientBalanceDisplay = (): InsufficientBalanceDisplay | null => {
+    if (resultType !== 'insufficient_balance' || !insufficientBalanceData) return null;
+    return {
+      checkInTimeFormatted: new Date(insufficientBalanceData.checkInTime).toLocaleString('id-ID'),
+      checkOutTimeFormatted: new Date(insufficientBalanceData.checkOutTime).toLocaleString('id-ID'),
+      duration: insufficientBalanceData.duration,
+      totalFormatted: formatIDR(insufficientBalanceData.feeBreakdown.fee),
+      balanceFormatted: formatIDR(insufficientBalanceData.balance),
+    };
+  };
+
+  const checkOutSuccessDisplay = getCheckOutSuccessDisplay();
+  const insufficientBalanceDisplay = getInsufficientBalanceDisplay();
+
   return {
-    nfcStatus,
+    // Translation
+    t,
+
+    // Page metadata
+    pageTitle,
+    onBack,
+
+    // NFC capability
+    nfcCapability,
+    nfcAvailable,
+    onNfcNoticeClose,
+    nfcFailedImage: images.nfcFailed,
+
+    // NFC scan modal
+    showNfcModal: nfcOp.showNfcModal,
+    nfcStatus: nfcOp.nfcStatus,
+    isProcessing: nfcOp.isProcessing,
+    error: nfcOp.error,
+    onCloseNfcModal: nfcOp.onCloseNfcModal,
+    onCancelScan: nfcOp.onCancelScan,
+    scanImage: images.tapNfc,
+
+    // Result modal
+    resultProps,
+    resultType,
+    onCloseResult,
+
+    // Actions
+    onCheckOut,
+
+    // Result detail data
+    checkOutSuccessDisplay,
+    insufficientBalanceDisplay,
+
+    // Legacy (kept for compatibility)
     lastResult,
     insufficientBalanceData,
-    isProcessing,
-    error,
-    nfcCapability,
-    onCheckOut,
-    onCancelScan,
-    onCloseResult,
-    resultType,
     nfcErrorImage: images.nfcLoadDataFailed,
-    scanImage: images.tapNfc,
     successImage: images.success,
     warningImage: images.nfcWarningHuman,
-    t,
   };
 };
 

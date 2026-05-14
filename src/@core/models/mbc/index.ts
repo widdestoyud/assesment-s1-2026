@@ -13,6 +13,7 @@ export type {
   CheckOutResult,
   OperationResult,
   NfcCapabilityStatus,
+  ResultModalProps,
 } from './common.model.ts';
 
 export {
