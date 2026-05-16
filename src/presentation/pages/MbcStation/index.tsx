@@ -79,7 +79,6 @@ const MbcStation: FC = () => {
             <SignalCallout
               variant="info"
               message={String(t('mbc_station_home_info'))}
-              t={t}
               data-testid="station-info-banner"
             />
 

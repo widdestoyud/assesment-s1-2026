@@ -23,54 +23,54 @@
 
 /* ===== Color Variants ===== */
 .signal-gate-button--gate {
-  @apply bg-green-600;
+  background-color: var(--signal-color-valid-5);
   box-shadow:
-    0 6px 0 0 #166534,
+    0 6px 0 0 var(--signal-color-valid-7),
     0 8px 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .signal-gate-button--gate:active {
-  @apply bg-green-700;
-  box-shadow: 0 2px 0 0 #166534;
+  background-color: var(--signal-color-valid-6);
+  box-shadow: 0 2px 0 0 var(--signal-color-valid-7);
   transform: translateY(4px);
 }
 
 .signal-gate-button--terminal {
-  @apply bg-red-600;
+  background-color: var(--signal-color-primary-5);
   box-shadow:
-    0 6px 0 0 #991b1b,
+    0 6px 0 0 var(--signal-color-primary-8),
     0 8px 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .signal-gate-button--terminal:active {
-  @apply bg-red-700;
-  box-shadow: 0 2px 0 0 #991b1b;
+  background-color: var(--signal-color-primary-6);
+  box-shadow: 0 2px 0 0 var(--signal-color-primary-8);
   transform: translateY(4px);
 }
 
 .signal-gate-button--station {
-  @apply bg-blue-600;
+  background-color: var(--signal-color-info-5);
   box-shadow:
-    0 6px 0 0 #1e40af,
+    0 6px 0 0 var(--signal-color-info-7),
     0 8px 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .signal-gate-button--station:active {
-  @apply bg-blue-700;
-  box-shadow: 0 2px 0 0 #1e40af;
+  background-color: var(--signal-color-info-6);
+  box-shadow: 0 2px 0 0 var(--signal-color-info-7);
   transform: translateY(4px);
 }
 
 .signal-gate-button--scout {
-  @apply bg-yellow-500;
+  background-color: var(--signal-color-warning-5);
   box-shadow:
-    0 6px 0 0 #b45309,
+    0 6px 0 0 var(--signal-color-warning-7),
     0 8px 6px 0 rgba(0, 0, 0, 0.15);
 }
 
 .signal-gate-button--scout:active {
-  @apply bg-yellow-600;
-  box-shadow: 0 2px 0 0 #b45309;
+  background-color: var(--signal-color-warning-6);
+  box-shadow: 0 2px 0 0 var(--signal-color-warning-7);
   transform: translateY(4px);
 }
 

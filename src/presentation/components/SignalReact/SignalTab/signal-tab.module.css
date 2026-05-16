@@ -7,11 +7,12 @@
 
 /* ===== Tab Item ===== */
 .signal-tab__item {
-  @apply flex flex-1 flex-col items-center gap-1 border-b-2 border-transparent px-4 py-2 text-sm text-gray-500 transition-colors cursor-pointer;
+  @apply flex flex-1 flex-col items-center gap-1 border-b-2 border-transparent px-4 py-2 text-sm transition-colors cursor-pointer;
+  color: var(--signal-color-neutral-5);
 }
 
 .signal-tab__item:hover {
-  @apply text-gray-700;
+  color: var(--signal-color-neutral-6);
 }
 
 .signal-tab__item:focus {
@@ -20,7 +21,9 @@
 
 /* ===== Active State ===== */
 .signal-tab__item--active {
-  @apply border-b-2 border-blue-600 font-semibold text-blue-600;
+  @apply border-b-2 font-semibold;
+  border-color: var(--signal-color-primary-5);
+  color: var(--signal-color-primary-5);
 }
 
 /* ===== Icon ===== */

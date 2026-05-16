@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { useState, useEffect } from 'react';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 
 import type { CheckOutUseCaseInterface } from '@core/use_case/mbc/CheckOut';
@@ -29,20 +28,19 @@ function createMocks() {
     }),
   };
 
-  const nfcService = {
+  const chipTransferService = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn(),
     readThenWrite: vi.fn(),
   };
 
-  return { checkOutUseCase, nfcService };
+  return { checkOutUseCase, chipTransferService };
 }
 
 function createController(mocks = createMocks()) {
   return renderHook(() =>
     TerminalController({
-      useState,
-      useEffect,
       useTranslation,
       useNavigate: mockUseNavigate,
       images: {
@@ -61,29 +59,31 @@ describe('TerminalController', () => {
   it('starts in idle state', () => {
     const { result } = createController();
 
-    expect(result.current.nfcStatus).toBe('idle');
+    expect(result.current.chipTransferStatus).toBe('idle');
     expect(result.current.isProcessing).toBe(false);
-    expect(result.current.lastResult).toBeNull();
+    expect(result.current.resultType).toBeNull();
     expect(result.current.error).toBeNull();
     expect(result.current.showNfcModal).toBe(false);
   });
 
-  it('detects NFC capability on mount', () => {
+  it('detects NFC capability on mount', async () => {
     const mocks = createMocks();
     const { result } = createController(mocks);
 
-    expect(result.current.nfcCapability).toBe('supported');
-    expect(result.current.nfcAvailable).toBe(true);
-    expect(mocks.nfcService.isAvailable).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.chipTransferCapability).toBe('supported');
+    });
+    expect(result.current.chipTransferAvailable).toBe(true);
+    expect(mocks.chipTransferService.isAvailable).toHaveBeenCalled();
   });
 
-  it('sets nfcCapability to unsupported when NFC not available', () => {
+  it('sets chipTransferCapability to unsupported when NFC not available', () => {
     const mocks = createMocks();
-    mocks.nfcService.isAvailable = vi.fn().mockReturnValue(false);
+    mocks.chipTransferService.isAvailable = vi.fn().mockReturnValue(false);
     const { result } = createController(mocks);
 
-    expect(result.current.nfcCapability).toBe('unsupported');
-    expect(result.current.nfcAvailable).toBe(false);
+    expect(result.current.chipTransferCapability).toBe('unsupported');
+    expect(result.current.chipTransferAvailable).toBe(false);
   });
 
   it('performs check-out successfully', async () => {
@@ -94,9 +94,10 @@ describe('TerminalController', () => {
       await result.current.onCheckOut();
     });
 
-    expect(result.current.nfcStatus).toBe('success');
-    expect(result.current.lastResult?.fee).toBe(6000);
-    expect(result.current.lastResult?.remainingBalance).toBe(44000);
+    expect(result.current.chipTransferStatus).toBe('success');
+    expect(result.current.resultType).toBe('checkout_success');
+    expect(result.current.checkOutSuccessDisplay?.totalFormatted).toBe('Rp 6.000');
+    expect(result.current.checkOutSuccessDisplay?.remainingBalanceFormatted).toBe('Rp 44.000');
     expect(result.current.isProcessing).toBe(false);
     expect(result.current.showNfcModal).toBe(false);
     expect(result.current.resultType).toBe('checkout_success');
@@ -140,7 +141,7 @@ describe('TerminalController', () => {
       await result.current.onCheckOut();
     });
 
-    expect(result.current.nfcStatus).toBe('error');
+    expect(result.current.chipTransferStatus).toBe('error');
     expect(result.current.error).toContain('mbc_error_not_checked_in');
     expect(result.current.isProcessing).toBe(false);
     expect(result.current.showNfcModal).toBe(false);
@@ -197,7 +198,7 @@ describe('TerminalController', () => {
 
     expect(result.current.showNfcModal).toBe(false);
     expect(result.current.isProcessing).toBe(false);
-    expect(result.current.nfcStatus).toBe('idle');
+    expect(result.current.chipTransferStatus).toBe('idle');
   });
 
   it('onCloseResult resets all result state', async () => {
@@ -215,8 +216,8 @@ describe('TerminalController', () => {
     });
 
     expect(result.current.resultType).toBeNull();
-    expect(result.current.lastResult).toBeNull();
+    expect(result.current.checkOutSuccessDisplay).toBeNull();
     expect(result.current.error).toBeNull();
-    expect(result.current.nfcStatus).toBe('idle');
+    expect(result.current.chipTransferStatus).toBe('idle');
   });
 });

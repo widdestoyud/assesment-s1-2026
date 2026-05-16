@@ -1,4 +1,4 @@
-import type { AwilixRegistry } from '@di/container';
+import { useState } from 'react';
 import type { ChipTransferStatus } from '@src/@core/models/mbc';
 
 export interface UseChipTransferOperationReturn {
@@ -11,14 +11,9 @@ export interface UseChipTransferOperationReturn {
   execute: (asyncFn: () => Promise<void>) => Promise<void>;
   setError: (error: string | null) => void;
   setChipTransferStatus: (status: ChipTransferStatus) => void;
-  resetState: () => void;
 }
 
-export const useChipTransferOperation = (
-  deps: Pick<AwilixRegistry, 'useState'>,
-): UseChipTransferOperationReturn => {
-  const { useState } = deps;
-
+export const useChipTransferOperation = (): UseChipTransferOperationReturn => {
   const [showNfcModal, setShowNfcModal] = useState(false);
   const [chipTransferStatus, setChipTransferStatus] = useState<ChipTransferStatus>('idle');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -48,13 +43,6 @@ export const useChipTransferOperation = (
     }
   };
 
-  const resetState = () => {
-    setShowNfcModal(false);
-    setChipTransferStatus('idle');
-    setIsProcessing(false);
-    setError(null);
-  };
-
   return {
     showNfcModal,
     chipTransferStatus,
@@ -65,6 +53,5 @@ export const useChipTransferOperation = (
     execute,
     setError,
     setChipTransferStatus,
-    resetState,
   };
 };

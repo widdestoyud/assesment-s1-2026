@@ -19,7 +19,6 @@ export interface SignalCalloutProps {
   /** Callback when dismiss is clicked */
   onDismiss?: () => void;
   /** Translation function */
-  t: (key: string) => string;
   /** Optional test id */
   'data-testid'?: string;
 }

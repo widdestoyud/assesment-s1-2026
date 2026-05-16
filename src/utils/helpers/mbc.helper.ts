@@ -40,13 +40,6 @@ export const formatDuration = (
 };
 
 /**
- * Returns the current time as an ISO 8601 string.
- */
-export const getCurrentTimestamp = (): string => {
-  return new Date().toISOString();
-};
-
-/**
  * Format a numeric string with Indonesian thousands separator (dot).
  * Example: formatThousands("10000") → "10.000"
  * Non-numeric characters are stripped before formatting.

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
@@ -77,20 +78,11 @@ export interface TerminalControllerInterface {
   // Result detail data (pre-formatted for rendering)
   checkOutSuccessDisplay: CheckOutSuccessDisplay | null;
   insufficientBalanceDisplay: InsufficientBalanceDisplay | null;
-
-  // Legacy (kept for compatibility)
-  lastResult: CheckOutResult | null;
-  insufficientBalanceData: InsufficientBalanceData | null;
-  chipTransferErrorImage: string;
-  successImage: string;
-  warningImage: string;
 }
 
 const TerminalController = (
   deps: Pick<
     AwilixRegistry,
-    | 'useState'
-    | 'useEffect'
     | 'useTranslation'
     | 'useNavigate'
     | 'checkOutUseCase'
@@ -99,8 +91,6 @@ const TerminalController = (
   >,
 ): TerminalControllerInterface => {
   const {
-    useState,
-    useEffect,
     useTranslation,
     useNavigate,
     checkOutUseCase,
@@ -111,8 +101,8 @@ const TerminalController = (
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
-  const chipOp = useChipTransferOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ chipTransferService });
+  const chipOp = useChipTransferOperation();
 
   const [lastResult, setLastResult] = useState<CheckOutResult | null>(null);
   const [insufficientBalanceData, setInsufficientBalanceData] = useState<InsufficientBalanceData | null>(null);
@@ -291,13 +281,6 @@ const TerminalController = (
     // Result detail data
     checkOutSuccessDisplay,
     insufficientBalanceDisplay,
-
-    // Legacy (kept for compatibility)
-    lastResult,
-    insufficientBalanceData,
-    chipTransferErrorImage: images.nfcLoadDataFailed,
-    successImage: images.success,
-    warningImage: images.nfcWarningHuman,
   };
 };
 

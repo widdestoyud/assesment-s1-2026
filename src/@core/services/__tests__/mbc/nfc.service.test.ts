@@ -1,37 +1,38 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { NfcProtocol } from '@core/protocols/nfc';
-import type { NfcError, NfcScanSession } from '@core/models/mbc';
+import type { ChipTransferProtocol } from '@core/protocols/chip-transfer';
+import type { ChipTransferError, ChipTransferScanSession } from '@core/models/mbc';
 
-import { NfcService } from '../../mbc/nfc.service';
+import { ChipTransferService } from '../../mbc/nfc.service';
 
-function createMockNfcProtocol(
-  overrides: Partial<NfcProtocol> = {},
-): NfcProtocol {
+function createMockChipTransferProtocol(
+  overrides: Partial<ChipTransferProtocol> = {},
+): ChipTransferProtocol {
   return {
     isSupported: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     startScan: vi.fn().mockReturnValue({ abort: vi.fn() }),
     write: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
 
-describe('NfcService', () => {
+describe('ChipTransferService', () => {
   describe('isAvailable', () => {
     it('returns true when NFC is supported', () => {
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         isSupported: vi.fn().mockReturnValue(true),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       expect(service.isAvailable()).toBe(true);
     });
 
     it('returns false when NFC is not supported', () => {
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         isSupported: vi.fn().mockReturnValue(false),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       expect(service.isAvailable()).toBe(false);
     });
@@ -42,15 +43,15 @@ describe('NfcService', () => {
       const testData = new Uint8Array([1, 2, 3, 4, 5]);
       const mockAbort = vi.fn();
 
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         startScan: vi.fn().mockImplementation(
-          (onRead: (data: Uint8Array) => void): NfcScanSession => {
+          (onRead: (data: Uint8Array) => void): ChipTransferScanSession => {
             setTimeout(() => onRead(testData), 10);
             return { abort: mockAbort };
           },
         ),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       const result = await service.readCard();
 
@@ -59,9 +60,9 @@ describe('NfcService', () => {
     });
 
     it('rejects when NFC read fails', async () => {
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         startScan: vi.fn().mockImplementation(
-          (_onRead: (data: Uint8Array) => void, onError: (err: NfcError) => void): NfcScanSession => {
+          (_onRead: (data: Uint8Array) => void, onError: (err: ChipTransferError) => void): ChipTransferScanSession => {
             setTimeout(() => onError({
               type: 'read_failed',
               message: 'Tag removed too quickly',
@@ -71,7 +72,7 @@ describe('NfcService', () => {
           },
         ),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       await expect(service.readCard()).rejects.toThrow('nfc_error_read_failed');
     });
@@ -82,16 +83,16 @@ describe('NfcService', () => {
       const originalData = new Uint8Array([1, 2, 3]);
       const processedData = new Uint8Array([4, 5, 6]);
 
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         startScan: vi.fn().mockImplementation(
-          (onRead: (data: Uint8Array) => void): NfcScanSession => {
+          (onRead: (data: Uint8Array) => void): ChipTransferScanSession => {
             setTimeout(() => onRead(originalData), 10);
             return { abort: vi.fn() };
           },
         ),
         write: vi.fn().mockResolvedValue(undefined),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       const result = await service.readThenWrite(async () => processedData);
 
@@ -100,15 +101,15 @@ describe('NfcService', () => {
     });
 
     it('rejects when processor throws', async () => {
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         startScan: vi.fn().mockImplementation(
-          (onRead: (data: Uint8Array) => void): NfcScanSession => {
+          (onRead: (data: Uint8Array) => void): ChipTransferScanSession => {
             setTimeout(() => onRead(new Uint8Array([1])), 10);
             return { abort: vi.fn() };
           },
         ),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       await expect(
         service.readThenWrite(async () => { throw new Error('Processing failed'); }),
@@ -116,16 +117,16 @@ describe('NfcService', () => {
     });
 
     it('rejects when write fails after processing', async () => {
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         startScan: vi.fn().mockImplementation(
-          (onRead: (data: Uint8Array) => void): NfcScanSession => {
+          (onRead: (data: Uint8Array) => void): ChipTransferScanSession => {
             setTimeout(() => onRead(new Uint8Array([1])), 10);
             return { abort: vi.fn() };
           },
         ),
         write: vi.fn().mockRejectedValue(new Error('Write failed')),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       await expect(
         service.readThenWrite(async () => new Uint8Array([2])),
@@ -133,9 +134,9 @@ describe('NfcService', () => {
     });
 
     it('rejects when scan fails', async () => {
-      const protocol = createMockNfcProtocol({
+      const protocol = createMockChipTransferProtocol({
         startScan: vi.fn().mockImplementation(
-          (_onRead: (data: Uint8Array) => void, onError: (err: NfcError) => void): NfcScanSession => {
+          (_onRead: (data: Uint8Array) => void, onError: (err: ChipTransferError) => void): ChipTransferScanSession => {
             setTimeout(() => onError({
               type: 'hardware_unavailable',
               message: 'NFC not available',
@@ -145,7 +146,7 @@ describe('NfcService', () => {
           },
         ),
       });
-      const service = NfcService({ nfcProtocol: protocol });
+      const service = ChipTransferService({ chipTransferProtocol: protocol });
 
       await expect(
         service.readThenWrite(async () => new Uint8Array([1])),

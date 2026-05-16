@@ -1,6 +1,7 @@
 import type { AwilixRegistry } from '@di/container';
 import type { ChipTransferProtocol } from '@core/protocols/chip-transfer';
 import type {
+  ChipTransferCapabilityStatus,
   ChipTransferError,
   ChipTransferScanSession,
 } from '@src/@core/models/mbc';
@@ -22,6 +23,8 @@ export class ChipTransferServiceError extends Error {
 export interface ChipTransferServiceInterface {
   /** Check if chip transfer hardware is available */
   isAvailable(): boolean;
+  /** Query the current permission state, optionally listen for changes */
+  queryPermission(onChange?: (status: ChipTransferCapabilityStatus) => void): Promise<ChipTransferCapabilityStatus>;
   /** Read raw bytes from a chip card (one-shot: resolves on first read) */
   readCard(): Promise<Uint8Array>;
   /** Read card, process data, then write back — all in one tap */
@@ -35,6 +38,10 @@ export const ChipTransferService = (
 
   const isAvailable = (): boolean => {
     return chipTransferProtocol.isSupported();
+  };
+
+  const queryPermission = (onChange?: (status: ChipTransferCapabilityStatus) => void): Promise<ChipTransferCapabilityStatus> => {
+    return chipTransferProtocol.queryPermission(onChange);
   };
 
   const readCard = (): Promise<Uint8Array> => {
@@ -87,5 +94,5 @@ export const ChipTransferService = (
     });
   };
 
-  return { isAvailable, readCard, readThenWrite };
+  return { isAvailable, queryPermission, readCard, readThenWrite };
 };

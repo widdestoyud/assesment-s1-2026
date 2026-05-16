@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { useState, useEffect } from 'react';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 
 import type { CardData } from '@core/models/mbc';
-import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
+import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
+
+import { formatIDR, formatDuration } from '@utils/helpers/mbc.helper';
 
 import ScoutController from '../../mbc/scout.controller';
 
@@ -22,8 +23,9 @@ function createMocks() {
   const rawEncrypted = new Uint8Array([1, 2, 3, 4, 5]);
   const rawDecrypted = new TextEncoder().encode(JSON.stringify(CARD_DATA));
 
-  const nfcService: NfcServiceInterface = {
+  const chipTransferService: ChipTransferServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn().mockResolvedValue(rawEncrypted),
     readThenWrite: vi.fn(),
   };
@@ -42,24 +44,21 @@ function createMocks() {
     applyCheckOut: vi.fn(),
   };
 
-  // readCardUseCase is still in deps (the controller has it in Pick but reads directly)
-  const readCardUseCase = {
-    execute: vi.fn().mockResolvedValue(CARD_DATA),
-  };
-
-  return { nfcService, silentShieldService, cardDataService, readCardUseCase };
+  // readCardUseCase removed — controller reads directly via services
+  return { chipTransferService, silentShieldService, cardDataService };
 }
 
 function createController(mocks = createMocks()) {
   return renderHook(() =>
     ScoutController({
-      useState,
-      useEffect,
       useTranslation,
+      useNavigate: () => vi.fn(),
+      helpers: { formatIDR, formatDuration },
       images: {
         success: '/mock/success.svg',
         nfcLoadDataFailed: '/mock/nfc-load-data-failed.svg',
         tapNfc: '/mock/tap-nfc.svg',
+        nfcFailed: '/mock/nfc-failed.svg',
       },
       ...mocks,
     }),
@@ -70,23 +69,23 @@ describe('ScoutController', () => {
   it('starts in idle state with no card data', () => {
     const { result } = createController();
 
-    expect(result.current.nfcStatus).toBe('idle');
-    expect(result.current.cardData).toBeNull();
+    expect(result.current.chipTransferStatus).toBe('idle');
     expect(result.current.isReading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(result.current.rawEncryptedBase64).toBeNull();
-    expect(result.current.rawDecryptedJson).toBeNull();
+    expect(result.current.formattedBalance).toBe('');
   });
 
-  it('detects NFC capability on mount', () => {
+  it('detects NFC capability on mount', async () => {
     const mocks = createMocks();
     const { result } = createController(mocks);
 
-    expect(result.current.nfcCapability).toBe('supported');
-    expect(mocks.nfcService.isAvailable).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.chipTransferCapability).toBe('supported');
+    });
+    expect(mocks.chipTransferService.isAvailable).toHaveBeenCalled();
   });
 
-  it('reads card successfully and exposes raw data', async () => {
+  it('reads card successfully and exposes formatted data', async () => {
     const mocks = createMocks();
     const { result } = createController(mocks);
 
@@ -94,16 +93,15 @@ describe('ScoutController', () => {
       await result.current.onReadCard();
     });
 
-    expect(result.current.nfcStatus).toBe('success');
-    expect(result.current.cardData).toEqual(CARD_DATA);
+    expect(result.current.chipTransferStatus).toBe('success');
+    expect(result.current.formattedBalance).toBe('Rp 25.000');
     expect(result.current.isReading).toBe(false);
-    expect(result.current.rawEncryptedBase64).toBeDefined();
-    expect(result.current.rawDecryptedJson).toBeDefined();
+    expect(result.current.resultType).toBe('read_success');
   });
 
   it('handles read error', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC read failed'),
     );
     const { result } = createController(mocks);
@@ -112,9 +110,9 @@ describe('ScoutController', () => {
       await result.current.onReadCard();
     });
 
-    expect(result.current.nfcStatus).toBe('error');
+    expect(result.current.chipTransferStatus).toBe('error');
     expect(result.current.error).toContain('NFC read failed');
-    expect(result.current.cardData).toBeNull();
+    expect(result.current.formattedBalance).toBe('');
   });
 
   it('exposes t function from useTranslation', () => {

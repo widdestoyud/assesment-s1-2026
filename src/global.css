@@ -36,3 +36,80 @@ body {
     transition-duration: 300ms;
   }
 }
+
+
+:root {
+  --signal-color-primary-0: #FFF5F6;
+  --signal-color-primary-1: #FFEBEE;
+  --signal-color-primary-2: #FFCCD3;
+  --signal-color-primary-3: #FF99A8;
+  --signal-color-primary-4: #FF3351;
+  --signal-color-primary-5: #FF0025;
+  --signal-color-primary-6: #E50021;
+  --signal-color-primary-7: #C2001C;
+  --signal-color-primary-8: #940015;
+  --signal-color-primary-9: #66000F;
+
+  --signal-color-secondary-0: #FCFDFD;
+  --signal-color-secondary-1: #F9F9FA;
+  --signal-color-secondary-2: #F1F1F4;
+  --signal-color-secondary-3: #DFE2E7;
+  --signal-color-secondary-4: #B3BAC6;
+  --signal-color-secondary-5: #8C99AC;
+  --signal-color-secondary-6: #334867;
+  --signal-color-secondary-7: #001A41;
+  --signal-color-secondary-8: #000E2E;
+  --signal-color-secondary-9: #00071F;
+
+  --signal-color-valid-0: #F2FDF4;
+  --signal-color-valid-1: #EDFCF0;
+  --signal-color-valid-2: #9AEEAB;
+  --signal-color-valid-3: #0FD277;
+  --signal-color-valid-4: #00B86B;
+  --signal-color-valid-5: #008E53;
+  --signal-color-valid-6: #007545;
+  --signal-color-valid-7: #005C36;
+  --signal-color-valid-8: #004227;
+  --signal-color-valid-9: #00331E;
+
+  --signal-color-info-0: #F7FCFF;
+  --signal-color-info-1: #E9F6FF;
+  --signal-color-info-2: #94CFF6;
+  --signal-color-info-3: #5CA8E6;
+  --signal-color-info-4: #3381CE;
+  --signal-color-info-5: #0050AE;
+  --signal-color-info-6: #003D95;
+  --signal-color-info-7: #002D7D;
+  --signal-color-info-8: #002064;
+  --signal-color-info-9: #001653;
+
+  --signal-color-warning-0: #FEFBF1;
+  --signal-color-warning-1: #FEF3D4;
+  --signal-color-warning-2: #FEE5AA;
+  --signal-color-warning-3: #FED27F;
+  --signal-color-warning-4: #FDC05F;
+  --signal-color-warning-5: #FDA22B;
+  --signal-color-warning-6: #D9801F;
+  --signal-color-warning-7: #B66215;
+  --signal-color-warning-8: #92470D;
+  --signal-color-warning-9: #793408;
+
+  --signal-color-error-0: #FEEFEB;
+  --signal-color-error-1: #FDDDD4;
+  --signal-color-error-2: #FBB5A9;
+  --signal-color-error-3: #F4837D;
+  --signal-color-error-4: #E95B61;
+  --signal-color-error-5: #DB2941;
+  --signal-color-error-6: #BC1D42;
+  --signal-color-error-7: #9D1440;
+  --signal-color-error-8: #7F0D3C;
+  --signal-color-error-9: #690739;
+
+  --signal-color-neutral-0: #FFFFFF;
+  --signal-color-neutral-1: #FAFAFB;
+  --signal-color-neutral-2: #E9E8ED;
+  --signal-color-neutral-3: #CCCFD3;
+  --signal-color-neutral-4: #99A0A7;
+  --signal-color-neutral-5: #66707A;
+  --signal-color-neutral-6: #4E5764;
+}

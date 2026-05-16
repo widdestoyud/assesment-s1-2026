@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { ChipTransferCapabilityStatus } from '@src/@core/models/mbc';
 
@@ -7,14 +8,24 @@ export interface UseChipTransferCapabilityReturn {
 }
 
 export const useChipTransferCapability = (
-  deps: Pick<AwilixRegistry, 'useState' | 'useEffect' | 'chipTransferService'>,
+  deps: Pick<AwilixRegistry, 'chipTransferService'>,
 ): UseChipTransferCapabilityReturn => {
-  const { useState, useEffect, chipTransferService } = deps;
+  const { chipTransferService } = deps;
   const [chipTransferCapability, setChipTransferCapability] = useState<ChipTransferCapabilityStatus>('permission_pending');
 
   useEffect(() => {
-    const isAvailable = chipTransferService.isAvailable();
-    setChipTransferCapability(isAvailable ? 'supported' : 'unsupported');
+    if (!chipTransferService.isAvailable()) {
+      setChipTransferCapability('unsupported');
+      return;
+    }
+
+    chipTransferService.queryPermission((status) => {
+      setChipTransferCapability(status);
+    }).then((status) => {
+      setChipTransferCapability(status);
+    }).catch(() => {
+      setChipTransferCapability('permission_pending');
+    });
   }, []);
 
   const chipTransferAvailable = chipTransferCapability === 'supported' || chipTransferCapability === 'permission_pending';

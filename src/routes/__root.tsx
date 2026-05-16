@@ -1,4 +1,3 @@
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
   HeadContent,
   Outlet,
@@ -16,7 +15,6 @@ const globalSearchSchema = z.object({
 });
 
 function RootLayout() {
-  const activeQueryDevTool = config.tanStack.queryDevTool === 'true';
   const activeRouteDevTool = config.tanStack.routeDevTool === 'true';
 
   return (
@@ -27,14 +25,9 @@ function RootLayout() {
           <Outlet />
         </MainLayout>
       </ErrorBoundary>
-      <>
-        {activeQueryDevTool && (
-          <ReactQueryDevtools buttonPosition="bottom-left" />
-        )}
-        {activeRouteDevTool && (
-          <TanStackRouterDevtools position="bottom-right" />
-        )}
-      </>
+      {activeRouteDevTool && (
+        <TanStackRouterDevtools position="bottom-right" />
+      )}
     </>
   );
 }

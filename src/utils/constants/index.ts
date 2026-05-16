@@ -1,2 +1,2 @@
-export { MBC_KEYS } from './mbc-keys.ts';
-export type { MbcKey } from './mbc-keys.ts';
+// Constants re-exported for backward compatibility.
+// MBC_KEYS has been moved to src/infrastructure/config.ts

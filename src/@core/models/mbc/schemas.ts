@@ -14,10 +14,3 @@ export const CardDataSchema = z.object({
   m: z.union([z.literal(0), z.literal(1)]).optional(),
   h: z.array(TransactionEntrySchema).max(5).default([]),
 });
-
-export const TopUpFormSchema = z.object({
-  amount: z.number().int().positive(),
-});
-
-export type CardDataSchemaType = z.infer<typeof CardDataSchema>;
-export type TopUpFormSchemaType = z.infer<typeof TopUpFormSchema>;

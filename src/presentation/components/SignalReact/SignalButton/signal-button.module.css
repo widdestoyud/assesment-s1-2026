@@ -3,7 +3,6 @@
 /* Base */
 .signal-button {
   @apply inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all;
-  font-family: 'Poppins', sans-serif;
 }
 
 /* Sizes */
@@ -26,60 +25,60 @@
 /* Primary */
 .signal-button--primary {
   @apply text-white;
-  background-color: #ED0226;
+  background-color: var(--signal-color-primary-5);
 }
 
 .signal-button--primary:hover {
-  background-color: #FF3351;
+  background-color: var(--signal-color-primary-4);
   box-shadow: 0px 2px 2px 0px rgba(158, 158, 158, 0.2);
 }
 
 .signal-button--primary:active {
-  background-color: #ED0226;
+  background-color: var(--signal-color-primary-6);
 }
 
 .signal-button--primary:disabled {
   @apply cursor-not-allowed shadow-none;
-  background-color: #E9E8ED;
-  color: #B3BAC6;
+  background-color: var(--signal-color-neutral-2);
+  color: var(--signal-color-secondary-4);
 }
 
 /* Secondary */
 .signal-button--secondary {
-  @apply bg-white;
-  border: 2px solid #FF0025;
-  color: #FF0025;
+  background-color: var(--signal-color-neutral-0);
+  border: 2px solid var(--signal-color-primary-5);
+  color: var(--signal-color-primary-5);
 }
 
 .signal-button--secondary:hover {
-  background-color: #FFF5F6;
+  background-color: var(--signal-color-primary-0);
   box-shadow: 0px 2px 2px 0px rgba(158, 158, 158, 0.2);
 }
 
 .signal-button--secondary:active {
-  @apply bg-white;
+  background-color: var(--signal-color-neutral-0);
 }
 
 .signal-button--secondary:disabled {
   @apply cursor-not-allowed shadow-none;
-  border-color: #CCD1D9;
-  color: #B3BAC6;
-  background-color: #FFFFFF;
+  border-color: var(--signal-color-neutral-3);
+  color: var(--signal-color-secondary-4);
+  background-color: var(--signal-color-neutral-0);
 }
 
 /* Text */
 .signal-button--text {
   @apply bg-transparent;
-  color: #0050AE;
+  color: var(--signal-color-info-5);
 }
 
 .signal-button--text:hover {
-  background-color: #F9F9FA;
+  background-color: var(--signal-color-secondary-1);
 }
 
 .signal-button--text:disabled {
   @apply cursor-not-allowed;
-  color: #B3BAC6;
+  color: var(--signal-color-secondary-4);
   background-color: transparent;
 }
 

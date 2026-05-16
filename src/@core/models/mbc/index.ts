@@ -18,10 +18,4 @@ export type {
 
 export {
   CardDataSchema,
-  TopUpFormSchema,
-} from './schemas.ts';
-
-export type {
-  CardDataSchemaType,
-  TopUpFormSchemaType,
 } from './schemas.ts';

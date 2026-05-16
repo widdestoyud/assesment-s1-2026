@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
@@ -55,18 +56,11 @@ export interface GateControllerInterface {
   maxDate: string;
   onSetSimulationDate: (date: string) => void;
   onSetSimulationTime: (time: string) => void;
-
-  // Legacy (kept for compatibility)
-  lastResult: CheckInResult | null;
-  chipTransferErrorImage: string;
-  successImage: string;
 }
 
 const GateController = (
   deps: Pick<
     AwilixRegistry,
-    | 'useState'
-    | 'useEffect'
     | 'useTranslation'
     | 'useNavigate'
     | 'checkInUseCase'
@@ -75,8 +69,6 @@ const GateController = (
   >,
 ): GateControllerInterface => {
   const {
-    useState,
-    useEffect,
     useTranslation,
     useNavigate,
     checkInUseCase,
@@ -88,8 +80,8 @@ const GateController = (
 
   const { t } = useTranslation();
 
-  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
-  const chipOp = useChipTransferOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ chipTransferService });
+  const chipOp = useChipTransferOperation();
 
   const [lastResult, setLastResult] = useState<CheckInResult | null>(null);
   const [activeTab, setActiveTab] = useState<GateTab>('normal');
@@ -275,11 +267,6 @@ const GateController = (
     maxDate,
     onSetSimulationDate: setSimulationDate,
     onSetSimulationTime: setSimulationTime,
-
-    // Legacy (kept for compatibility)
-    lastResult,
-    chipTransferErrorImage: images.nfcLoadDataFailed,
-    successImage: images.success,
   };
 };
 

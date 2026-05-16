@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
-import type { ChipTransferStatus } from '../types';
+import type { ChipTransferStatus, TranslateFn } from '../types';
 import styles from './nfc-scan-modal.module.css';
 
 export interface NfcScanModalProps {
@@ -19,7 +19,7 @@ export interface NfcScanModalProps {
   /** Called when user wants to retry after error */
   onRetry?: () => void;
   /** Translation function */
-  t: (key: string) => string;
+  t: TranslateFn;
   /** Optional custom title override */
   title?: string;
   /** Optional custom subtitle override */

@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { RoleMode, ChipTransferCapabilityStatus } from '@src/@core/models/mbc';
 import type { TFunction } from 'i18next';
@@ -19,6 +20,7 @@ export interface RolePickerControllerInterface {
   activeRole: RoleMode | null;
   chipTransferCapability: ChipTransferCapabilityStatus;
   onNavigateToRole: (role: RoleMode) => void;
+  onRequestNfcPermission: () => void;
   t: TFunction;
 }
 
@@ -63,18 +65,25 @@ const SECONDARY_ROLES: RoleOption[] = [
 ];
 
 const RolePickerController = (
-  deps: Pick<AwilixRegistry, 'useState' | 'useCallback' | 'useEffect' | 'useTranslation' | 'useNavigate' | 'chipTransferService'>,
+  deps: Pick<AwilixRegistry, 'useTranslation' | 'useNavigate' | 'chipTransferService'>,
 ): RolePickerControllerInterface => {
-  const { useState, useCallback, useEffect, useTranslation, useNavigate, chipTransferService } = deps;
+  const { useTranslation, useNavigate, chipTransferService } = deps;
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [activeRole, setActiveRole] = useState<RoleMode | null>(null);
-  const { chipTransferCapability } = useChipTransferCapability({ useState, useEffect, chipTransferService });
+  const { chipTransferCapability } = useChipTransferCapability({ chipTransferService });
 
   const onNavigateToRole = useCallback((role: RoleMode) => {
     setActiveRole(role);
     navigate({ to: `/${role}` });
+  }, []);
+
+  const onRequestNfcPermission = useCallback(() => {
+    // Triggering a scan will prompt the browser for NFC permission
+    chipTransferService.readCard().catch(() => {
+      // Expected — user may deny or no card present. Permission state will update via capability hook.
+    });
   }, []);
 
   return {
@@ -83,6 +92,7 @@ const RolePickerController = (
     activeRole,
     chipTransferCapability,
     onNavigateToRole,
+    onRequestNfcPermission,
     t,
   };
 };

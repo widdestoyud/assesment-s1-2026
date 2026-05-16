@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TranslateFn } from '../types';
 import styles from './role-card.module.css';
 
 export interface RoleCardRole {
@@ -15,7 +16,7 @@ export interface RoleCardProps {
   role: RoleCardRole;
   isActive: boolean;
   onSelect: () => void;
-  t: (key: string) => string;
+  t: TranslateFn;
 }
 
 const RoleCard: FC<RoleCardProps> = ({ role, onSelect, t }) => {

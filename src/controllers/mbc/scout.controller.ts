@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
@@ -51,30 +52,18 @@ export interface ScoutControllerInterface {
   // Actions
   onReadCard: () => void;
 
-  // Card data (raw, for advanced display)
-  cardData: CardData | null;
-  rawEncryptedBase64: string | null;
-  rawDecryptedJson: string | null;
-
   // Pre-formatted card display values
   formattedBalance: string;
   formattedTransactions: FormattedTransaction[];
   checkinStatusLabel: string;
   formattedEntryTime: string | null;
-
-  // Legacy (kept for compatibility)
-  successImage: string;
-  chipTransferErrorImage: string;
 }
 
 const ScoutController = (
   deps: Pick<
     AwilixRegistry,
-    | 'useState'
-    | 'useEffect'
     | 'useTranslation'
     | 'useNavigate'
-    | 'readCardUseCase'
     | 'chipTransferService'
     | 'silentShieldService'
     | 'cardDataService'
@@ -83,8 +72,6 @@ const ScoutController = (
   >,
 ): ScoutControllerInterface => {
   const {
-    useState,
-    useEffect,
     useTranslation,
     useNavigate,
     chipTransferService,
@@ -97,28 +84,16 @@ const ScoutController = (
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
-  const chipOp = useChipTransferOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ chipTransferService });
+  const chipOp = useChipTransferOperation();
 
   const [cardData, setCardData] = useState<CardData | null>(null);
-  const [rawEncryptedBase64, setRawEncryptedBase64] = useState<string | null>(null);
-  const [rawDecryptedJson, setRawDecryptedJson] = useState<string | null>(null);
   const [resultType, setResultType] = useState<ScoutResultType>(null);
-
-  const uint8ToBase64 = (bytes: Uint8Array): string => {
-    let binary = '';
-    for (const byte of bytes) {
-      binary += String.fromCodePoint(byte);
-    }
-    return btoa(binary);
-  };
 
   const onReadCard = async () => {
     if (chipOp.isProcessing) return;
 
     setCardData(null);
-    setRawEncryptedBase64(null);
-    setRawDecryptedJson(null);
     setResultType(null);
 
     await chipOp.execute(async () => {
@@ -126,17 +101,8 @@ const ScoutController = (
         // Step 1: Read raw bytes from card
         const rawEncrypted = await chipTransferService.readCard();
 
-        // Store encrypted raw data
-        if (rawEncrypted.length > 0) {
-          setRawEncryptedBase64(uint8ToBase64(rawEncrypted));
-        }
-
         // Step 2: Try to decrypt
         const decrypted = await silentShieldService.decrypt(rawEncrypted);
-
-        // Store decrypted raw data
-        const decoder = new TextDecoder();
-        setRawDecryptedJson(decoder.decode(decrypted));
 
         // Step 3: Try to deserialize
         const card = cardDataService.deserialize(decrypted);
@@ -158,8 +124,6 @@ const ScoutController = (
 
   const onCloseResult = () => {
     setCardData(null);
-    setRawEncryptedBase64(null);
-    setRawDecryptedJson(null);
     chipOp.setChipTransferStatus('idle');
     chipOp.setError(null);
     setResultType(null);
@@ -264,20 +228,11 @@ const ScoutController = (
     // Actions
     onReadCard,
 
-    // Card data (raw)
-    cardData,
-    rawEncryptedBase64,
-    rawDecryptedJson,
-
     // Pre-formatted card display values
     formattedBalance,
     formattedTransactions,
     checkinStatusLabel,
     formattedEntryTime,
-
-    // Legacy (kept for compatibility)
-    successImage: images.success,
-    chipTransferErrorImage: images.nfcLoadDataFailed,
   };
 };
 

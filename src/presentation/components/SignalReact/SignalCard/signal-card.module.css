@@ -2,7 +2,8 @@
 
 /* ===== Base ===== */
 .signal-card {
-  @apply rounded-xl bg-white p-4 shadow-sm;
+  @apply rounded-xl p-4 shadow-sm;
+  background-color: var(--signal-color-neutral-0);
 }
 
 /* ===== State: Clickable ===== */
@@ -15,7 +16,8 @@
 }
 
 .signal-card--clickable:focus {
-  @apply outline-none ring-2 ring-blue-300;
+  @apply outline-none;
+  box-shadow: 0 0 0 2px var(--signal-color-info-2);
 }
 
 .signal-card--clickable:active {

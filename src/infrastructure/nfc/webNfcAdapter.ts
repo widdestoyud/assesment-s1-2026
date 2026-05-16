@@ -2,6 +2,7 @@ import type { ChipTransferProtocol } from '@core/protocols/chip-transfer';
 import type {
   ChipTransferError,
   ChipTransferScanSession,
+  ChipTransferCapabilityStatus,
 } from '@src/@core/models/mbc';
 import config from '@src/infrastructure/config';
 
@@ -30,6 +31,37 @@ export const webNfcAdapter: ChipTransferProtocol = {
     const ua = navigator.userAgent;
     const isChrome = /Chrome\/\d+/.test(ua) && !/SamsungBrowser|EdgA|OPR/.test(ua);
     return isChrome;
+  },
+
+  async queryPermission(onChange?: (status: ChipTransferCapabilityStatus) => void): Promise<ChipTransferCapabilityStatus> {
+    if (!this.isSupported()) return 'unsupported';
+
+    // Use Permissions API to query NFC permission state
+    if (!('permissions' in navigator)) return 'permission_pending';
+
+    try {
+      const permissionStatus = await navigator.permissions.query({ name: 'nfc' as PermissionName });
+
+      const mapState = (state: PermissionState): ChipTransferCapabilityStatus => {
+        switch (state) {
+          case 'granted': return 'supported';
+          case 'denied': return 'permission_denied';
+          default: return 'permission_pending';
+        }
+      };
+
+      // Listen for permission changes if callback provided
+      if (onChange) {
+        permissionStatus.addEventListener('change', () => {
+          onChange(mapState(permissionStatus.state));
+        });
+      }
+
+      return mapState(permissionStatus.state);
+    } catch {
+      // Permissions API doesn't support 'nfc' query — fallback to pending
+      return 'permission_pending';
+    }
   },
 
   startScan(
@@ -64,9 +96,15 @@ export const webNfcAdapter: ChipTransferProtocol = {
       .then(() => {
         let readSucceeded = false;
         let readErrorTimeout: ReturnType<typeof setTimeout> | null = null;
+        let errorCount = 0;
+        const scanStartTime = Date.now();
+        const GRACE_PERIOD_MS = 2000; // Ignore errors in first 2s (phantom reads)
+        const ERROR_THRESHOLD = 2; // Require 2 consecutive errors before reporting
+        const ERROR_DEBOUNCE_MS = 3000; // Wait 3s after last error before reporting
 
         ndef.onreading = (event: NDEFReadingEvent) => {
           readSucceeded = true;
+          errorCount = 0; // Reset error count on successful read
           if (readErrorTimeout) {
             clearTimeout(readErrorTimeout);
             readErrorTimeout = null;
@@ -84,18 +122,27 @@ export const webNfcAdapter: ChipTransferProtocol = {
         ndef.onreadingerror = () => {
           if (readSucceeded) return;
 
+          // Ignore errors during grace period (phantom reads from nearby tags)
+          if (Date.now() - scanStartTime < GRACE_PERIOD_MS) return;
+
+          errorCount++;
+
           if (readErrorTimeout) {
             clearTimeout(readErrorTimeout);
           }
-          readErrorTimeout = setTimeout(() => {
-            if (!readSucceeded) {
-              onError({
-                type: 'incompatible_card',
-                message: 'Error reading NFC tag — tag may not be NDEF formatted.',
-                messageKey: 'mbc_nfc_error_incompatible_card',
-              });
-            }
-          }, 1000);
+
+          // Only report error after threshold consecutive errors
+          if (errorCount >= ERROR_THRESHOLD) {
+            readErrorTimeout = setTimeout(() => {
+              if (!readSucceeded) {
+                onError({
+                  type: 'incompatible_card',
+                  message: 'Error reading NFC tag — tag may not be NDEF formatted.',
+                  messageKey: 'mbc_nfc_error_incompatible_card',
+                });
+              }
+            }, ERROR_DEBOUNCE_MS);
+          }
         };
       })
       .catch((error: unknown) => {

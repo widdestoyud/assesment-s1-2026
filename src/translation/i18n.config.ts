@@ -1,4 +1,3 @@
-import { QueryClient } from '@tanstack/react-query';
 import i18n from 'i18next';
 import detector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
@@ -23,10 +22,8 @@ function normalizeLang(lang: string): string {
 
 /**
  * initial i18n with our configuration
- *
- * @param _queryClient - kept for future WCMS integration
  */
-export const initTranslation = (_queryClient: QueryClient) => {
+export const initTranslation = () => {
   i18n
     .use(detector)
     .use(initReactI18next)

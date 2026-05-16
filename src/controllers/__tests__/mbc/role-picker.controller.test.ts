@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { useState, useCallback, useEffect } from 'react';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 
 import RolePickerController from '../../mbc/role-picker.controller';
@@ -8,22 +7,19 @@ import RolePickerController from '../../mbc/role-picker.controller';
 const mockNavigate = vi.fn();
 const mockUseNavigate = () => mockNavigate;
 
-const mockNfcService = {
+const mockChipTransferService = {
   isAvailable: vi.fn(() => true),
-  read: vi.fn(),
-  write: vi.fn(),
-  cancel: vi.fn(),
+  queryPermission: vi.fn().mockResolvedValue('supported'),
+  readCard: vi.fn(),
+  readThenWrite: vi.fn(),
 };
 
 function createController() {
   return renderHook(() =>
     RolePickerController({
-      useState,
-      useCallback,
-      useEffect,
       useTranslation,
       useNavigate: mockUseNavigate as never,
-      nfcService: mockNfcService,
+      chipTransferService: mockChipTransferService,
     }),
   );
 }
@@ -94,16 +90,18 @@ describe('RolePickerController', () => {
     }
   });
 
-  it('detects NFC capability as supported', () => {
-    mockNfcService.isAvailable.mockReturnValue(true);
+  it('detects NFC capability as supported', async () => {
+    mockChipTransferService.isAvailable.mockReturnValue(true);
     const { result } = createController();
-    expect(result.current.nfcCapability).toBe('supported');
+    await waitFor(() => {
+      expect(result.current.chipTransferCapability).toBe('supported');
+    });
   });
 
   it('detects NFC capability as unsupported', () => {
-    mockNfcService.isAvailable.mockReturnValue(false);
+    mockChipTransferService.isAvailable.mockReturnValue(false);
     const { result } = createController();
-    expect(result.current.nfcCapability).toBe('unsupported');
+    expect(result.current.chipTransferCapability).toBe('unsupported');
   });
 
   it('exposes t function from useTranslation', () => {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
@@ -7,7 +8,7 @@ import type {
 } from '@src/@core/models/mbc';
 import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
 import { formatIDR, formatThousands, stripThousands } from '@utils/helpers/mbc.helper';
-import { MBC_KEYS } from '@utils/constants/mbc-keys';
+import config from '@src/infrastructure/config';
 import { useChipTransferCapability, useChipTransferOperation } from './hooks';
 import type { ResultModalProps } from './shared.types';
 
@@ -52,7 +53,6 @@ export interface StationControllerInterface {
   // Form state
   phase: StationPhase;
   cardData: CardData | null;
-  topUpAmount: string;
   formattedTopUpAmount: string;
   isTopUpValid: boolean;
   selectedChip: number | null;
@@ -62,9 +62,6 @@ export interface StationControllerInterface {
 
   // Computed
   formattedBalance: string;
-  formattedMaxRemaining: string;
-  maxRemainingTopUp: number;
-  canTopUp: boolean;
 }
 
 const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
@@ -72,8 +69,6 @@ const QUICK_AMOUNTS = [2000, 5000, 10000, 20000, 50000, 100000];
 const StationController = (
   deps: Pick<
     AwilixRegistry,
-    | 'useState'
-    | 'useEffect'
     | 'useTranslation'
     | 'useNavigate'
     | 'validateCardUseCase'
@@ -83,8 +78,6 @@ const StationController = (
   >,
 ): StationControllerInterface => {
   const {
-    useState,
-    useEffect,
     useTranslation,
     useNavigate,
     validateCardUseCase,
@@ -96,8 +89,8 @@ const StationController = (
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ useState, useEffect, chipTransferService });
-  const chipOp = useChipTransferOperation({ useState });
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ chipTransferService });
+  const chipOp = useChipTransferOperation();
 
   const [phase, setPhase] = useState<StationPhase>('home');
   const [cardData, setCardData] = useState<CardData | null>(null);
@@ -222,13 +215,11 @@ const StationController = (
   const pageTitle = String(t('mbc_station_title'));
   const parsedAmount = Number.parseInt(topUpAmount, 10);
   const currentBalance = cardData?.b ?? 0;
-  const maxRemainingTopUp = MBC_KEYS.MAX_BALANCE - currentBalance;
   const isTopUpValid = !Number.isNaN(parsedAmount)
-    && parsedAmount >= MBC_KEYS.MIN_TOPUP
-    && (currentBalance + parsedAmount) <= MBC_KEYS.MAX_BALANCE;
+    && parsedAmount >= config.minTopUp
+    && (currentBalance + parsedAmount) <= config.maxBalance;
   const formattedTopUpAmount = formatThousands(topUpAmount);
   const formattedBalance = cardData ? formatIDR(cardData.b) : '';
-  const formattedMaxRemaining = formatIDR(Math.max(0, maxRemainingTopUp));
 
   // --- Result modal props ---
 
@@ -327,7 +318,6 @@ const StationController = (
     // Form state
     phase,
     cardData,
-    topUpAmount,
     formattedTopUpAmount,
     isTopUpValid,
     selectedChip,
@@ -337,9 +327,6 @@ const StationController = (
 
     // Computed
     formattedBalance,
-    formattedMaxRemaining,
-    maxRemainingTopUp,
-    canTopUp: maxRemainingTopUp >= MBC_KEYS.MIN_TOPUP,
   };
 };
 

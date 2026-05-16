@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { CardData } from '@core/models/mbc';
-import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
+import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 
@@ -16,8 +16,9 @@ const VALID_CARD: CardData = {
 };
 
 function createMocks(cardData: CardData = VALID_CARD) {
-  const nfcService: NfcServiceInterface = {
+  const chipTransferService: ChipTransferServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => {
       await processor(new Uint8Array([1]));
@@ -43,7 +44,7 @@ function createMocks(cardData: CardData = VALID_CARD) {
     decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
-  return { nfcService, cardDataService, silentShieldService };
+  return { chipTransferService, cardDataService, silentShieldService };
 }
 
 describe('TopUpBalanceUseCase', () => {
@@ -55,21 +56,21 @@ describe('TopUpBalanceUseCase', () => {
 
     expect(result.type).toBe('top-up');
     expect(result.balance).toBe(15000);
-    expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
+    expect(mocks.chipTransferService.readThenWrite).toHaveBeenCalledOnce();
   });
 
   it('rejects zero amount', async () => {
     const mocks = createMocks();
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: 0 })).rejects.toThrow('mbc_error_topup_amount_invalid');
+    await expect(useCase.execute({ amount: 0 })).rejects.toThrow('mbc_error_min_topup');
   });
 
   it('rejects negative amount', async () => {
     const mocks = createMocks();
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: -1000 })).rejects.toThrow('mbc_error_topup_amount_invalid');
+    await expect(useCase.execute({ amount: -1000 })).rejects.toThrow('mbc_error_min_topup');
   });
 
   it('rejects when balance would exceed max', async () => {
@@ -77,12 +78,12 @@ describe('TopUpBalanceUseCase', () => {
     const mocks = createMocks(nearMaxCard);
     const useCase = TopUpBalanceUseCase(mocks);
 
-    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('mbc_error_balance_exceeds_max');
+    await expect(useCase.execute({ amount: 5000 })).rejects.toThrow('mbc_error_max_balance_exceeded');
   });
 
   it('throws when NFC readThenWrite fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.chipTransferService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC write failed'),
     );
     const useCase = TopUpBalanceUseCase(mocks);

@@ -1,8 +1,11 @@
-import type { ChipTransferError, ChipTransferScanSession } from '@src/@core/models/mbc';
+import type { ChipTransferError, ChipTransferScanSession, ChipTransferCapabilityStatus } from '@src/@core/models/mbc';
 
 export interface ChipTransferProtocol {
-  /** Check if chip transfer hardware is supported and permission granted */
+  /** Check if chip transfer hardware is supported */
   isSupported(): boolean;
+
+  /** Query the current permission state for chip transfer access */
+  queryPermission(onChange?: (status: ChipTransferCapabilityStatus) => void): Promise<ChipTransferCapabilityStatus>;
 
   /** Start scanning for chip media. Returns a session with abort controller to stop. */
   startScan(

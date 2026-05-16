@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import type { TranslateFn } from '../types';
 import styles from './balance-display.module.css';
 
 export interface BalanceDisplayProps {
@@ -6,7 +7,7 @@ export interface BalanceDisplayProps {
   formattedPreviousBalance?: string;
   formattedChangeAmount?: string;
   isPositiveChange?: boolean;
-  t: (key: string) => string;
+  t: TranslateFn;
 }
 
 const BalanceDisplay: FC<BalanceDisplayProps> = ({

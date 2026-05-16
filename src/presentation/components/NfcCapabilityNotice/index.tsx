@@ -1,12 +1,12 @@
 import type { FC } from 'react';
-import type { ChipTransferCapabilityStatus } from '../types';
+import type { ChipTransferCapabilityStatus, TranslateFn } from '../types';
 import ResultStatusModal from '@components/ResultStatusModal';
 
 export interface NfcCapabilityNoticeProps {
   status: ChipTransferCapabilityStatus;
   onClose: () => void;
   imageSrc: string;
-  t: (key: string) => string;
+  t: TranslateFn;
 }
 
 const NfcCapabilityNotice: FC<NfcCapabilityNoticeProps> = ({ status, onClose, imageSrc, t }) => {
