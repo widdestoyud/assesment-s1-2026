@@ -1,57 +1,64 @@
 import type { AwilixRegistry } from '@di/container';
-import type { NfcProtocol } from '@core/protocols/nfc';
+import type { ChipTransferProtocol } from '@core/protocols/chip-transfer';
 import type {
-  NfcError,
-  NfcScanSession,
+  ChipTransferCapabilityStatus,
+  ChipTransferError,
+  ChipTransferScanSession,
 } from '@src/@core/models/mbc';
 
-export class NfcServiceError extends Error {
-  readonly type: NfcError['type'];
+export class ChipTransferServiceError extends Error {
+  readonly type: ChipTransferError['type'];
   readonly messageKey: string;
   readonly messageParams?: Record<string, string | number>;
 
-  constructor(nfcError: NfcError) {
-    super(nfcError.messageKey);
-    this.name = 'NfcServiceError';
-    this.type = nfcError.type;
-    this.messageKey = nfcError.messageKey;
-    this.messageParams = nfcError.messageParams;
+  constructor(chipTransferError: ChipTransferError) {
+    super(chipTransferError.messageKey);
+    this.name = 'ChipTransferServiceError';
+    this.type = chipTransferError.type;
+    this.messageKey = chipTransferError.messageKey;
+    this.messageParams = chipTransferError.messageParams;
   }
 }
 
-export interface NfcServiceInterface {
-  /** Check if NFC hardware is available */
+export interface ChipTransferServiceInterface {
+  /** Check if chip transfer hardware is available */
   isAvailable(): boolean;
-  /** Read raw bytes from an NFC card (one-shot: resolves on first read) */
+  /** Query the current permission state, optionally listen for changes */
+  queryPermission(onChange?: (status: ChipTransferCapabilityStatus) => void): Promise<ChipTransferCapabilityStatus>;
+  /** Read raw bytes from a chip card (one-shot: resolves on first read) */
   readCard(): Promise<Uint8Array>;
   /** Read card, process data, then write back — all in one tap */
   readThenWrite(processor: (data: Uint8Array) => Promise<Uint8Array>): Promise<Uint8Array>;
 }
 
-export const NfcService = (
-  deps: Pick<AwilixRegistry, 'nfcProtocol'>,
-): NfcServiceInterface => {
-  const { nfcProtocol }: { nfcProtocol: NfcProtocol } = deps;
+export const ChipTransferService = (
+  deps: Pick<AwilixRegistry, 'chipTransferProtocol'>,
+): ChipTransferServiceInterface => {
+  const { chipTransferProtocol }: { chipTransferProtocol: ChipTransferProtocol } = deps;
 
   const isAvailable = (): boolean => {
-    return nfcProtocol.isSupported();
+    return chipTransferProtocol.isSupported();
+  };
+
+  const queryPermission = (onChange?: (status: ChipTransferCapabilityStatus) => void): Promise<ChipTransferCapabilityStatus> => {
+    return chipTransferProtocol.queryPermission(onChange);
   };
 
   const readCard = (): Promise<Uint8Array> => {
     return new Promise<Uint8Array>((resolve, reject) => {
-      let session: NfcScanSession | null = null;
+      let session: ChipTransferScanSession | null = null;
 
       const onRead = (data: Uint8Array): void => {
         session?.abort();
         resolve(data);
       };
 
-      const onError = (err: NfcError): void => {
+      const onError = (err: ChipTransferError): void => {
         session?.abort();
-        reject(new NfcServiceError(err));
+        reject(new ChipTransferServiceError(err));
       };
 
-      session = nfcProtocol.startScan(onRead, onError);
+      session = chipTransferProtocol.startScan(onRead, onError);
     });
   };
 
@@ -61,12 +68,12 @@ export const NfcService = (
    */
   const readThenWrite = (processor: (data: Uint8Array) => Promise<Uint8Array>): Promise<Uint8Array> => {
     return new Promise<Uint8Array>((resolve, reject) => {
-      let session: NfcScanSession | null = null;
+      let session: ChipTransferScanSession | null = null;
 
       const onRead = async (data: Uint8Array): Promise<void> => {
         try {
           const newData = await processor(data);
-          await nfcProtocol.write(newData);
+          await chipTransferProtocol.write(newData);
           session?.abort();
           resolve(data);
         } catch (err: unknown) {
@@ -75,17 +82,17 @@ export const NfcService = (
         }
       };
 
-      const onError = (err: NfcError): void => {
+      const onError = (err: ChipTransferError): void => {
         session?.abort();
-        reject(new NfcServiceError(err));
+        reject(new ChipTransferServiceError(err));
       };
 
-      session = nfcProtocol.startScan(
+      session = chipTransferProtocol.startScan(
         (data) => { onRead(data); },
         onError,
       );
     });
   };
 
-  return { isAvailable, readCard, readThenWrite };
+  return { isAvailable, queryPermission, readCard, readThenWrite };
 };

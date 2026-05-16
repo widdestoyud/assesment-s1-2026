@@ -1,6 +1,8 @@
+import { useState, useCallback } from 'react';
 import type { AwilixRegistry } from '@di/container';
-import type { RoleMode, NfcCapabilityStatus } from '@src/@core/models/mbc';
+import type { RoleMode, ChipTransferCapabilityStatus } from '@src/@core/models/mbc';
 import type { TFunction } from 'i18next';
+import { useChipTransferCapability } from './hooks';
 
 export interface RoleOption {
   id: RoleMode;
@@ -16,8 +18,9 @@ export interface RolePickerControllerInterface {
   primaryRoles: RoleOption[];
   secondaryRoles: RoleOption[];
   activeRole: RoleMode | null;
-  nfcCapability: NfcCapabilityStatus;
+  chipTransferCapability: ChipTransferCapabilityStatus;
   onNavigateToRole: (role: RoleMode) => void;
+  onRequestNfcPermission: () => void;
   t: TFunction;
 }
 
@@ -62,31 +65,34 @@ const SECONDARY_ROLES: RoleOption[] = [
 ];
 
 const RolePickerController = (
-  deps: Pick<AwilixRegistry, 'useState' | 'useCallback' | 'useEffect' | 'useTranslation' | 'useNavigate' | 'nfcService'>,
+  deps: Pick<AwilixRegistry, 'useTranslation' | 'useNavigate' | 'chipTransferService'>,
 ): RolePickerControllerInterface => {
-  const { useState, useCallback, useEffect, useTranslation, useNavigate, nfcService } = deps;
+  const { useTranslation, useNavigate, chipTransferService } = deps;
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [activeRole, setActiveRole] = useState<RoleMode | null>(null);
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
-
-  useEffect(() => {
-    const isNfcAvailable = nfcService.isAvailable();
-    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-  }, []);
+  const { chipTransferCapability } = useChipTransferCapability({ chipTransferService });
 
   const onNavigateToRole = useCallback((role: RoleMode) => {
     setActiveRole(role);
     navigate({ to: `/${role}` });
   }, []);
 
+  const onRequestNfcPermission = useCallback(() => {
+    // Triggering a scan will prompt the browser for NFC permission
+    chipTransferService.readCard().catch(() => {
+      // Expected — user may deny or no card present. Permission state will update via capability hook.
+    });
+  }, []);
+
   return {
     primaryRoles: PRIMARY_ROLES,
     secondaryRoles: SECONDARY_ROLES,
     activeRole,
-    nfcCapability,
+    chipTransferCapability,
     onNavigateToRole,
+    onRequestNfcPermission,
     t,
   };
 };

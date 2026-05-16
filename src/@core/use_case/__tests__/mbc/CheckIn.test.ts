@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { CardData } from '@core/models/mbc';
-import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
+import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 
@@ -24,8 +24,9 @@ const CHECKED_IN_CARD: CardData = {
 };
 
 function createMocks(cardData: CardData = IDLE_CARD) {
-  const nfcService: NfcServiceInterface = {
+  const chipTransferService: ChipTransferServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => {
       await processor(new Uint8Array([1]));
@@ -52,7 +53,7 @@ function createMocks(cardData: CardData = IDLE_CARD) {
     decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
-  return { nfcService, cardDataService, silentShieldService };
+  return { chipTransferService, cardDataService, silentShieldService };
 }
 
 describe('CheckInUseCase', () => {
@@ -64,7 +65,7 @@ describe('CheckInUseCase', () => {
 
     expect(result.checkInTime).toBeDefined();
     expect(typeof result.checkInTime).toBe('string');
-    expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
+    expect(mocks.chipTransferService.readThenWrite).toHaveBeenCalledOnce();
   });
 
   it('rejects double check-in (card already checked in)', async () => {
@@ -76,7 +77,7 @@ describe('CheckInUseCase', () => {
 
   it('throws when NFC readThenWrite fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.chipTransferService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC write failed'),
     );
     const useCase = CheckInUseCase(mocks);

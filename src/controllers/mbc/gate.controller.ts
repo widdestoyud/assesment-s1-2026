@@ -1,66 +1,89 @@
+import { useState } from 'react';
 import type { AwilixRegistry } from '@di/container';
 import type { TFunction } from 'i18next';
 import type {
   CheckInResult,
-  NfcCapabilityStatus,
-  NfcStatus,
+  ChipTransferCapabilityStatus,
+  ChipTransferStatus,
 } from '@src/@core/models/mbc';
-import { NfcServiceError } from '@core/services/mbc/nfc.service';
+import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
+import { useChipTransferCapability, useChipTransferOperation } from './hooks';
+import type { ResultModalProps } from './shared.types';
+
+export type { ResultModalProps } from './shared.types';
 
 export type GateTab = 'normal' | 'simulation';
 
 export type GateResultType = 'checkin_success' | 'already_checked_in' | 'nfc_error' | null;
 
 export interface GateControllerInterface {
-  nfcStatus: NfcStatus;
-  lastResult: CheckInResult | null;
+  // Translation
+  t: TFunction;
+
+  // Page metadata
+  pageTitle: string;
+  onBack: () => void;
+
+  // Chip transfer capability
+  chipTransferCapability: ChipTransferCapabilityStatus;
+  chipTransferAvailable: boolean;
+  onNfcNoticeClose: () => void;
+  chipTransferFailedImage: string;
+
+  // Chip transfer scan modal
+  showNfcModal: boolean;
+  chipTransferStatus: ChipTransferStatus;
   isProcessing: boolean;
   error: string | null;
-  nfcCapability: NfcCapabilityStatus;
+  onCloseNfcModal: () => void;
+  onCancelScan: () => void;
+  scanImage: string;
+
+  // Result modal — pre-mapped, ready to spread
+  resultProps: ResultModalProps | null;
+  resultType: GateResultType;
+  onCloseResult: () => void;
+
+  // Actions — controller handles async + modal internally
+  onCheckIn: () => void;
+  onSimulationCheckIn: () => void;
+
+  // Form state
   activeTab: GateTab;
   onSetActiveTab: (tab: GateTab) => void;
   simulationDate: string;
   simulationTime: string;
+  maxDate: string;
   onSetSimulationDate: (date: string) => void;
   onSetSimulationTime: (time: string) => void;
-  onCheckIn: () => Promise<void>;
-  onSimulationCheckIn: () => Promise<void>;
-  onCancelScan: () => void;
-  onCloseResult: () => void;
-  resultType: GateResultType;
-  nfcErrorImage: string;
-  scanImage: string;
-  successImage: string;
-  t: TFunction;
 }
 
 const GateController = (
   deps: Pick<
     AwilixRegistry,
-    | 'useState'
-    | 'useEffect'
     | 'useTranslation'
+    | 'useNavigate'
     | 'checkInUseCase'
-    | 'nfcService'
+    | 'chipTransferService'
     | 'images'
   >,
 ): GateControllerInterface => {
   const {
-    useState,
-    useEffect,
     useTranslation,
+    useNavigate,
     checkInUseCase,
-    nfcService,
+    chipTransferService,
     images,
   } = deps;
 
+  const navigate = useNavigate();
+
   const { t } = useTranslation();
 
-  const [nfcStatus, setNfcStatus] = useState<NfcStatus>('idle');
+  const { chipTransferCapability, chipTransferAvailable } = useChipTransferCapability({ chipTransferService });
+  const chipOp = useChipTransferOperation();
+
   const [lastResult, setLastResult] = useState<CheckInResult | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [nfcCapability, setNfcCapability] = useState<NfcCapabilityStatus>('permission_pending');
   const [activeTab, setActiveTab] = useState<GateTab>('normal');
   const [resultType, setResultType] = useState<GateResultType>(null);
 
@@ -79,114 +102,171 @@ const GateController = (
     defaultDate.toTimeString().slice(0, 5),
   );
 
-  useEffect(() => {
-    const isNfcAvailable = nfcService.isAvailable();
-    setNfcCapability(isNfcAvailable ? 'supported' : 'unsupported');
-  }, []);
-
   const onSetActiveTab = (tab: GateTab) => {
     setActiveTab(tab);
-    setError(null);
+    chipOp.setError(null);
     setLastResult(null);
     setResultType(null);
   };
 
-  const handleNfcError = (err: unknown) => {
-    setNfcStatus('error');
+  const handleChipTransferError = (err: unknown) => {
+    chipOp.setChipTransferStatus('error');
     if (err instanceof Error && err.message === 'mbc_error_already_checked_in') {
-      setError(err.message);
+      chipOp.setError(err.message);
       setResultType('already_checked_in');
-    } else if (err instanceof NfcServiceError) {
-      // NFC hardware/API error — show error modal with illustration
-      setError(err.messageKey);
+    } else if (err instanceof ChipTransferServiceError) {
+      chipOp.setError(err.messageKey);
       setResultType('nfc_error');
     } else {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message);
+      chipOp.setError(message);
       setResultType('nfc_error');
     }
   };
 
   const onCheckIn = async () => {
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
     setLastResult(null);
     setResultType(null);
 
-    try {
-      const result = await checkInUseCase.execute();
-      setNfcStatus('success');
-      setLastResult(result);
-      setResultType('checkin_success');
-    } catch (err: unknown) {
-      handleNfcError(err);
-    } finally {
-      setIsProcessing(false);
-    }
+    await chipOp.execute(async () => {
+      try {
+        const result = await checkInUseCase.execute();
+        chipOp.setChipTransferStatus('success');
+        setLastResult(result);
+        setResultType('checkin_success');
+      } catch (err: unknown) {
+        handleChipTransferError(err);
+      }
+    });
   };
 
   const onSimulationCheckIn = async () => {
     // Validate timestamp is in the past
     const simTimestamp = new Date(`${simulationDate}T${simulationTime}:00`);
     if (simTimestamp.getTime() > Date.now()) {
-      setError(t('mbc_error_simulation_future_time'));
+      chipOp.setError(t('mbc_error_simulation_future_time'));
       return;
     }
 
-    setIsProcessing(true);
-    setNfcStatus('scanning');
-    setError(null);
     setLastResult(null);
     setResultType(null);
 
-    try {
-      const result = await checkInUseCase.execute({
-        simulationTimestamp: simTimestamp.toISOString(),
-      });
-      setNfcStatus('success');
-      setLastResult(result);
-      setResultType('checkin_success');
-    } catch (err: unknown) {
-      handleNfcError(err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const onCancelScan = () => {
-    setIsProcessing(false);
-    setNfcStatus('idle');
+    await chipOp.execute(async () => {
+      try {
+        const result = await checkInUseCase.execute({
+          simulationTimestamp: simTimestamp.toISOString(),
+        });
+        chipOp.setChipTransferStatus('success');
+        setLastResult(result);
+        setResultType('checkin_success');
+      } catch (err: unknown) {
+        handleChipTransferError(err);
+      }
+    });
   };
 
   const onCloseResult = () => {
     setLastResult(null);
-    setNfcStatus('idle');
-    setError(null);
+    chipOp.setChipTransferStatus('idle');
+    chipOp.setError(null);
     setResultType(null);
   };
 
+  const onBack = () => {
+    window.history.back();
+  };
+
+  const onNfcNoticeClose = () => {
+    navigate({ to: '/' });
+  };
+
+  // Computed values
+  const maxDate = new Date().toISOString().split('T')[0];
+  const pageTitle = String(t('mbc_gate_title'));
+
+  // Result modal props — pre-mapped, ready to spread
+  const getResultProps = (): ResultModalProps | null => {
+    if (resultType === 'checkin_success' && lastResult) {
+      if (lastResult.isSimulation) {
+        return {
+          variant: 'success',
+          title: t('mbc_gate_checkin_simulation_success'),
+          subtitle: `${t('mbc_common_entry_time_label')} ${new Date(lastResult.checkInTime).toLocaleString('id-ID')}`,
+          buttonLabel: t('mbc_common_done_button'),
+          imageSrc: images.success,
+        };
+      }
+      return {
+        variant: 'success',
+        title: t('mbc_gate_checkin_success'),
+        subtitle: `${t('mbc_common_entry_time_label')} ${new Date(lastResult.checkInTime).toLocaleString('id-ID')}`,
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: images.success,
+      };
+    }
+    if (resultType === 'already_checked_in') {
+      return {
+        variant: 'error',
+        title: t('mbc_gate_already_checked_in_title'),
+        subtitle: t('mbc_error_already_checked_in'),
+        buttonLabel: t('mbc_common_close_button'),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    if (resultType === 'nfc_error' && chipOp.error) {
+      return {
+        variant: 'error',
+        title: t('mbc_nfc_error_title'),
+        subtitle: chipOp.error.startsWith('mbc_') ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable')) : chipOp.error,
+        buttonLabel: t('mbc_common_done_button'),
+        imageSrc: images.nfcLoadDataFailed,
+      };
+    }
+    return null;
+  };
+
+  const resultProps = getResultProps();
+
   return {
-    nfcStatus,
-    lastResult,
-    isProcessing,
-    error,
-    nfcCapability,
+    // Translation
+    t,
+
+    // Page metadata
+    pageTitle,
+    onBack,
+
+    // Chip transfer capability
+    chipTransferCapability,
+    chipTransferAvailable,
+    onNfcNoticeClose,
+    chipTransferFailedImage: images.nfcFailed,
+
+    // Chip transfer scan modal
+    showNfcModal: chipOp.showNfcModal,
+    chipTransferStatus: chipOp.chipTransferStatus,
+    isProcessing: chipOp.isProcessing,
+    error: chipOp.error,
+    onCloseNfcModal: chipOp.onCloseNfcModal,
+    onCancelScan: chipOp.onCancelScan,
+    scanImage: images.tapNfc,
+
+    // Result modal
+    resultProps,
+    resultType,
+    onCloseResult,
+
+    // Actions
+    onCheckIn,
+    onSimulationCheckIn,
+
+    // Form state
     activeTab,
     onSetActiveTab,
     simulationDate,
     simulationTime,
+    maxDate,
     onSetSimulationDate: setSimulationDate,
     onSetSimulationTime: setSimulationTime,
-    onCheckIn,
-    onSimulationCheckIn,
-    onCancelScan,
-    onCloseResult,
-    resultType,
-    nfcErrorImage: images.nfcLoadDataFailed,
-    scanImage: images.tapNfc,
-    successImage: images.success,
-    t,
   };
 };
 

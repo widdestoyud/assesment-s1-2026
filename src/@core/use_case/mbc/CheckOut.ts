@@ -28,17 +28,17 @@ export interface CheckOutUseCaseInterface {
 export const CheckOutUseCase = (
   deps: Pick<
     AwilixRegistry,
-    'nfcService' | 'cardDataService' | 'silentShieldService' | 'pricingService'
+    'chipTransferService' | 'cardDataService' | 'silentShieldService' | 'pricingService'
   >,
 ): CheckOutUseCaseInterface => {
-  const { nfcService, cardDataService, silentShieldService, pricingService } =
+  const { chipTransferService, cardDataService, silentShieldService, pricingService } =
     deps;
 
   const execute = async (): Promise<CheckOutResult> => {
     let result: CheckOutResult | null = null;
 
     // Single-tap: read card, validate, calculate fee, apply check-out, write back
-    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+    await chipTransferService.readThenWrite(async (rawEncrypted: Uint8Array) => {
       // Decrypt → deserialize
       const decrypted = await silentShieldService.decrypt(rawEncrypted);
       const card = cardDataService.deserialize(decrypted);

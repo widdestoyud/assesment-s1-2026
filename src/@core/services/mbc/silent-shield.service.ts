@@ -1,6 +1,6 @@
 import type { AwilixRegistry } from '@di/container';
 
-import { MBC_KEYS } from '@utils/constants/mbc-keys';
+import config from '@src/infrastructure/config';
 
 export interface SilentShieldServiceInterface {
   encrypt(data: Uint8Array): Promise<Uint8Array>;
@@ -25,7 +25,7 @@ export const SilentShieldService = (
         // Step 1: Import passphrase as raw key material
         const keyMaterial = await crypto.subtle.importKey(
           'raw',
-          encoder.encode(MBC_KEYS.SILENT_SHIELD_PASSPHRASE),
+          encoder.encode(config.silentShield.passphrase),
           'PBKDF2',
           false,
           ['deriveKey'],
@@ -35,14 +35,14 @@ export const SilentShieldService = (
         const derivedKey = await crypto.subtle.deriveKey(
           {
             name: 'PBKDF2',
-            salt: encoder.encode(MBC_KEYS.SILENT_SHIELD_SALT),
-            iterations: MBC_KEYS.SILENT_SHIELD_ITERATIONS,
+            salt: encoder.encode(config.silentShield.salt),
+            iterations: config.silentShield.iterations,
             hash: 'SHA-256',
           },
           keyMaterial,
           {
-            name: MBC_KEYS.SILENT_SHIELD_ALGORITHM,
-            length: MBC_KEYS.SILENT_SHIELD_KEY_LENGTH * 8,
+            name: config.silentShield.algorithm,
+            length: config.silentShield.keyLength * 8,
           },
           false,
           ['encrypt', 'decrypt'],
@@ -62,15 +62,15 @@ export const SilentShieldService = (
     try {
       const key = await deriveKey();
       const iv = crypto.getRandomValues(
-        new Uint8Array(MBC_KEYS.SILENT_SHIELD_IV_LENGTH),
+        new Uint8Array(config.silentShield.ivLength),
       );
 
       // Web Crypto API returns [ciphertext | authTag] combined
       const encryptedBuffer = await crypto.subtle.encrypt(
         {
-          name: MBC_KEYS.SILENT_SHIELD_ALGORITHM,
+          name: config.silentShield.algorithm,
           iv,
-          tagLength: MBC_KEYS.SILENT_SHIELD_TAG_LENGTH * 8,
+          tagLength: config.silentShield.tagLength * 8,
         },
         key,
         data as unknown as BufferSource,
@@ -95,16 +95,16 @@ export const SilentShieldService = (
     try {
       const key = await deriveKey();
 
-      const ivLength = MBC_KEYS.SILENT_SHIELD_IV_LENGTH;
+      const ivLength = config.silentShield.ivLength;
       const iv = data.subarray(0, ivLength);
       // Web Crypto expects [ciphertext | authTag] as a single buffer
       const combined = data.subarray(ivLength);
 
       const decryptedBuffer = await crypto.subtle.decrypt(
         {
-          name: MBC_KEYS.SILENT_SHIELD_ALGORITHM,
+          name: config.silentShield.algorithm,
           iv: iv as unknown as BufferSource,
-          tagLength: MBC_KEYS.SILENT_SHIELD_TAG_LENGTH * 8,
+          tagLength: config.silentShield.tagLength * 8,
         },
         key,
         combined as unknown as BufferSource,

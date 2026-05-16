@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { useState, useEffect } from 'react';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 
 import type { CheckInUseCaseInterface } from '@core/use_case/mbc/CheckIn';
@@ -14,22 +13,22 @@ function createMocks() {
     }),
   };
 
-  const nfcService = {
+  const chipTransferService = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn(),
     readThenWrite: vi.fn(),
   };
 
-  return { checkInUseCase, nfcService };
+  return { checkInUseCase, chipTransferService };
 }
 
 function createController(mocks = createMocks()) {
   return renderHook(() =>
     GateController({
-      useState,
-      useEffect,
       useTranslation,
-      images: { nfcLoadDataFailed: '/mock/nfc-error.svg' },
+      useNavigate: () => vi.fn(),
+      images: { nfcLoadDataFailed: '/mock/nfc-error.svg', nfcFailed: '/mock/nfc-failed.svg', tapNfc: '/mock/tap-nfc.svg', success: '/mock/success.svg' },
       ...mocks,
     }),
   );
@@ -39,26 +38,28 @@ describe('GateController', () => {
   it('starts in idle state', () => {
     const { result } = createController();
 
-    expect(result.current.nfcStatus).toBe('idle');
+    expect(result.current.chipTransferStatus).toBe('idle');
     expect(result.current.isProcessing).toBe(false);
-    expect(result.current.lastResult).toBeNull();
+    expect(result.current.resultType).toBeNull();
     expect(result.current.error).toBeNull();
   });
 
-  it('detects NFC capability on mount', () => {
+  it('detects NFC capability on mount', async () => {
     const mocks = createMocks();
     const { result } = createController(mocks);
 
-    expect(result.current.nfcCapability).toBe('supported');
-    expect(mocks.nfcService.isAvailable).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.chipTransferCapability).toBe('supported');
+    });
+    expect(mocks.chipTransferService.isAvailable).toHaveBeenCalled();
   });
 
-  it('sets nfcCapability to unsupported when NFC not available', () => {
+  it('sets chipTransferCapability to unsupported when NFC not available', () => {
     const mocks = createMocks();
-    mocks.nfcService.isAvailable = vi.fn().mockReturnValue(false);
+    mocks.chipTransferService.isAvailable = vi.fn().mockReturnValue(false);
     const { result } = createController(mocks);
 
-    expect(result.current.nfcCapability).toBe('unsupported');
+    expect(result.current.chipTransferCapability).toBe('unsupported');
   });
 
   it('performs check-in successfully', async () => {
@@ -69,8 +70,9 @@ describe('GateController', () => {
       await result.current.onCheckIn();
     });
 
-    expect(result.current.nfcStatus).toBe('success');
-    expect(result.current.lastResult?.checkInTime).toBe('2024-01-01T10:00:00.000Z');
+    expect(result.current.chipTransferStatus).toBe('success');
+    expect(result.current.resultType).toBe('checkin_success');
+    expect(result.current.resultProps).not.toBeNull();
     expect(result.current.isProcessing).toBe(false);
   });
 
@@ -85,7 +87,7 @@ describe('GateController', () => {
       await result.current.onCheckIn();
     });
 
-    expect(result.current.nfcStatus).toBe('error');
+    expect(result.current.chipTransferStatus).toBe('error');
     expect(result.current.error).toContain('mbc_error_already_checked_in');
     expect(result.current.isProcessing).toBe(false);
   });

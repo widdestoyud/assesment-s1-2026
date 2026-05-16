@@ -13,10 +13,10 @@ export interface CheckInUseCaseInterface {
 export const CheckInUseCase = (
   deps: Pick<
     AwilixRegistry,
-    'nfcService' | 'cardDataService' | 'silentShieldService'
+    'chipTransferService' | 'cardDataService' | 'silentShieldService'
   >,
 ): CheckInUseCaseInterface => {
-  const { nfcService, cardDataService, silentShieldService } = deps;
+  const { chipTransferService, cardDataService, silentShieldService } = deps;
 
   const execute = async (options?: CheckInOptions): Promise<CheckInResult> => {
     let checkInTime = '';
@@ -31,7 +31,7 @@ export const CheckInUseCase = (
     }
 
     // Single-tap: read card, validate, apply check-in, write back
-    await nfcService.readThenWrite(async (rawEncrypted: Uint8Array) => {
+    await chipTransferService.readThenWrite(async (rawEncrypted: Uint8Array) => {
       // Decrypt → deserialize
       const decrypted = await silentShieldService.decrypt(rawEncrypted);
       const card = cardDataService.deserialize(decrypted);

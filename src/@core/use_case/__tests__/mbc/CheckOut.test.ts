@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { CardData } from '@core/models/mbc';
-import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
+import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 import type { PricingServiceInterface } from '@core/services/mbc/pricing.service';
@@ -25,8 +25,9 @@ const NOT_CHECKED_IN_CARD: CardData = {
 };
 
 function createMocks(cardData: CardData = CHECKED_IN_CARD) {
-  const nfcService: NfcServiceInterface = {
+  const chipTransferService: ChipTransferServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     readThenWrite: vi.fn().mockImplementation(async (processor: (data: Uint8Array) => Promise<Uint8Array>) => {
       await processor(new Uint8Array([1]));
@@ -64,7 +65,7 @@ function createMocks(cardData: CardData = CHECKED_IN_CARD) {
     }),
   };
 
-  return { nfcService, cardDataService, silentShieldService, pricingService };
+  return { chipTransferService, cardDataService, silentShieldService, pricingService };
 }
 
 describe('CheckOutUseCase', () => {
@@ -78,7 +79,7 @@ describe('CheckOutUseCase', () => {
     expect(result.remainingBalance).toBe(44000);
     expect(result.feeBreakdown.usageUnits).toBe(3);
     expect(result.duration).toBeDefined();
-    expect(mocks.nfcService.readThenWrite).toHaveBeenCalledOnce();
+    expect(mocks.chipTransferService.readThenWrite).toHaveBeenCalledOnce();
   });
 
   it('rejects when not checked in', async () => {
@@ -99,7 +100,7 @@ describe('CheckOutUseCase', () => {
 
   it('throws when NFC readThenWrite fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.chipTransferService.readThenWrite as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC write failed'),
     );
     const useCase = CheckOutUseCase(mocks);

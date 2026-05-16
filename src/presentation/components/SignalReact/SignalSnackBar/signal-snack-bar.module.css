@@ -16,11 +16,11 @@
 
 /* ===== Variant ===== */
 .signal-snack-bar--dark {
-  @apply bg-gray-900;
+  background-color: var(--signal-color-secondary-7);
 }
 
 .signal-snack-bar--warning {
-  @apply bg-amber-500;
+  background-color: var(--signal-color-warning-5);
 }
 
 /* ===== Message ===== */

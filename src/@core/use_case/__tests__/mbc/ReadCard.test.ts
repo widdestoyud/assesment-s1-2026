@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { CardData } from '@core/models/mbc';
-import type { NfcServiceInterface } from '@core/services/mbc/nfc.service';
+import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 
@@ -19,8 +19,9 @@ const VALID_CARD: CardData = {
 };
 
 function createMocks(cardData: CardData = VALID_CARD) {
-  const nfcService: NfcServiceInterface = {
+  const chipTransferService: ChipTransferServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
+    queryPermission: vi.fn().mockResolvedValue('supported'),
     readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     readThenWrite: vi.fn(),
   };
@@ -39,7 +40,7 @@ function createMocks(cardData: CardData = VALID_CARD) {
     decrypt: vi.fn().mockResolvedValue(new Uint8Array([1])),
   };
 
-  return { nfcService, cardDataService, silentShieldService };
+  return { chipTransferService, cardDataService, silentShieldService };
 }
 
 describe('ReadCardUseCase', () => {
@@ -61,14 +62,14 @@ describe('ReadCardUseCase', () => {
 
     await useCase.execute();
 
-    expect(mocks.nfcService.readCard).toHaveBeenCalledOnce();
+    expect(mocks.chipTransferService.readCard).toHaveBeenCalledOnce();
     expect(mocks.silentShieldService.decrypt).toHaveBeenCalledOnce();
     expect(mocks.cardDataService.deserialize).toHaveBeenCalledOnce();
   });
 
   it('throws when NFC read fails', async () => {
     const mocks = createMocks();
-    (mocks.nfcService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC read failed'),
     );
     const useCase = ReadCardUseCase(mocks);

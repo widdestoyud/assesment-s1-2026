@@ -1,13 +1,22 @@
 import type { FC } from 'react';
-import type { TFunction } from 'i18next';
-import type { RoleOption } from '@controllers/mbc/role-picker.controller';
+import type { TranslateFn } from '../types';
 import styles from './role-card.module.css';
 
+export interface RoleCardRole {
+  id: string;
+  labelKey: string;
+  subtitleKey: string;
+  descriptionKey: string;
+  actionKey?: string;
+  color: 'gate' | 'terminal' | 'station' | 'scout';
+  variant: 'primary' | 'secondary';
+}
+
 export interface RoleCardProps {
-  role: RoleOption;
+  role: RoleCardRole;
   isActive: boolean;
   onSelect: () => void;
-  t: TFunction;
+  t: TranslateFn;
 }
 
 const RoleCard: FC<RoleCardProps> = ({ role, onSelect, t }) => {

@@ -1,32 +1,33 @@
 import type { FC } from 'react';
-import type { TFunction } from 'i18next';
-import { formatIDR } from '@utils/helpers/mbc.helper';
+import type { TranslateFn } from '../types';
 import styles from './balance-display.module.css';
 
 export interface BalanceDisplayProps {
-  balance: number;
-  previousBalance?: number;
-  changeAmount?: number;
-  t: TFunction;
+  formattedBalance: string;
+  formattedPreviousBalance?: string;
+  formattedChangeAmount?: string;
+  isPositiveChange?: boolean;
+  t: TranslateFn;
 }
 
 const BalanceDisplay: FC<BalanceDisplayProps> = ({
-  balance,
-  previousBalance,
-  changeAmount,
+  formattedBalance,
+  formattedPreviousBalance,
+  formattedChangeAmount,
+  isPositiveChange,
   t,
 }) => {
   return (
     <div data-testid="balance-display" className={styles['balance-display']}>
       <p className={styles['balance-display__label']}>{t('mbc_balance_label')}</p>
-      <p className={styles['balance-display__amount']}>{formatIDR(balance)}</p>
-      {previousBalance !== undefined && changeAmount !== undefined && (
+      <p className={styles['balance-display__amount']}>{formattedBalance}</p>
+      {formattedPreviousBalance !== undefined && formattedChangeAmount !== undefined && (
         <div className={styles['balance-display__change-row']}>
-          <span>{formatIDR(previousBalance)}</span>
-          <span className={changeAmount >= 0 ? styles['balance-display__change--positive'] : styles['balance-display__change--negative']}>
+          <span>{formattedPreviousBalance}</span>
+          <span className={isPositiveChange ? styles['balance-display__change--positive'] : styles['balance-display__change--negative']}>
             {' '}
-            {changeAmount >= 0 ? '+' : ''}
-            {formatIDR(changeAmount)}
+            {isPositiveChange ? '+' : ''}
+            {formattedChangeAmount}
           </span>
         </div>
       )}

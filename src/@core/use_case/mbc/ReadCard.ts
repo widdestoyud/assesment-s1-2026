@@ -8,14 +8,14 @@ export interface ReadCardUseCaseInterface {
 export const ReadCardUseCase = (
   deps: Pick<
     AwilixRegistry,
-    'nfcService' | 'cardDataService' | 'silentShieldService'
+    'chipTransferService' | 'cardDataService' | 'silentShieldService'
   >,
 ): ReadCardUseCaseInterface => {
-  const { nfcService, cardDataService, silentShieldService } = deps;
+  const { chipTransferService, cardDataService, silentShieldService } = deps;
 
   const execute = async (): Promise<CardData> => {
     // Step 1: Read card
-    const rawEncrypted = await nfcService.readCard();
+    const rawEncrypted = await chipTransferService.readCard();
 
     // Step 2: Decrypt
     const decrypted = await silentShieldService.decrypt(rawEncrypted);
