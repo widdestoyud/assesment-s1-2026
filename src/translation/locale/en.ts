@@ -109,6 +109,7 @@ export default {
   mbc_station_topup_other_nominal: 'Other Amount',
   mbc_station_topup_other_placeholder: 'Example: 10000',
   mbc_station_topup_now_button: 'Top-up Now',
+  mbc_station_topup_error_required: 'Enter top-up amount',
   mbc_station_register_success_title: 'Registration Successful',
   mbc_station_register_success_subtitle: 'Card has been registered as a new member card.',
   mbc_station_already_registered_title: 'Card Already Registered',

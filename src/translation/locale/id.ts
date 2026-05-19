@@ -109,6 +109,7 @@ export default {
   mbc_station_topup_other_nominal: 'Nominal Lain',
   mbc_station_topup_other_placeholder: 'Contoh: 10000',
   mbc_station_topup_now_button: 'Top-up Sekarang',
+  mbc_station_topup_error_required: 'Masukkan nominal top-up',
   mbc_station_register_success_title: 'Registrasi Berhasil',
   mbc_station_register_success_subtitle: 'Kartu berhasil didaftarkan sebagai kartu anggota baru.',
   mbc_station_already_registered_title: 'Kartu Sudah Terdaftar',

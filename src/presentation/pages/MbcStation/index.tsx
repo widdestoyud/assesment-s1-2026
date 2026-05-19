@@ -34,6 +34,7 @@ const MbcStation: FC = () => {
     phase,
     formattedTopUpAmount,
     isTopUpValid,
+    topUpError,
     selectedChip,
     quickAmounts,
     onSelectChip,
@@ -143,8 +144,13 @@ const MbcStation: FC = () => {
                   value={formattedTopUpAmount}
                   onChange={(e) => onCustomAmountChange(e.target.value)}
                   placeholder={String(t('mbc_station_topup_other_placeholder'))}
-                  className={styles['mbc-station__form-input']}
+                  className={`${styles['mbc-station__form-input']} ${topUpError ? styles['mbc-station__form-input--error'] : ''}`}
                 />
+                {topUpError && (
+                  <p className={styles['mbc-station__form-error']} data-testid="topup-error-message">
+                    {topUpError}
+                  </p>
+                )}
 
                 {/* Quick Amount Chips */}
                 <SignalTypography variant="body1-bold" as="p" className={styles['mbc-station__chips-title']}>
