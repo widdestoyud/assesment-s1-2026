@@ -50,23 +50,33 @@ MBC adalah program pemerintah yang menjadikan kartu NFC sebagai identitas anggot
 Proyek mengikuti **Clean Architecture** dengan **5 layer**. Dependencies flow inward only:
 
 ```
-┌─────────────────────────────────────────────┐
-│  Layer 5: Presentation                      │
-│  Pages (thin views) + Components (UI only)  │
-├─────────────────────────────────────────────┤
-│  Layer 4: Controllers                       │
-│  State orchestration, validation, expose t  │
-├─────────────────────────────────────────────┤
-│  Layer 3: Use Cases                         │
-│  Business orchestration across services     │
-├─────────────────────────────────────────────┤
-│  Layer 2: Services                          │
-│  Pure logic + adapters (NFC, storage, etc.) │
-├─────────────────────────────────────────────┤
-│  Layer 1: Core                              │
-│  Protocols (interfaces) + Domain models     │
-└─────────────────────────────────────────────┘
-         ↕ Infrastructure (DI, config, adapters)
+                              ┌──────────────────────────────┐
+                              │  Infrastructure              │
+                              │  DI, config, adapters        │
+                              └──┬────┬────┬────┬────┬──────┘
+                                 │    │    │    │    │
+                    implements   │    │    │    │    │  wires
+                    protocols    │    │    │    │    │  dependencies
+                                 ▼    ▼    ▼    ▼    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Layer 5: Presentation                                      │
+│  Pages (thin views) + Components (UI only)                  │
+├─────────────────────────────────────────────────────────────┤
+│  Layer 4: Controllers                                       │
+│  State orchestration, validation, expose t                  │
+├─────────────────────────────────────────────────────────────┤
+│  Layer 3: Use Cases                                         │
+│  Business orchestration across services                     │
+├─────────────────────────────────────────────────────────────┤
+│  Layer 2: Services                                          │
+│  Pure logic + adapters (NFC, encryption, etc.)              │
+├─────────────────────────────────────────────────────────────┤
+│  Layer 1: Core                                              │
+│  Protocols (interfaces) + Domain models                     │
+└─────────────────────────────────────────────────────────────┘
+
+Dependency flow: Layer 5 → 4 → 3 → 2 → 1 (inward only)
+Infrastructure: implements Layer 1 protocols, wires all layers via DI
 ```
 
 ### Folder Structure
