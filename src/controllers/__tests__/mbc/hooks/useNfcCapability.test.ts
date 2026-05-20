@@ -71,7 +71,7 @@ describe('useChipTransferCapability', () => {
   });
 
   it('calls onChange callback when passed to queryPermission', async () => {
-    const onChangeFn = vi.fn();
+    const _onChangeFn = vi.fn();
     const service = createMockService({
       queryPermission: vi.fn().mockImplementation((onChange) => {
         if (onChange) onChange('supported');

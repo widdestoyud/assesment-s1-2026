@@ -61,7 +61,6 @@ describe('SilentShieldService', () => {
       const freshService = SilentShieldService(mockContainer);
 
       // First call to encrypt will derive key successfully, then we break encrypt
-      const originalEncrypt = crypto.subtle.encrypt.bind(crypto.subtle);
       const encryptSpy = vi.spyOn(crypto.subtle, 'encrypt').mockRejectedValue(new Error('Crypto failure'));
 
       await expect(freshService.encrypt(data)).rejects.toThrow('mbc_error_encryption_failed');
