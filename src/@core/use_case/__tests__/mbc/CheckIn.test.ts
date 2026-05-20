@@ -98,4 +98,41 @@ describe('CheckInUseCase', () => {
     expect(mocks.cardDataService.serialize).toHaveBeenCalledOnce();
     expect(mocks.silentShieldService.encrypt).toHaveBeenCalledOnce();
   });
+
+  it('rejects simulation timestamp in the future', async () => {
+    const mocks = createMocks();
+    const useCase = CheckInUseCase(mocks);
+
+    const futureTime = new Date(Date.now() + 3600000).toISOString(); // 1 hour in future
+
+    await expect(
+      useCase.execute({ simulationTimestamp: futureTime }),
+    ).rejects.toThrow('mbc_error_simulation_future_time');
+  });
+
+  it('passes isSimulation=true to applyCheckIn when simulationTimestamp provided', async () => {
+    const mocks = createMocks();
+    const useCase = CheckInUseCase(mocks);
+
+    const pastTime = new Date(Date.now() - 3600000).toISOString(); // 1 hour ago
+
+    const result = await useCase.execute({ simulationTimestamp: pastTime });
+
+    expect(result.isSimulation).toBe(true);
+    expect(result.checkInTime).toBe(pastTime);
+    expect(mocks.cardDataService.applyCheckIn).toHaveBeenCalledWith(
+      expect.anything(),
+      pastTime,
+      true,
+    );
+  });
+
+  it('returns isSimulation=false when no simulationTimestamp', async () => {
+    const mocks = createMocks();
+    const useCase = CheckInUseCase(mocks);
+
+    const result = await useCase.execute();
+
+    expect(result.isSimulation).toBe(false);
+  });
 });

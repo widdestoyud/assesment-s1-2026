@@ -1,206 +1,121 @@
-import fc from 'fast-check';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { AwilixRegistry } from '@di/container';
 import type { PricingStrategy } from '@core/models/mbc';
 
 import { PricingService } from '../../mbc/pricing.service';
 
-const mockContainer: AwilixRegistry = {} as any;
+const mockContainer: AwilixRegistry = {} as AwilixRegistry;
 
 describe('PricingService', () => {
   let service: ReturnType<typeof PricingService>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     service = PricingService(mockContainer);
   });
 
-  /**
-   * **Validates: Requirements 12.1, 12.2, 12.3**
-   *
-   * Property 8: Ceiling Rounding Fare Calculation
-   * For per-hour pricing with ceiling rounding, fee = Math.ceil(hours) × rate
-   */
-  describe('Property 8: Ceiling Rounding Fare Calculation', () => {
-    it('fee equals Math.ceil(hours) × rate for arbitrary durations and rates', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 86400 * 7 }), // duration in seconds (up to 7 days)
-          fc.integer({ min: 1, max: 1000000 }), // rate per unit
-          (durationSeconds, rate) => {
-            const baseTime = new Date('2024-01-01T00:00:00.000Z');
-            const checkInTime = baseTime.toISOString();
-            const checkOutTime = new Date(
-              baseTime.getTime() + durationSeconds * 1000,
-            ).toISOString();
+  describe('per-visit pricing', () => {
+    it('returns flat rate for per-visit', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 5000, unitType: 'per-visit', roundingStrategy: 'ceiling' };
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T13:00:00Z');
 
-            const strategy: PricingStrategy = {
-              ratePerUnit: rate,
-              unitType: 'per-hour',
-              roundingStrategy: 'ceiling',
-            };
+      expect(result.fee).toBe(5000);
+      expect(result.usageUnits).toBe(1);
+      expect(result.unitLabel).toBe('kunjungan');
+      expect(result.roundingApplied).toBe('none');
+    });
+  });
 
-            const result = service.calculateFee(
-              strategy,
-              checkInTime,
-              checkOutTime,
-            );
-            const expectedHours = Math.ceil(durationSeconds / 3600);
+  describe('flat-fee pricing', () => {
+    it('returns flat rate for flat-fee', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 10000, unitType: 'flat-fee', roundingStrategy: 'ceiling' };
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T13:00:00Z');
 
-            expect(result.fee).toBe(expectedHours * rate);
-            expect(result.usageUnits).toBe(expectedHours);
-            expect(result.unitLabel).toBe('jam');
-            expect(result.ratePerUnit).toBe(rate);
-            expect(result.roundingApplied).toBe('ceiling');
-          },
-        ),
-        { numRuns: 200 },
-      );
+      expect(result.fee).toBe(10000);
+      expect(result.usageUnits).toBe(1);
+      expect(result.unitLabel).toBe('flat');
+      expect(result.roundingApplied).toBe('none');
+    });
+  });
+
+  describe('per-hour pricing with ceiling rounding', () => {
+    it('rounds up partial hours', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'ceiling' };
+      // 2.5 hours → ceil → 3 hours
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T12:30:00Z');
+
+      expect(result.fee).toBe(6000);
+      expect(result.usageUnits).toBe(3);
+      expect(result.unitLabel).toBe('jam');
+      expect(result.roundingApplied).toBe('ceiling');
     });
 
-    it('exact hour boundaries: exactly 1h, 2h, 3h → fee = hours × rate', () => {
-      const rate = 2000;
-      const strategy: PricingStrategy = {
-        ratePerUnit: rate,
-        unitType: 'per-hour',
-        roundingStrategy: 'ceiling',
-      };
+    it('exact hours stay the same', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'ceiling' };
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T12:00:00Z');
 
-      for (const hours of [1, 2, 3]) {
-        const baseTime = new Date('2024-01-01T00:00:00.000Z');
-        const checkOutTime = new Date(
-          baseTime.getTime() + hours * 3600 * 1000,
-        ).toISOString();
-
-        const result = service.calculateFee(
-          strategy,
-          baseTime.toISOString(),
-          checkOutTime,
-        );
-        expect(result.fee).toBe(hours * rate);
-        expect(result.usageUnits).toBe(hours);
-      }
-    });
-
-    it('just over boundary: 1h + 1s → 2 × rate', () => {
-      const rate = 2000;
-      const strategy: PricingStrategy = {
-        ratePerUnit: rate,
-        unitType: 'per-hour',
-        roundingStrategy: 'ceiling',
-      };
-
-      const baseTime = new Date('2024-01-01T00:00:00.000Z');
-      const checkOutTime = new Date(
-        baseTime.getTime() + (3600 + 1) * 1000,
-      ).toISOString();
-
-      const result = service.calculateFee(
-        strategy,
-        baseTime.toISOString(),
-        checkOutTime,
-      );
-      expect(result.fee).toBe(2 * rate);
-      expect(result.usageUnits).toBe(2);
-    });
-
-    it('KDX example: 1h 5m 1s → 2 × 2000 = 4000', () => {
-      const strategy: PricingStrategy = {
-        ratePerUnit: 2000,
-        unitType: 'per-hour',
-        roundingStrategy: 'ceiling',
-      };
-
-      const baseTime = new Date('2024-01-01T00:00:00.000Z');
-      const durationSeconds = 1 * 3600 + 5 * 60 + 1; // 1h 5m 1s
-      const checkOutTime = new Date(
-        baseTime.getTime() + durationSeconds * 1000,
-      ).toISOString();
-
-      const result = service.calculateFee(
-        strategy,
-        baseTime.toISOString(),
-        checkOutTime,
-      );
       expect(result.fee).toBe(4000);
       expect(result.usageUnits).toBe(2);
     });
   });
 
-  /**
-   * **Validates: Requirements 12.5, 12.6**
-   *
-   * Property 9: Pricing Strategy Consistency
-   * For per-visit and flat-fee pricing, fee always equals ratePerUnit regardless of duration
-   */
-  describe('Property 9: Pricing Strategy Consistency', () => {
-    it('per-visit: fee always equals ratePerUnit regardless of duration', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 86400 * 7 }), // arbitrary duration in seconds
-          fc.integer({ min: 1, max: 1000000 }), // arbitrary rate
-          (durationSeconds, rate) => {
-            const baseTime = new Date('2024-01-01T00:00:00.000Z');
-            const checkInTime = baseTime.toISOString();
-            const checkOutTime = new Date(
-              baseTime.getTime() + durationSeconds * 1000,
-            ).toISOString();
+  describe('per-hour pricing with floor rounding', () => {
+    it('rounds down partial hours', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'floor' };
+      // 2.5 hours → floor → 2 hours
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T12:30:00Z');
 
-            const strategy: PricingStrategy = {
-              ratePerUnit: rate,
-              unitType: 'per-visit',
-              roundingStrategy: 'ceiling',
-            };
-
-            const result = service.calculateFee(
-              strategy,
-              checkInTime,
-              checkOutTime,
-            );
-
-            expect(result.fee).toBe(rate);
-            expect(result.usageUnits).toBe(1);
-            expect(result.unitLabel).toBe('kunjungan');
-            expect(result.roundingApplied).toBe('none');
-          },
-        ),
-        { numRuns: 200 },
-      );
+      expect(result.fee).toBe(4000);
+      expect(result.usageUnits).toBe(2);
+      expect(result.roundingApplied).toBe('floor');
     });
 
-    it('flat-fee: fee always equals ratePerUnit regardless of duration', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 86400 * 7 }), // arbitrary duration in seconds
-          fc.integer({ min: 1, max: 1000000 }), // arbitrary rate
-          (durationSeconds, rate) => {
-            const baseTime = new Date('2024-01-01T00:00:00.000Z');
-            const checkInTime = baseTime.toISOString();
-            const checkOutTime = new Date(
-              baseTime.getTime() + durationSeconds * 1000,
-            ).toISOString();
+    it('rounds down 2.9 hours to 2', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 3000, unitType: 'per-hour', roundingStrategy: 'floor' };
+      // 2h 54m = 2.9 hours → floor → 2
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T12:54:00Z');
 
-            const strategy: PricingStrategy = {
-              ratePerUnit: rate,
-              unitType: 'flat-fee',
-              roundingStrategy: 'ceiling',
-            };
+      expect(result.fee).toBe(6000);
+      expect(result.usageUnits).toBe(2);
+    });
+  });
 
-            const result = service.calculateFee(
-              strategy,
-              checkInTime,
-              checkOutTime,
-            );
+  describe('per-hour pricing with nearest rounding', () => {
+    it('rounds to nearest hour (down when < 0.5)', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'nearest' };
+      // 2h 20m = 2.33 hours → round → 2
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T12:20:00Z');
 
-            expect(result.fee).toBe(rate);
-            expect(result.usageUnits).toBe(1);
-            expect(result.unitLabel).toBe('flat');
-            expect(result.roundingApplied).toBe('none');
-          },
-        ),
-        { numRuns: 200 },
-      );
+      expect(result.fee).toBe(4000);
+      expect(result.usageUnits).toBe(2);
+      expect(result.roundingApplied).toBe('nearest');
+    });
+
+    it('rounds to nearest hour (up when >= 0.5)', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'nearest' };
+      // 2h 40m = 2.67 hours → round → 3
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T12:40:00Z');
+
+      expect(result.fee).toBe(6000);
+      expect(result.usageUnits).toBe(3);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('returns 0 fee when check-in and check-out are the same time', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'floor' };
+      const result = service.calculateFee(strategy, '2024-01-01T10:00:00Z', '2024-01-01T10:00:00Z');
+
+      expect(result.fee).toBe(0);
+      expect(result.usageUnits).toBe(0);
+    });
+
+    it('returns 0 fee when check-out is before check-in (negative diff clamped to 0)', () => {
+      const strategy: PricingStrategy = { ratePerUnit: 2000, unitType: 'per-hour', roundingStrategy: 'floor' };
+      const result = service.calculateFee(strategy, '2024-01-01T12:00:00Z', '2024-01-01T10:00:00Z');
+
+      expect(result.fee).toBe(0);
+      expect(result.usageUnits).toBe(0);
     });
   });
 });

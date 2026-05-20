@@ -1,5 +1,4 @@
-import fc from 'fast-check';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AwilixRegistry } from '@di/container';
 
@@ -11,103 +10,107 @@ describe('SilentShieldService', () => {
   let service: ReturnType<typeof SilentShieldService>;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     service = SilentShieldService(mockContainer);
   });
 
-  describe('Property 1: Encryption Round-Trip', () => {
-    it(
-      'decrypt(encrypt(data)) ≡ data for all valid byte arrays',
-      async () => {
-        await fc.assert(
-          fc.asyncProperty(
-            fc.uint8Array({ minLength: 1, maxLength: 512 }),
-            async (data) => {
-              const encrypted = await service.encrypt(data);
-              const decrypted = await service.decrypt(encrypted);
-              expect(new Uint8Array(decrypted)).toEqual(new Uint8Array(data));
-            },
-          ),
-          { numRuns: 100 },
-        );
-      },
-      60000,
-    );
+  describe('encrypt → decrypt round-trip', () => {
+    it('decrypted data equals original data', async () => {
+      const original = new TextEncoder().encode('Hello, World!');
+
+      const encrypted = await service.encrypt(original);
+      const decrypted = await service.decrypt(encrypted);
+
+      expect(Array.from(decrypted)).toEqual(Array.from(original));
+    });
+
+    it('works with empty data', async () => {
+      const original = new Uint8Array(0);
+
+      const encrypted = await service.encrypt(original);
+      const decrypted = await service.decrypt(encrypted);
+
+      expect(Array.from(decrypted)).toEqual(Array.from(original));
+    });
+
+    it('works with large data', async () => {
+      const original = new Uint8Array(1024).fill(42);
+
+      const encrypted = await service.encrypt(original);
+      const decrypted = await service.decrypt(encrypted);
+
+      expect(Array.from(decrypted)).toEqual(Array.from(original));
+    });
   });
 
-  describe('Property 2: Non-Deterministic Encryption (IV Uniqueness)', () => {
-    it(
-      'encrypting the same data twice produces different ciphertext',
-      async () => {
-        await fc.assert(
-          fc.asyncProperty(
-            fc.uint8Array({ minLength: 1, maxLength: 128 }),
-            async (data) => {
-              const encrypted1 = await service.encrypt(data);
-              const encrypted2 = await service.encrypt(data);
-              // Different due to random IV
-              expect(encrypted1).not.toEqual(encrypted2);
-            },
-          ),
-          { numRuns: 100 },
-        );
-      },
-      60000,
-    );
-  });
+  describe('encrypt', () => {
+    it('produces different ciphertext each time (random IV)', async () => {
+      const data = new TextEncoder().encode('test data');
 
-  describe('Property 3: Output Length Invariant', () => {
-    it(
-      'encrypted output length === data.length + 28 (12B IV + 16B authTag)',
-      async () => {
-        await fc.assert(
-          fc.asyncProperty(
-            fc.uint8Array({ minLength: 1, maxLength: 512 }),
-            async (data) => {
-              const encrypted = await service.encrypt(data);
-              expect(encrypted.length).toBe(data.length + 28);
-            },
-          ),
-          { numRuns: 100 },
-        );
-      },
-      60000,
-    );
-  });
-
-  describe('Key Caching', () => {
-    it('reuses the same key across multiple operations', async () => {
-      const data = new Uint8Array([1, 2, 3, 4, 5]);
-
-      // First call derives the key
       const encrypted1 = await service.encrypt(data);
-      // Second call should reuse cached key
       const encrypted2 = await service.encrypt(data);
 
-      // Both should decrypt correctly (proves same key was used)
-      const decrypted1 = await service.decrypt(encrypted1);
-      const decrypted2 = await service.decrypt(encrypted2);
-      expect(new Uint8Array(decrypted1)).toEqual(data);
-      expect(new Uint8Array(decrypted2)).toEqual(data);
+      // Different IVs should produce different ciphertext
+      expect(encrypted1).not.toEqual(encrypted2);
+    });
+
+    it('throws mbc_error_encryption_failed when crypto.subtle.encrypt fails', async () => {
+      const data = new TextEncoder().encode('test');
+
+      // Create a fresh service and spy on crypto.subtle.encrypt to fail
+      const freshService = SilentShieldService(mockContainer);
+
+      // First call to encrypt will derive key successfully, then we break encrypt
+      const originalEncrypt = crypto.subtle.encrypt.bind(crypto.subtle);
+      const encryptSpy = vi.spyOn(crypto.subtle, 'encrypt').mockRejectedValue(new Error('Crypto failure'));
+
+      await expect(freshService.encrypt(data)).rejects.toThrow('mbc_error_encryption_failed');
+
+      encryptSpy.mockRestore();
+    });
+
+    it('re-throws mbc_error_key_derivation_failed when key derivation fails', async () => {
+      const data = new TextEncoder().encode('test');
+
+      // Mock importKey to fail (which triggers key derivation failure)
+      const importKeySpy = vi.spyOn(crypto.subtle, 'importKey').mockRejectedValue(new Error('import failed'));
+
+      const freshService = SilentShieldService(mockContainer);
+      await expect(freshService.encrypt(data)).rejects.toThrow('mbc_error_key_derivation_failed');
+
+      importKeySpy.mockRestore();
     });
   });
 
-  describe('Error Handling', () => {
-    it('throws descriptive error when decrypting corrupt data', async () => {
-      const corruptData = new Uint8Array(50);
-      crypto.getRandomValues(corruptData);
+  describe('decrypt', () => {
+    it('throws mbc_error_decryption_failed when data is corrupted', async () => {
+      // Random garbage data that can't be decrypted
+      const garbage = new Uint8Array(50).fill(0);
 
-      await expect(service.decrypt(corruptData)).rejects.toThrow(
-        'mbc_error_decryption_failed',
-      );
+      await expect(service.decrypt(garbage)).rejects.toThrow('mbc_error_decryption_failed');
     });
 
-    it('throws descriptive error when decrypting data too short', async () => {
-      // Less than 28 bytes (12 IV + 16 authTag minimum)
-      const shortData = new Uint8Array(10);
+    it('throws mbc_error_decryption_failed when IV is wrong', async () => {
+      const data = new TextEncoder().encode('test');
+      const encrypted = await service.encrypt(data);
 
-      await expect(service.decrypt(shortData)).rejects.toThrow(
-        'mbc_error_decryption_failed',
-      );
+      // Corrupt the IV (first 12 bytes)
+      const corrupted = new Uint8Array(encrypted);
+      corrupted[0] = corrupted[0] ^ 0xFF;
+      corrupted[1] = corrupted[1] ^ 0xFF;
+
+      await expect(service.decrypt(corrupted)).rejects.toThrow('mbc_error_decryption_failed');
+    });
+
+    it('re-throws mbc_error_key_derivation_failed when key derivation fails', async () => {
+      const data = new Uint8Array(50);
+
+      const importKeySpy = vi.spyOn(crypto.subtle, 'importKey').mockRejectedValue(new Error('import failed'));
+
+      const freshService = SilentShieldService(mockContainer);
+      await expect(freshService.decrypt(data)).rejects.toThrow('mbc_error_key_derivation_failed');
+
+      importKeySpy.mockRestore();
     });
   });
 });

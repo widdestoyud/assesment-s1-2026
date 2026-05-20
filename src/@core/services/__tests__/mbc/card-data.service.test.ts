@@ -290,6 +290,25 @@ describe('CardDataService', () => {
     });
   });
 
+  describe('applySimulationCheckOut', () => {
+    it('clears check-in status without deducting balance when card is checked in', () => {
+      const card: CardData = { v: 2, b: 10000, s: 1, t: '2024-01-01T10:00:00.000Z', h: [{ ts: 1704103200, a: 0, tp: 'ci' }] };
+      const result = service.applySimulationCheckOut(card);
+
+      expect(result.s).toBe(0);
+      expect(result.t).toBeNull();
+      expect(result.b).toBe(10000); // Balance unchanged
+      expect(result.m).toBeUndefined();
+      // History should remain unchanged (no new entry added)
+      expect(result.h).toEqual(card.h);
+    });
+
+    it('throws when card is NOT checked in (s=0)', () => {
+      const card: CardData = { v: 2, b: 10000, s: 0, t: null, h: [] };
+      expect(() => service.applySimulationCheckOut(card)).toThrow('mbc_error_not_checked_in');
+    });
+  });
+
   describe('deserialize error handling', () => {
     it('throws on invalid JSON', () => {
       const invalidBytes = new TextEncoder().encode('not json');

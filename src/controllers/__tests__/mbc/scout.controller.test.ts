@@ -121,4 +121,129 @@ describe('ScoutController', () => {
     expect(result.current.t).toBeDefined();
     expect(typeof result.current.t).toBe('function');
   });
+
+  it('handles ChipTransferServiceError during read', async () => {
+    const { ChipTransferServiceError } = await import('@core/services/mbc/nfc.service');
+    const mocks = createMocks();
+    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new ChipTransferServiceError({
+        type: 'hardware_unavailable',
+        message: 'NFC unavailable',
+        messageKey: 'mbc_nfc_error_hardware_unavailable',
+      }),
+    );
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onReadCard();
+    });
+
+    expect(result.current.resultType).toBe('nfc_error');
+    expect(result.current.error).toBe('mbc_nfc_error_hardware_unavailable');
+    expect(result.current.resultProps?.variant).toBe('error');
+  });
+
+  it('onCloseResult resets all state', async () => {
+    const mocks = createMocks();
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onReadCard();
+    });
+
+    expect(result.current.resultType).toBe('read_success');
+
+    act(() => {
+      result.current.onCloseResult();
+    });
+
+    expect(result.current.resultType).toBeNull();
+    expect(result.current.chipTransferStatus).toBe('idle');
+    expect(result.current.formattedBalance).toBe('');
+  });
+
+  it('onBack calls window.history.back', () => {
+    const historyBackSpy = vi.spyOn(window.history, 'back').mockImplementation(() => undefined);
+    const { result } = createController();
+
+    result.current.onBack();
+
+    expect(historyBackSpy).toHaveBeenCalled();
+    historyBackSpy.mockRestore();
+  });
+
+  it('onNfcNoticeClose navigates to home', () => {
+    const mockNav = vi.fn();
+    const { result } = renderHook(() =>
+      ScoutController({
+        useTranslation,
+        useNavigate: () => mockNav,
+        helpers: { formatIDR, formatDuration },
+        images: {
+          success: '/mock/success.svg',
+          nfcLoadDataFailed: '/mock/nfc-load-data-failed.svg',
+          tapNfc: '/mock/tap-nfc.svg',
+          nfcFailed: '/mock/nfc-failed.svg',
+        },
+        ...createMocks(),
+      }),
+    );
+
+    result.current.onNfcNoticeClose();
+
+    expect(mockNav).toHaveBeenCalledWith({ to: '/' });
+  });
+
+  it('formats transaction history correctly', async () => {
+    const cardWithHistory: CardData = {
+      v: 2,
+      b: 25000,
+      s: 1,
+      t: '2024-01-01T10:00:00.000Z',
+      h: [
+        { ts: 1704103200, a: 0, tp: 'ci' },
+        { ts: 1704100000, a: 50000, tp: 'tu' },
+        { ts: 1704090000, a: -6000, tp: 'co' },
+      ],
+    };
+    const mocks = createMocks();
+    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockResolvedValue(new Uint8Array([1]));
+    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockResolvedValue(new Uint8Array([1]));
+    (mocks.cardDataService.deserialize as ReturnType<typeof vi.fn>).mockReturnValue(cardWithHistory);
+
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onReadCard();
+    });
+
+    expect(result.current.formattedTransactions.length).toBe(3);
+    expect(result.current.formattedTransactions[0].isCheckin).toBe(true);
+    expect(result.current.formattedTransactions[0].amount).toBe('—');
+    expect(result.current.formattedTransactions[1].isPositive).toBe(true);
+    expect(result.current.checkinStatusLabel).toBeDefined();
+    expect(result.current.formattedEntryTime).not.toBeNull();
+  });
+
+  it('does not start new read when already processing', async () => {
+    const mocks = createMocks();
+    // Make readCard hang
+    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockImplementation(
+      () => new Promise(() => {}),
+    );
+    const { result } = createController(mocks);
+
+    // Start first read (will hang)
+    act(() => {
+      result.current.onReadCard();
+    });
+
+    // Try second read — should be ignored
+    act(() => {
+      result.current.onReadCard();
+    });
+
+    // readCard should only be called once
+    expect(mocks.chipTransferService.readCard).toHaveBeenCalledTimes(1);
+  });
 });

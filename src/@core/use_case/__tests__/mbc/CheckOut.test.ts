@@ -120,4 +120,35 @@ describe('CheckOutUseCase', () => {
       expect.any(String),
     );
   });
+
+  it('handles simulation mode checkout (m=1) without deducting balance', async () => {
+    const simulationCard: CardData = {
+      v: 2,
+      b: 50000,
+      s: 1,
+      t: '2024-01-01T10:00:00.000Z',
+      m: 1,
+      h: [{ ts: 1704103200, a: 0, tp: 'ci' }],
+    };
+    const mocks = createMocks(simulationCard);
+    (mocks.cardDataService.deserialize as ReturnType<typeof vi.fn>).mockReturnValue(simulationCard);
+
+    // Add applySimulationCheckOut mock
+    const applySimulationCheckOut = vi.fn().mockReturnValue({
+      ...simulationCard,
+      s: 0,
+      t: null,
+      m: undefined,
+    });
+    (mocks.cardDataService as Record<string, unknown>).applySimulationCheckOut = applySimulationCheckOut;
+
+    const useCase = CheckOutUseCase(mocks);
+    const result = await useCase.execute();
+
+    expect(result.isSimulation).toBe(true);
+    expect(result.remainingBalance).toBe(50000); // Balance unchanged
+    expect(applySimulationCheckOut).toHaveBeenCalledWith(simulationCard);
+    // Normal applyCheckOut should NOT be called
+    expect(mocks.cardDataService.applyCheckOut).not.toHaveBeenCalled();
+  });
 });

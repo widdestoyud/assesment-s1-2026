@@ -220,4 +220,103 @@ describe('TerminalController', () => {
     expect(result.current.error).toBeNull();
     expect(result.current.chipTransferStatus).toBe('idle');
   });
+
+  it('handles InsufficientBalanceError with display data', async () => {
+    const { InsufficientBalanceError } = await import('@core/use_case/mbc/CheckOut');
+    const mocks = createMocks();
+    (mocks.checkOutUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new InsufficientBalanceError(
+        '2024-01-01T10:00:00Z',
+        '2024-01-01T13:00:00Z',
+        '3 jam',
+        { fee: 6000, usageUnits: 3, unitLabel: 'jam', ratePerUnit: 2000, roundingApplied: 'ceiling' },
+        1000,
+      ),
+    );
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onCheckOut();
+    });
+
+    expect(result.current.resultType).toBe('insufficient_balance');
+    expect(result.current.insufficientBalanceDisplay).not.toBeNull();
+    expect(result.current.insufficientBalanceDisplay?.duration).toBe('3 jam');
+    expect(result.current.insufficientBalanceDisplay?.totalFormatted).toBe('Rp 6.000');
+    expect(result.current.insufficientBalanceDisplay?.balanceFormatted).toBe('Rp 1.000');
+    expect(result.current.resultProps?.variant).toBe('error');
+  });
+
+  it('handles ChipTransferServiceError during checkout', async () => {
+    const { ChipTransferServiceError } = await import('@core/services/mbc/nfc.service');
+    const mocks = createMocks();
+    (mocks.checkOutUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new ChipTransferServiceError({
+        type: 'connection_lost',
+        message: 'Connection lost',
+        messageKey: 'mbc_nfc_error_connection_lost',
+      }),
+    );
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onCheckOut();
+    });
+
+    expect(result.current.resultType).toBe('nfc_error');
+    expect(result.current.error).toBe('mbc_nfc_error_connection_lost');
+    expect(result.current.resultProps?.variant).toBe('error');
+  });
+
+  it('handles generic unknown error during checkout', async () => {
+    const mocks = createMocks();
+    (mocks.checkOutUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue('string error');
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onCheckOut();
+    });
+
+    expect(result.current.resultType).toBe('nfc_error');
+    expect(result.current.error).toBe('string error');
+  });
+
+  it('shows simulation notice in checkout success display', async () => {
+    const mocks = createMocks();
+    (mocks.checkOutUseCase.execute as ReturnType<typeof vi.fn>).mockResolvedValue({
+      fee: 6000,
+      duration: '3 jam',
+      checkInTime: '2024-01-01T10:00:00Z',
+      checkOutTime: '2024-01-01T13:00:00Z',
+      remainingBalance: 50000,
+      isSimulation: true,
+      feeBreakdown: {
+        fee: 6000,
+        usageUnits: 3,
+        unitLabel: 'jam',
+        ratePerUnit: 2000,
+        roundingApplied: 'ceiling',
+      },
+    });
+    const { result } = createController(mocks);
+
+    await act(async () => {
+      await result.current.onCheckOut();
+    });
+
+    expect(result.current.resultType).toBe('checkout_success');
+    expect(result.current.checkOutSuccessDisplay?.isSimulation).toBe(true);
+    expect(result.current.checkOutSuccessDisplay?.remainingBalanceFormatted).toBe('Rp 50.000');
+  });
+
+  it('onCancelScan resets processing state', () => {
+    const { result } = createController();
+
+    act(() => {
+      result.current.onCancelScan();
+    });
+
+    expect(result.current.isProcessing).toBe(false);
+    expect(result.current.chipTransferStatus).toBe('idle');
+  });
 });
