@@ -55,7 +55,7 @@
 
 /* Primary Card Description */
 .mbc-role-picker__primary-card-description {
-  @apply mb-3 text-xs leading-relaxed text-gray-500;
+  @apply mb-3 text-xs leading-relaxed text-gray-500 mt-2;
 }
 
 /* ===== Secondary Roles Section ===== */

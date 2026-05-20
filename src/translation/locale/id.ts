@@ -52,8 +52,8 @@ export default {
   mbc_role_station_subtitle: 'Top-up & Registrasi',
   mbc_role_station_description: 'Top-up & Registrasi',
   mbc_role_scout_label: 'The Scout',
-  mbc_role_scout_subtitle: 'Buku Saku',
-  mbc_role_scout_description: 'Buku Saku',
+  mbc_role_scout_subtitle: 'Cek Saldo & Riwayat',
+  mbc_role_scout_description: 'Cek Saldo & Riwayat',
 
   /* MBC - Gate */
   mbc_gate_title: 'The Gate',
@@ -141,9 +141,9 @@ export default {
   /* MBC - NFC Capability Notice */
   mbc_nfc_unsupported_title: 'NFC Tidak Tersedia',
   mbc_nfc_unsupported_message: 'Browser ini tidak mendukung NFC. Gunakan Google Chrome (Android) untuk mengakses fitur NFC.',
-  mbc_nfc_permission_pending_title: '🔒 Izin NFC Diperlukan',
+  mbc_nfc_permission_pending_title: 'Izin NFC Diperlukan',
   mbc_nfc_permission_pending_message: 'Izin NFC belum diberikan. Beberapa fitur mungkin memerlukan izin NFC.',
-  mbc_nfc_permission_denied_title: '🚫 Izin NFC Ditolak',
+  mbc_nfc_permission_denied_title: 'Izin NFC Ditolak',
   mbc_nfc_permission_denied_message: 'Izin NFC ditolak. Aktifkan izin NFC di pengaturan perangkat untuk menggunakan fitur ini.',
 
   /* MBC - Balance Display */

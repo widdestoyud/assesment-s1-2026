@@ -12,7 +12,7 @@ body {
   margin: 0;
   padding: 0;
   background: #ecf3fb;
-  color: #4e5764;
+  color: var(--signal-color-secondary-7);
   height: 100%;
 }
 
