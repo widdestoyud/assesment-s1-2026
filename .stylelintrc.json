@@ -4,14 +4,38 @@
     "stylelint-config-prettier-scss",
     "stylelint-prettier"
   ],
+  "plugins": ["./stylelint-plugins/font-family-allowed.mjs"],
   "rules": {
-    "block-closing-brace-newline-after": "always-multi-line",
-    "block-closing-brace-empty-line-before": "never",
-    "block-closing-brace-space-before": "always",
-    "block-opening-brace-space-after": "always",
-    "block-opening-brace-space-before": "always",
-    "block-closing-brace-newline-before": "always-multi-line",
-    "block-opening-brace-newline-after": "always-multi-line",
-    "indentation": 4
+    "scss/at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["reference", "apply", "tailwind", "layer", "config"]
+      }
+    ],
+    "at-rule-no-unknown": null,
+    "selector-class-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      {
+        "message": "Expected class selector to follow BEM kebab-case pattern (block__element--modifier)"
+      }
+    ],
+    "custom/font-family-allowed": true,
+    "font-family-no-missing-generic-family-keyword": true,
+    "font-family-name-quotes": null,
+    "value-keyword-case": [
+      "lower",
+      {
+        "ignoreProperties": ["font-family", "/font/"]
+      }
+    ],
+    "custom-property-empty-line-before": null,
+    "declaration-empty-line-before": null,
+    "rule-empty-line-before": null,
+    "no-duplicate-selectors": null,
+    "color-hex-length": null,
+    "length-zero-no-unit": null,
+    "color-function-notation": null,
+    "color-function-alias-notation": null,
+    "alpha-value-notation": null
   }
 }

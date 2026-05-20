@@ -74,7 +74,7 @@ const SignalCallout: FC<SignalCalloutProps> = ({
         {actionLabel && (
           <button
             type="button"
-            className={`${styles['signal-callout__action']} ${styles[`signal-callout__action--${variant}`]}`}
+            className={styles['signal-callout__action']}
             onClick={onAction}
           >
             {actionLabel}

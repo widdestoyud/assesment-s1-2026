@@ -7,13 +7,13 @@
 
 /* ===== Theme Variants ===== */
 .signal-callout--info {
-  border: 1px solid var(--signal-color-info-1);
-  background-color: var(--signal-color-info-0);
+  border: 1px solid var(--signal-color-info-2);
+  background-color: var(--signal-color-info-1);
 }
 
 .signal-callout--warning {
-  border: 1px solid var(--signal-color-warning-1);
-  background-color: var(--signal-color-warning-0);
+  border: 1px solid var(--signal-color-warning-2);
+  background-color: var(--signal-color-warning-1);
 }
 
 /* ===== Icon ===== */
@@ -45,28 +45,17 @@
 
 .signal-callout__message {
   @apply text-xs;
-  color: var(--signal-color-neutral-5);
+  color: var(--signal-color-secondary-7);
 }
 
 /* ===== Action ===== */
 .signal-callout__action {
   @apply mt-1 self-start text-xs font-semibold;
-}
-
-.signal-callout__action--info {
   color: var(--signal-color-info-5);
 }
 
-.signal-callout__action--info:hover {
+.signal-callout__action:hover {
   color: var(--signal-color-info-7);
-}
-
-.signal-callout__action--warning {
-  color: var(--signal-color-warning-6);
-}
-
-.signal-callout__action--warning:hover {
-  color: var(--signal-color-warning-7);
 }
 
 /* ===== Dismiss ===== */
