@@ -134,6 +134,7 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
       aria-labelledby="nfc-scan-modal-title"
       className={styles['nfc-scan-modal__overlay']}
       onClick={handleOverlayClick}
+      onKeyDown={(e) => { if (e.key === 'Escape') handleClose(); }}
     >
       <div className={styles['nfc-scan-modal']}>
         {/* Close / Cancel button — always available */}

@@ -64,5 +64,5 @@ export const formatThousands = (value: string): string => {
  * Example: stripThousands("10.000") → "10000"
  */
 export const stripThousands = (value: string): string => {
-  return value.replace(/\./g, '');
+  return value.replaceAll('.', '');
 };

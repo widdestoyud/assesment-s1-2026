@@ -1,7 +1,7 @@
 import type { FC, HTMLAttributes, ReactNode } from 'react';
 import styles from './signal-card.module.css';
 
-export interface SignalCardProps extends HTMLAttributes<HTMLDivElement> {
+export interface SignalCardProps extends HTMLAttributes<HTMLElement> {
   /** Card content */
   children: ReactNode;
   /** Optional click handler — makes the card interactive */
@@ -23,13 +23,22 @@ const SignalCard: FC<SignalCardProps> = ({
     className ?? '',
   ].filter(Boolean).join(' ');
 
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={classes}
+        onClick={onClick}
+        data-testid={testId}
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
     <div
       className={classes}
-      onClick={onClick}
-      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
       data-testid={testId}
       {...rest}
     >

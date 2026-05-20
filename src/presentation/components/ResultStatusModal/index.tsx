@@ -88,6 +88,7 @@ const ResultStatusModal: FC<ResultStatusModalProps> = ({
       aria-labelledby="result-status-modal-title"
       className={styles['result-status-modal__overlay']}
       onClick={handleOverlayClick}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
       <div className={styles['result-status-modal']}>
         {/* Icon / Image */}
