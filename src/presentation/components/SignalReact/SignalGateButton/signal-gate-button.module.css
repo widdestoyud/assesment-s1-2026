@@ -1,13 +1,19 @@
-@reference "tailwindcss";
-
 /* ===== Base ===== */
 .signal-gate-button {
-  @apply flex flex-col items-center justify-center rounded-full;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
   aspect-ratio: 1;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
 }
 
 .signal-gate-button:disabled {
-  @apply opacity-50;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ===== Size Variants ===== */
@@ -76,13 +82,20 @@
 
 /* ===== Label ===== */
 .signal-gate-button__label {
-  @apply whitespace-pre-line text-center font-bold text-white;
+  white-space: pre-line;
+  text-align: center;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .signal-gate-button__label--sm {
-  @apply text-xs;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .signal-gate-button__label--lg {
-  @apply text-lg uppercase tracking-wide;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }

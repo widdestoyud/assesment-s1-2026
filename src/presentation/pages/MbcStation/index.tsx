@@ -5,6 +5,7 @@ import PageHeader from '@components/PageHeader';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
+import BalanceDisplay from '@components/BalanceDisplay';
 import { SignalButton, SignalCard, SignalCallout, SignalTypography } from '@components/SignalReact';
 import styles from './mbc-station.module.css';
 
@@ -28,6 +29,7 @@ const MbcStation: FC = () => {
     resultProps,
     resultType,
     onCloseResult,
+    topUpBalanceDisplay,
     onRegister,
     onStartTopUp,
     onTopUpNow,
@@ -70,7 +72,13 @@ const MbcStation: FC = () => {
             imageSrc={resultProps.imageSrc}
             detail={resultProps.detail}
             onClose={onCloseResult}
-          />
+          >
+            {topUpBalanceDisplay && (
+              <div className={styles['mbc-station__balance-current']}>
+                <BalanceDisplay formattedBalance={topUpBalanceDisplay.formattedBalance} t={t} />
+              </div>
+            )}
+          </ResultStatusModal>
         )}
 
         {/* Phase: Home */}

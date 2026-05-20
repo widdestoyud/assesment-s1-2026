@@ -1,14 +1,27 @@
-@reference "tailwindcss";
-
 /* ===== Base Container ===== */
 .signal-tab {
-  @apply flex items-center gap-0;
+  display: flex;
+  align-items: center;
+  gap: 0;
 }
 
 /* ===== Tab Item ===== */
 .signal-tab__item {
-  @apply flex flex-1 flex-col items-center gap-1 border-b-2 border-transparent px-4 py-2 text-sm transition-colors cursor-pointer;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  cursor: pointer;
   color: var(--signal-color-neutral-5);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
 }
 
 .signal-tab__item:hover {
@@ -16,22 +29,22 @@
 }
 
 .signal-tab__item:focus {
-  @apply outline-none;
+  outline: none;
 }
 
 /* ===== Active State ===== */
 .signal-tab__item--active {
-  @apply border-b-2 font-semibold;
-  border-color: var(--signal-color-primary-5);
+  border-bottom: 2px solid var(--signal-color-primary-5);
+  font-weight: 600;
   color: var(--signal-color-primary-5);
 }
 
 /* ===== Icon ===== */
 .signal-tab__icon {
-  @apply text-base;
+  font-size: 1rem;
 }
 
 /* ===== Label ===== */
 .signal-tab__label {
-  @apply text-sm;
+  font-size: 0.875rem;
 }

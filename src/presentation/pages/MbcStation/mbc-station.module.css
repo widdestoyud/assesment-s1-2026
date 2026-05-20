@@ -80,3 +80,7 @@
 .mbc-station__chip--active {
   @apply border-blue-400 bg-blue-50 font-semibold text-blue-700;
 }
+
+.mbc-station__balance-current{
+  @apply w-full mt-4;
+}

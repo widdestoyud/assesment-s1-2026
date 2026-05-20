@@ -19,6 +19,12 @@ export type { ResultModalProps } from './shared.types';
 export type StationPhase = 'home' | 'topup';
 export type ResultType = 'register_success' | 'already_registered' | 'not_registered' | 'topup_success' | 'topup_error' | 'nfc_error' | null;
 
+export interface TopUpBalanceDisplay {
+  formattedBalance: string;
+  formattedPreviousBalance: string;
+  formattedChangeAmount: string;
+}
+
 export interface StationControllerInterface {
   // Translation
   t: TFunction;
@@ -46,6 +52,7 @@ export interface StationControllerInterface {
   resultProps: ResultModalProps | null;
   resultType: ResultType;
   onCloseResult: () => void;
+  topUpBalanceDisplay: TopUpBalanceDisplay | null;
 
   // Actions — controller handles async + modal internally
   onRegister: () => void;
@@ -102,6 +109,7 @@ const StationController = (
   const [resultType, setResultType] = useState<ResultType>(null);
   const [resultAmount, setResultAmount] = useState(0);
   const [selectedChip, setSelectedChip] = useState<number | null>(null);
+  const [previousBalance, setPreviousBalance] = useState<number | null>(null);
 
   // --- Top-up form with React Hook Form + Zod ---
   const topUpSchema = z.object({
@@ -158,46 +166,41 @@ const StationController = (
     }
   };
 
+  // --- Shared validate-card flow ---
+  const executeValidateCard = async (handlers: {
+    onNew: () => void;
+    onExisting: (balance: number) => void;
+  }) => {
+    setResultType(null);
+    await chipOp.execute(async () => {
+      try {
+        const result = await validateCardUseCase.execute();
+        chipOp.setChipTransferStatus('success');
+        if (result.type === 'new') {
+          handlers.onNew();
+        } else {
+          setCardData({ v: 2, b: result.balance, s: 0, t: null, h: [] });
+          handlers.onExisting(result.balance);
+        }
+      } catch (err: unknown) {
+        handleChipTransferError(err);
+      }
+    });
+  };
+
   // --- Actions ---
 
-  const onRegister = async () => {
-    setResultType(null);
-
-    await chipOp.execute(async () => {
-      try {
-        const result = await validateCardUseCase.execute();
-        chipOp.setChipTransferStatus('success');
-        if (result.type === 'new') {
-          setResultType('register_success');
-        } else {
-          setResultType('already_registered');
-          setCardData({ v: 2, b: result.balance, s: 0, t: null, h: [] });
-        }
-      } catch (err: unknown) {
-        handleChipTransferError(err);
-      }
+  const onRegister = () =>
+    executeValidateCard({
+      onNew: () => setResultType('register_success'),
+      onExisting: () => setResultType('already_registered'),
     });
-  };
 
-  const onStartTopUp = async () => {
-    setResultType(null);
-
-    await chipOp.execute(async () => {
-      try {
-        const result = await validateCardUseCase.execute();
-        chipOp.setChipTransferStatus('success');
-
-        if (result.type === 'new') {
-          setResultType('not_registered');
-        } else {
-          setCardData({ v: 2, b: result.balance, s: 0, t: null, h: [] });
-          setPhase('topup');
-        }
-      } catch (err: unknown) {
-        handleChipTransferError(err);
-      }
+  const onStartTopUp = () =>
+    executeValidateCard({
+      onNew: () => setResultType('not_registered'),
+      onExisting: () => setPhase('topup'),
     });
-  };
 
   const onTopUpNow = async () => {
     const amount = Number.parseInt(watchedAmount, 10);
@@ -205,6 +208,7 @@ const StationController = (
 
     setResultType(null);
     setResultAmount(amount);
+    setPreviousBalance(cardData?.b ?? 0);
 
     await chipOp.execute(async () => {
       try {
@@ -263,6 +267,16 @@ const StationController = (
   const pageTitle = String(t('mbc_station_title'));
   const formattedTopUpAmount = formatThousands(watchedAmount);
   const formattedBalance = cardData ? formatIDR(cardData.b) : '';
+
+  // --- Top-up balance display (shown on success) ---
+  const topUpBalanceDisplay: TopUpBalanceDisplay | null =
+    resultType === 'topup_success' && previousBalance !== null
+      ? {
+          formattedBalance: formatIDR(previousBalance + resultAmount),
+          formattedPreviousBalance: formatIDR(previousBalance),
+          formattedChangeAmount: formatIDR(resultAmount),
+        }
+      : null;
 
   // --- Result modal props ---
 
@@ -352,6 +366,7 @@ const StationController = (
     resultProps,
     resultType,
     onCloseResult,
+    topUpBalanceDisplay,
 
     // Actions
     onRegister,

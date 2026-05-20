@@ -1,8 +1,10 @@
-@reference "tailwindcss";
-
 /* ===== Base ===== */
 .signal-callout {
-  @apply flex items-start gap-3 rounded-xl px-4 py-3;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
 }
 
 /* ===== Theme Variants ===== */
@@ -18,7 +20,10 @@
 
 /* ===== Icon ===== */
 .signal-callout__icon {
-  @apply mt-0.5 flex-shrink-0 text-lg leading-none;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  line-height: 1;
 }
 
 .signal-callout__icon--info {
@@ -30,28 +35,41 @@
 }
 
 .signal-callout__icon-image {
-  @apply h-5 w-5 object-contain;
+  height: 1.25rem;
+  width: 1.25rem;
+  object-fit: contain;
 }
 
 /* ===== Content ===== */
 .signal-callout__content {
-  @apply flex flex-1 flex-col gap-0.5;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .signal-callout__title {
-  @apply text-sm font-semibold;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--signal-color-secondary-7);
 }
 
 .signal-callout__message {
-  @apply text-xs;
+  font-size: 0.75rem;
   color: var(--signal-color-secondary-7);
 }
 
 /* ===== Action ===== */
 .signal-callout__action {
-  @apply mt-1 self-start text-xs font-semibold;
+  margin-top: 0.25rem;
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--signal-color-info-5);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .signal-callout__action:hover {
@@ -60,8 +78,15 @@
 
 /* ===== Dismiss ===== */
 .signal-callout__dismiss {
-  @apply flex-shrink-0 text-lg leading-none transition-colors;
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  line-height: 1;
+  transition: color 0.15s ease-in-out;
   color: var(--signal-color-secondary-4);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .signal-callout__dismiss:hover {
@@ -69,6 +94,7 @@
 }
 
 .signal-callout__dismiss:focus {
-  @apply outline-none rounded;
+  outline: none;
+  border-radius: 0.25rem;
   box-shadow: 0 0 0 2px var(--signal-color-info-2);
 }
