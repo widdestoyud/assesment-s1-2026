@@ -118,7 +118,7 @@ export default {
   mbc_station_not_registered_title: 'Kartu Belum Terdaftar',
   mbc_station_not_registered_subtitle: 'Kartu ini belum terdaftar. Silakan registrasi terlebih dahulu.',
   mbc_station_topup_result_success_title: 'Top-up berhasil',
-  mbc_station_topup_result_success_subtitle: 'Kartu sudah terdaftar dan tertulis.',
+  mbc_station_topup_result_success_subtitle: 'Selamat topup Anda telah berhasil dan saldo telah diperbarui.',
   mbc_station_topup_result_error_title: 'Top-up gagal',
   mbc_station_topup_result_error_subtitle: 'Terjadi kesalahan saat menulis ke kartu.',
   mbc_station_topup_result_nominal_label: 'Nominal',
