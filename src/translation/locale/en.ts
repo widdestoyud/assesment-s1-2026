@@ -4,6 +4,7 @@ export default {
 
   /* MBC - Error Messages */
   mbc_nfc_error_title: 'NFC Not Available',
+  mbc_nfc_error_card_invalid_title: 'Invalid Card',
   mbc_nfc_error_incompatible_card: 'Failed to read card. Make sure it is an NDEF-formatted NTAG215/216 card. Hold the card steady for 2-3 seconds.',
   mbc_nfc_error_card_not_recognized: 'This card is not recognized as an MBC card.',
   mbc_nfc_error_card_data_corrupted: 'Card data is damaged or invalid. Please re-register at The Station.',

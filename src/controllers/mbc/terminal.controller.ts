@@ -11,6 +11,7 @@ import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
 import { InsufficientBalanceError } from '@core/use_case/mbc/CheckOut';
 import { formatIDR } from '@utils/helpers/mbc.helper';
 import { useChipTransferCapability, useChipTransferOperation } from './hooks';
+import { getErrorTitleKey } from './shared.types';
 import type { ResultModalProps } from './shared.types';
 
 export type { ResultModalProps } from './shared.types';
@@ -206,7 +207,7 @@ const TerminalController = (
       const isTranslationKey = chipOp.error.startsWith('mbc_');
       return {
         variant: 'error',
-        title: t('mbc_nfc_error_title'),
+        title: t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title'),
         subtitle: isTranslationKey ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable')) : chipOp.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: images.nfcLoadDataFailed,

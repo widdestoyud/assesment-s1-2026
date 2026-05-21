@@ -12,6 +12,7 @@ import config from '@src/infrastructure/config';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useChipTransferCapability, useChipTransferOperation } from './hooks';
+import { getErrorTitleKey } from './shared.types';
 import type { ResultModalProps } from './shared.types';
 
 export type { ResultModalProps } from './shared.types';
@@ -327,7 +328,7 @@ const StationController = (
       case 'nfc_error':
         return {
           variant: 'error',
-          title: t('mbc_nfc_error_title'),
+          title: t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title'),
           subtitle: t(chipOp.error as 'mbc_nfc_error_hardware_unavailable') ?? t('mbc_nfc_error_hardware_unavailable'),
           buttonLabel: t('mbc_station_topup_result_done_button'),
           imageSrc: images.nfcLoadDataFailed,

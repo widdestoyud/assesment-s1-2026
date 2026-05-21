@@ -8,6 +8,7 @@ import type {
 } from '@src/@core/models/mbc';
 import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
 import { useChipTransferCapability, useChipTransferOperation } from './hooks';
+import { getErrorTitleKey } from './shared.types';
 import type { ResultModalProps } from './shared.types';
 
 export type { ResultModalProps } from './shared.types';
@@ -216,7 +217,7 @@ const GateController = (
     if (resultType === 'nfc_error' && chipOp.error) {
       return {
         variant: 'error',
-        title: t('mbc_nfc_error_title'),
+        title: t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title'),
         subtitle: chipOp.error.startsWith('mbc_') ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable')) : chipOp.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: images.nfcLoadDataFailed,

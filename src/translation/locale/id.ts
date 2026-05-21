@@ -4,6 +4,7 @@ export default {
 
   /* MBC - Error Messages */
   mbc_nfc_error_title: 'NFC Tidak Tersedia',
+  mbc_nfc_error_card_invalid_title: 'Kartu Tidak Valid',
   mbc_nfc_error_incompatible_card: 'Gagal membaca kartu. Pastikan kartu NTAG215/216 yang sudah di-format NDEF. Tahan kartu dengan stabil selama 2-3 detik.',
   mbc_nfc_error_card_not_recognized: 'Kartu ini tidak dikenali sebagai kartu MBC.',
   mbc_nfc_error_card_data_corrupted: 'Data kartu rusak atau tidak valid. Silakan daftarkan ulang di The Station.',
