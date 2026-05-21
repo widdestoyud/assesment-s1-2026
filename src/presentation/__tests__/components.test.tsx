@@ -319,7 +319,7 @@ describe('NfcScanModal', () => {
     render(
       <NfcScanModal isOpen={true} chipTransferStatus="idle" isProcessing={false} onClose={onClose} t={t} />,
     );
-    fireEvent.click(screen.getByLabelText('mbc_nfc_scan_modal_close'));
+    fireEvent.click(screen.getByText('mbc_nfc_scan_modal_cancel'));
     expect(onClose).toHaveBeenCalledOnce();
   });
 

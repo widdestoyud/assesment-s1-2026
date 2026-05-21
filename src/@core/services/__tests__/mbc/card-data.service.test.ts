@@ -291,16 +291,19 @@ describe('CardDataService', () => {
   });
 
   describe('applySimulationCheckOut', () => {
-    it('clears check-in status without deducting balance when card is checked in', () => {
-      const card: CardData = { v: 2, b: 10000, s: 1, t: '2024-01-01T10:00:00.000Z', h: [{ ts: 1704103200, a: 0, tp: 'ci' }] };
+    it('clears check-in status without deducting balance and records simulation history', () => {
+      const card: CardData = { v: 2, b: 10000, s: 1, t: '2024-01-01T10:00:00.000Z', h: [{ ts: 1704103200, a: 0, tp: 'ci', sim: 1 }] };
       const result = service.applySimulationCheckOut(card);
 
       expect(result.s).toBe(0);
       expect(result.t).toBeNull();
       expect(result.b).toBe(10000); // Balance unchanged
       expect(result.m).toBeUndefined();
-      // History should remain unchanged (no new entry added)
-      expect(result.h).toEqual(card.h);
+      // History should have a new simulation checkout entry
+      expect(result.h.length).toBe(2);
+      expect(result.h[0].tp).toBe('co');
+      expect(result.h[0].a).toBe(0);
+      expect(result.h[0].sim).toBe(1);
     });
 
     it('throws when card is NOT checked in (s=0)', () => {

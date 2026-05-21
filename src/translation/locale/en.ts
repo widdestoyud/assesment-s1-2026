@@ -58,6 +58,7 @@ export default {
 
   /* MBC - Gate */
   mbc_gate_title: 'The Gate',
+  mbc_gate_subtitle: 'Entry Access',
   mbc_gate_checkin_success: 'Check-in successful',
   mbc_gate_already_checked_in_title: 'Already Checked In',
   mbc_gate_checkin_simulation_success: 'Check-in successful (SIMULATION)',
@@ -68,14 +69,24 @@ export default {
   mbc_gate_simulation_date_label: 'Simulation date',
   mbc_gate_simulation_time_label: 'Simulation time',
   mbc_gate_simulation_use_time: 'Use This Time',
+  mbc_gate_normal_info: '1. Tap to start card scanning\n2. Tap card to device\n3. Wait until success',
+  mbc_gate_simulation_info: 'Simulation for parking fee estimation only. Not a real transaction.',
+  mbc_gate_help_label: 'Need help?',
+  mbc_gate_help_action: 'Contact staff',
+  mbc_gate_guide_title: 'Instructions',
 
   /* MBC - Terminal */
   mbc_terminal_title: 'The Terminal',
+  mbc_terminal_subtitle: 'Exit Access',
   mbc_terminal_checkout_success: 'Check-out successful',
   mbc_terminal_insufficient_balance_title: 'Insufficient Balance',
   mbc_terminal_insufficient_balance_button: 'Top-Up at Nearest Station',
   mbc_terminal_not_checked_in_title: 'Card Not Checked In',
   mbc_terminal_tap_card_label: 'TAP\nCheck-Out',
+  mbc_terminal_info: '1. Tap to start card scanning\n2. Tap card to device\n3. System will calculate duration and fee\n4. Wait until process is complete',
+  mbc_terminal_help_label: 'Need help?',
+  mbc_terminal_help_action: 'Contact staff',
+  mbc_terminal_guide_title: 'Instructions',
   mbc_terminal_simulation_notice: 'SIMULATION — Balance not deducted',
   mbc_terminal_entry_time_label: 'Entry Time',
   mbc_terminal_exit_time_label: 'Exit Time',
@@ -85,6 +96,7 @@ export default {
 
   /* MBC - Scout */
   mbc_scout_title: 'The Scout',
+  mbc_scout_subtitle: 'History & Balance',
   mbc_scout_read_button: 'TAP\nRead Card',
   mbc_scout_read_success_title: 'Card Read Successfully',
   mbc_scout_read_success_subtitle: 'Here is the member card information.',
@@ -97,9 +109,12 @@ export default {
   mbc_scout_history_topup: 'Top-Up',
   mbc_scout_history_checkin: 'Check-In',
   mbc_scout_history_checkout: 'Check-Out',
+  mbc_scout_history_checkin_sim: 'Check-In (Simulation)',
+  mbc_scout_history_checkout_sim: 'Check-Out (Simulation)',
 
   /* MBC - Station */
   mbc_station_title: 'The Station',
+  mbc_station_subtitle: 'Registration & Top-up',
   mbc_station_home_info: 'This page is used by admin to register new NFC member cards and top-up balance for registered member cards.',
   mbc_station_register_card_title: 'Register Card',
   mbc_station_register_card_description: 'Register a new NFC card for a member.',
@@ -130,6 +145,7 @@ export default {
   mbc_nfc_scan_modal_subtitle: 'Hold the NFC card near the back of your device now',
   mbc_nfc_scan_modal_waiting: 'Waiting Card...',
   mbc_nfc_scan_modal_close: 'Close',
+  mbc_nfc_scan_modal_cancel: 'Cancel',
   mbc_nfc_scan_modal_retry: 'Try Again',
 
   /* MBC - NFC Status */

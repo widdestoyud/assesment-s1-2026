@@ -16,6 +16,7 @@ export type { ResultModalProps } from './shared.types';
 export type ScoutResultType = 'read_success' | 'nfc_error' | null;
 
 export interface FormattedTransaction {
+  id: string;
   label: string;
   time: string;
   amount: string;
@@ -29,6 +30,7 @@ export interface ScoutControllerInterface {
 
   // Page metadata
   pageTitle: string;
+  pageSubtitle: string;
   onBack: () => void;
 
   // Chip transfer capability
@@ -140,6 +142,7 @@ const ScoutController = (
 
   // Computed values
   const pageTitle = String(t('mbc_scout_title'));
+  const pageSubtitle = String(t('mbc_scout_subtitle'));
 
   // Result modal props — pre-mapped, ready to spread
   const getResultProps = (): ResultModalProps | null => {
@@ -155,7 +158,7 @@ const ScoutController = (
     if (resultType === 'nfc_error' && chipOp.error) {
       return {
         variant: 'error',
-        title: String(t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title')),
+        title: String(t(getErrorTitleKey(chipOp.error))),
         subtitle: chipOp.error.startsWith('mbc_')
           ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable'))
           : chipOp.error,
@@ -171,7 +174,14 @@ const ScoutController = (
   // Pre-formatted card display values
   const formattedBalance = cardData ? helpers.formatIDR(cardData.b) : '';
 
-  const getTransactionLabel = (tp: 'tu' | 'ci' | 'co'): string => {
+  const getTransactionLabel = (tp: 'tu' | 'ci' | 'co', isSimulation: boolean): string => {
+    if (isSimulation) {
+      switch (tp) {
+        case 'ci': return String(t('mbc_scout_history_checkin_sim'));
+        case 'co': return String(t('mbc_scout_history_checkout_sim'));
+        default: return String(t('mbc_scout_history_topup'));
+      }
+    }
     switch (tp) {
       case 'tu': return String(t('mbc_scout_history_topup'));
       case 'ci': return String(t('mbc_scout_history_checkin'));
@@ -180,13 +190,21 @@ const ScoutController = (
   };
 
   const formattedTransactions: FormattedTransaction[] = cardData
-    ? cardData.h.map((entry) => ({
-        label: getTransactionLabel(entry.tp),
-        time: new Date(entry.ts * 1000).toLocaleString('id-ID'),
-        amount: entry.tp === 'ci' ? '—' : `${entry.a >= 0 ? '+' : ''}${helpers.formatIDR(entry.a)}`,
-        isPositive: entry.a >= 0,
-        isCheckin: entry.tp === 'ci',
-      }))
+    ? cardData.h.map((entry, idx) => {
+        const amountPrefix = entry.a >= 0 ? '+' : '';
+        const amount = entry.tp === 'ci'
+          ? '—'
+          : `${amountPrefix}${helpers.formatIDR(entry.a)}`;
+
+        return {
+          id: `${entry.tp}-${entry.ts}-${idx}`,
+          label: getTransactionLabel(entry.tp, entry.sim === 1),
+          time: helpers.formatDateTime(new Date(entry.ts * 1000)),
+          amount,
+          isPositive: entry.a >= 0,
+          isCheckin: entry.tp === 'ci',
+        };
+      })
     : [];
 
   const checkinStatusLabel = cardData
@@ -196,7 +214,7 @@ const ScoutController = (
     : '';
 
   const formattedEntryTime = cardData?.t
-    ? `${String(t('mbc_common_entry_time_label'))} ${new Date(cardData.t).toLocaleString('id-ID')}`
+    ? `${String(t('mbc_common_entry_time_label'))} ${helpers.formatDateTime(cardData.t)}`
     : null;
 
   return {
@@ -205,6 +223,7 @@ const ScoutController = (
 
     // Page metadata
     pageTitle,
+    pageSubtitle,
     onBack,
 
     // Chip transfer capability

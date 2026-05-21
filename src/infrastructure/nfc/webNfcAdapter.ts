@@ -259,38 +259,50 @@ export const webNfcAdapter: ChipTransferProtocol = {
  * Returns null if no recognizable record is found (blank card).
  */
 function extractPayload(message: NDEFMessage): Uint8Array | null {
+  return extractMimePayload(message) ?? extractTextPayload(message);
+}
+
+/** Priority 1: Extract raw binary from MIME record (new format) */
+function extractMimePayload(message: NDEFMessage): Uint8Array | null {
   for (const record of message.records) {
-    // Priority 1: MIME record — direct binary (new format)
     if (record.recordType === 'mime' && record.data) {
       return new Uint8Array(record.data.buffer, record.data.byteOffset, record.data.byteLength);
     }
   }
+  return null;
+}
 
-  // Priority 2: Text record — legacy base64 format (backward compat)
+/** Priority 2: Extract base64-encoded binary from Text record (legacy format) */
+function extractTextPayload(message: NDEFMessage): Uint8Array | null {
   for (const record of message.records) {
     if (record.recordType === 'text' && record.data) {
       const decoder = new TextDecoder();
       const rawText = decoder.decode(record.data).trim();
       if (rawText.length > 0) {
-        try {
-          return base64ToUint8Array(rawText);
-        } catch {
-          // Try stripping language prefix
-          for (const prefixLen of [2, 3, 5]) {
-            if (rawText.length > prefixLen) {
-              try {
-                return base64ToUint8Array(rawText.substring(prefixLen));
-              } catch {
-                // Continue
-              }
-            }
-          }
-        }
+        return decodeBase64WithFallback(rawText);
       }
       return null;
     }
   }
+  return null;
+}
 
+/** Try decoding base64, with fallback for language-prefix stripping */
+function decodeBase64WithFallback(rawText: string): Uint8Array | null {
+  try {
+    return base64ToUint8Array(rawText);
+  } catch {
+    // Try stripping language prefix (2, 3, or 5 bytes)
+    for (const prefixLen of [2, 3, 5]) {
+      if (rawText.length > prefixLen) {
+        try {
+          return base64ToUint8Array(rawText.substring(prefixLen));
+        } catch {
+          // Continue to next prefix length
+        }
+      }
+    }
+  }
   return null;
 }
 

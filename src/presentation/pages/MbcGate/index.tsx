@@ -5,7 +5,7 @@ import PageHeader from '@components/PageHeader';
 import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
-import { SignalButton, SignalCard, SignalGateButton, SignalTab, SignalTypography } from '@components/SignalReact';
+import { SignalButton, SignalCallout, SignalCard, SignalGateButton, SignalTab, SignalTypography } from '@components/SignalReact';
 import styles from './mbc-gate.module.css';
 
 const MbcGate: FC = () => {
@@ -13,6 +13,7 @@ const MbcGate: FC = () => {
   const {
     t,
     pageTitle,
+    pageSubtitle,
     onBack,
     chipTransferCapability,
     onNfcNoticeClose,
@@ -40,7 +41,7 @@ const MbcGate: FC = () => {
 
   return (
     <div className={styles['mbc-gate']}>
-      <PageHeader title={pageTitle} onBack={onBack} />
+      <PageHeader title={pageTitle} subtitle={pageSubtitle} onBack={onBack} />
       <main className={styles['mbc-gate__main']}>
         <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 
@@ -82,21 +83,37 @@ const MbcGate: FC = () => {
 
           {/* Normal Tab — NFC Tap Circle */}
           {activeTab === 'normal' && (
-            <SignalCard className={styles['mbc-gate__nfc-section']}>
-                <SignalGateButton
-                  color="gate"
-                  onClick={onCheckIn}
-                  disabled={isProcessing}
-                  aria-label={t('mbc_gate_tap_card_label')}
-                >
-                  {t('mbc_gate_tap_card_label')}
-                </SignalGateButton>
-            </SignalCard>
+            <>
+              <SignalCard className={styles['mbc-gate__nfc-section']}>
+                  <SignalGateButton
+                    color="gate"
+                    onClick={onCheckIn}
+                    disabled={isProcessing}
+                    aria-label={t('mbc_gate_tap_card_label')}
+                  >
+                    {t('mbc_gate_tap_card_label')}
+                  </SignalGateButton>
+              </SignalCard>
+
+              {/* Guide Section */}
+              <div className={styles['mbc-gate__guide']}>
+                <SignalTypography variant="body1-bold" as="p">
+                  {t('mbc_gate_guide_title')}
+                </SignalTypography>
+                <SignalTypography variant="body2-regular" as="p" className={styles['mbc-gate__guide-steps']}>
+                  {String(t('mbc_gate_normal_info')).split('\\n').join('\n')}
+                </SignalTypography>
+              </div>
+            </>
           )}
 
           {/* Simulation Tab — Date/Time Picker */}
           {activeTab === 'simulation' && (
             <SignalCard className={styles['mbc-gate__simulation-section']}>
+                  <SignalCallout
+                    variant="info"
+                    message={String(t('mbc_gate_simulation_info'))}
+                  />
                   <SignalTypography variant="body1-regular" as="p" className={styles['mbc-gate__simulation-title']}>
                     {t('mbc_gate_simulation_pick_time')}
                   </SignalTypography>

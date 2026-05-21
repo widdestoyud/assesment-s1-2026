@@ -20,14 +20,17 @@ export interface RoleCardProps {
 }
 
 const RoleCard: FC<RoleCardProps> = ({ role, onSelect, t }) => {
+  const colorModifier = styles[`role-card--${role.color}`];
+  const labelColorModifier = styles[`role-card__label--${role.color}`];
+
   return (
     <button
       type="button"
       onClick={onSelect}
       data-testid={`role-card-${role.id}`}
-      className={`${styles['role-card']} ${styles[`role-card--${role.color}`]}`}
+      className={`${styles['role-card']} ${colorModifier}`}
     >
-      <h3 className={`${styles['role-card__label']} ${styles[`role-card__label--${role.color}`]}`}>
+      <h3 className={`${styles['role-card__label']} ${labelColorModifier}`}>
         {String(t(role.labelKey as never))}
       </h3>
       <p className={styles['role-card__description']}>

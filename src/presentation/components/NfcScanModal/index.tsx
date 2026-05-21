@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import type { ChipTransferStatus, TranslateFn } from '../types';
+import { SignalButton } from '@components/SignalReact';
 import styles from './nfc-scan-modal.module.css';
 
 export interface NfcScanModalProps {
@@ -137,16 +138,6 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
       onKeyDown={(e) => { if (e.key === 'Escape') handleClose(); }}
     >
       <div className={styles['nfc-scan-modal']}>
-        {/* Close / Cancel button — always available */}
-        <button
-          type="button"
-          onClick={handleClose}
-          aria-label={t('mbc_nfc_scan_modal_close')}
-          className={styles['nfc-scan-modal__close']}
-        >
-          ✕
-        </button>
-
         {/* Title */}
         <h2 id="nfc-scan-modal-title" className={styles['nfc-scan-modal__title']}>
           {displayTitle}
@@ -212,6 +203,15 @@ const NfcScanModal: FC<NfcScanModalProps> = ({
           </button>
         )}
 
+        {/* Cancel button */}
+        <SignalButton
+          variant="primary"
+          size="lg"
+          fullWidth
+          onClick={handleClose}
+        >
+          {t('mbc_nfc_scan_modal_cancel')}
+        </SignalButton>
 
       </div>
     </div>

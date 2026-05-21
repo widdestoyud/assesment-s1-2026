@@ -12,8 +12,10 @@ const SignalStackGroup: FC<SignalStackGroupProps> = ({
   position = 'bottom',
   children,
 }) => {
+  const positionModifier = styles[`signal-stack-group--${position}`];
+
   return (
-    <div className={`${styles['signal-stack-group']} ${styles[`signal-stack-group--${position}`]}`}>
+    <div className={`${styles['signal-stack-group']} ${positionModifier}`}>
       {children}
     </div>
   );

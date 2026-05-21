@@ -14,6 +14,7 @@ const MbcStation: FC = () => {
   const {
     t,
     pageTitle,
+    pageSubtitle,
     onBack,
     chipTransferCapability,
     chipTransferAvailable,
@@ -47,7 +48,7 @@ const MbcStation: FC = () => {
 
   return (
     <div className={styles['mbc-station']}>
-      <PageHeader title={pageTitle} onBack={onBack} />
+      <PageHeader title={pageTitle} subtitle={pageSubtitle} onBack={onBack} />
       <main className={styles['mbc-station__main']}>
         <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 

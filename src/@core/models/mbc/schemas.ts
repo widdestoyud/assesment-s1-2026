@@ -4,6 +4,7 @@ export const TransactionEntrySchema = z.object({
   ts: z.number().int(),
   a: z.number().int(),
   tp: z.enum(['tu', 'ci', 'co']),
+  sim: z.literal(1).optional(),
 });
 
 export const CardDataSchema = z.object({

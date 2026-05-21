@@ -5,41 +5,6 @@
 
 :root {
   --default-font-family: Poppins, serif;
-}
-
-html,
-body {
-  font-family: Poppins, serif;
-  margin: 0;
-  padding: 0;
-  background: #ecf3fb;
-  color: var(--signal-color-secondary-7);
-  height: 100%;
-}
-
-#root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
-@layer utilities {
-  .translate-y-full {
-    transform: translateY(100%);
-  }
-
-  /* Smooth transitions for transform and opacity */
-  .transition-all {
-    transition-property: all;
-  }
-
-  .duration-300 {
-    transition-duration: 300ms;
-  }
-}
-
-
-:root {
   --signal-color-primary-0: #FFF5F6;
   --signal-color-primary-1: #FFEBEE;
   --signal-color-primary-2: #FFCCD3;
@@ -113,4 +78,35 @@ body {
   --signal-color-neutral-4: #99A0A7;
   --signal-color-neutral-5: #66707A;
   --signal-color-neutral-6: #4E5764;
+}
+
+html,
+body {
+  font-family: Poppins, serif;
+  margin: 0;
+  padding: 0;
+  background: #ecf3fb;
+  color: var(--signal-color-secondary-7);
+  height: 100%;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+@layer utilities {
+  .translate-y-full {
+    transform: translateY(100%);
+  }
+
+  /* Smooth transitions for transform and opacity */
+  .transition-all {
+    transition-property: all;
+  }
+
+  .duration-300 {
+    transition-duration: 300ms;
+  }
 }

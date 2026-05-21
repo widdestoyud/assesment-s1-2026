@@ -6,7 +6,7 @@ import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
 import BalanceDisplay from '@components/BalanceDisplay';
-import { SignalCard, SignalGateButton } from '@components/SignalReact';
+import { SignalCard, SignalGateButton, SignalTypography } from '@components/SignalReact';
 import styles from './mbc-terminal.module.css';
 
 const MbcTerminal: FC = () => {
@@ -14,6 +14,7 @@ const MbcTerminal: FC = () => {
   const {
     t,
     pageTitle,
+    pageSubtitle,
     onBack,
     chipTransferCapability,
     onNfcNoticeClose,
@@ -92,7 +93,7 @@ const MbcTerminal: FC = () => {
 
   return (
     <div className={styles['mbc-terminal']}>
-      <PageHeader title={pageTitle} onBack={onBack} />
+      <PageHeader title={pageTitle} subtitle={pageSubtitle} onBack={onBack} />
       <main className={styles['mbc-terminal__main']}>
         <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 
@@ -134,6 +135,16 @@ const MbcTerminal: FC = () => {
                 {t('mbc_terminal_tap_card_label')}
               </SignalGateButton>
           </SignalCard>
+
+          {/* Guide Section */}
+          <div className={styles['mbc-terminal__guide']}>
+            <SignalTypography variant="body1-bold" as="p">
+              {t('mbc_terminal_guide_title')}
+            </SignalTypography>
+            <SignalTypography variant="body2-regular" as="p" className={styles['mbc-terminal__guide-steps']}>
+              {String(t('mbc_terminal_info')).split('\\n').join('\n')}
+            </SignalTypography>
+          </div>
         </div>
       </main>
     </div>

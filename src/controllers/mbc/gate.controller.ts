@@ -7,6 +7,7 @@ import type {
   ChipTransferStatus,
 } from '@src/@core/models/mbc';
 import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
+import { formatDateTime } from '@utils/helpers/mbc.helper';
 import { useChipTransferCapability, useChipTransferOperation } from './hooks';
 import { getErrorTitleKey } from './shared.types';
 import type { ResultModalProps } from './shared.types';
@@ -23,6 +24,7 @@ export interface GateControllerInterface {
 
   // Page metadata
   pageTitle: string;
+  pageSubtitle: string;
   onBack: () => void;
 
   // Chip transfer capability
@@ -184,6 +186,7 @@ const GateController = (
   // Computed values
   const maxDate = new Date().toISOString().split('T')[0];
   const pageTitle = String(t('mbc_gate_title'));
+  const pageSubtitle = String(t('mbc_gate_subtitle'));
 
   // Result modal props — pre-mapped, ready to spread
   const getResultProps = (): ResultModalProps | null => {
@@ -192,7 +195,7 @@ const GateController = (
         return {
           variant: 'success',
           title: t('mbc_gate_checkin_simulation_success'),
-          subtitle: `${t('mbc_common_entry_time_label')} ${new Date(lastResult.checkInTime).toLocaleString('id-ID')}`,
+          subtitle: `${t('mbc_common_entry_time_label')} ${formatDateTime(lastResult.checkInTime)}`,
           buttonLabel: t('mbc_common_done_button'),
           imageSrc: images.success,
         };
@@ -200,7 +203,7 @@ const GateController = (
       return {
         variant: 'success',
         title: t('mbc_gate_checkin_success'),
-        subtitle: `${t('mbc_common_entry_time_label')} ${new Date(lastResult.checkInTime).toLocaleString('id-ID')}`,
+        subtitle: `${t('mbc_common_entry_time_label')} ${formatDateTime(lastResult.checkInTime)}`,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: images.success,
       };
@@ -217,7 +220,7 @@ const GateController = (
     if (resultType === 'nfc_error' && chipOp.error) {
       return {
         variant: 'error',
-        title: t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title'),
+        title: t(getErrorTitleKey(chipOp.error)),
         subtitle: chipOp.error.startsWith('mbc_') ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable')) : chipOp.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: images.nfcLoadDataFailed,
@@ -234,6 +237,7 @@ const GateController = (
 
     // Page metadata
     pageTitle,
+    pageSubtitle,
     onBack,
 
     // Chip transfer capability
