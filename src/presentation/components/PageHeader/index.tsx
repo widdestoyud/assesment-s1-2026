@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import SignalIcon from '@components/SignalReact/SignalIcon';
 import styles from './page-header.module.css';
 
 export interface PageHeaderProps {
@@ -40,10 +41,10 @@ const PageHeader: FC<PageHeaderProps> = ({
         <button
           type="button"
           onClick={() => navigate({ to: '/' })}
-          aria-label="Menu"
+          aria-label="Home"
           className={styles['page-header__menu']}
         >
-          <span className={styles['page-header__menu-icon']} aria-hidden="true">☰</span>
+          <SignalIcon fontIcon="home" color="secondary-7" size={22} />
         </button>
       )}
     </header>

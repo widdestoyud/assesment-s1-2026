@@ -6,7 +6,7 @@ import NfcCapabilityNotice from '@components/NfcCapabilityNotice';
 import NfcScanModal from '@components/NfcScanModal';
 import ResultStatusModal from '@components/ResultStatusModal';
 import BalanceDisplay from '@components/BalanceDisplay';
-import { SignalButton, SignalCard, SignalCallout, SignalTypography } from '@components/SignalReact';
+import { SignalButton, SignalCard, SignalCallout, SignalIcon, SignalTypography } from '@components/SignalReact';
 import styles from './mbc-station.module.css';
 
 const MbcStation: FC = () => {
@@ -97,12 +97,15 @@ const MbcStation: FC = () => {
               data-testid="station-register-card"
             >
               <div className={styles['mbc-station__action-card']}>
-                <SignalTypography variant="h5">
-                  {t('mbc_station_register_card_title')}
-                </SignalTypography>
-                <SignalTypography variant="body1-regular">
-                  {t('mbc_station_register_card_description')}
-                </SignalTypography>
+                <div className={styles['mbc-station__action-card-text']}>
+                  <SignalTypography variant="h5">
+                    {t('mbc_station_register_card_title')}
+                  </SignalTypography>
+                  <SignalTypography variant="body1-regular">
+                    {t('mbc_station_register_card_description')}
+                  </SignalTypography>
+                </div>
+                <SignalIcon fontIcon="chevron_right" color="secondary-4" size={20} />
               </div>
             </SignalCard>
 
@@ -112,12 +115,15 @@ const MbcStation: FC = () => {
               data-testid="station-topup-card"
             >
               <div className={styles['mbc-station__action-card']}>
-                <SignalTypography variant="h5">
-                  {t('mbc_station_topup_card_title')}
-                </SignalTypography>
-                <SignalTypography variant="body1-regular" className={styles['mbc-station__action-card-description']}>
-                  {t('mbc_station_topup_card_description')}
-                </SignalTypography>
+                <div className={styles['mbc-station__action-card-text']}>
+                  <SignalTypography variant="h5">
+                    {t('mbc_station_topup_card_title')}
+                  </SignalTypography>
+                  <SignalTypography variant="body1-regular" className={styles['mbc-station__action-card-description']}>
+                    {t('mbc_station_topup_card_description')}
+                  </SignalTypography>
+                </div>
+                <SignalIcon fontIcon="chevron_right" color="secondary-4" size={20} />
               </div>
             </SignalCard>
           </div>

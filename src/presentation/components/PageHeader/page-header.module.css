@@ -2,7 +2,7 @@
 
 /* ===== Base ===== */
 .page-header {
-  @apply flex items-center gap-4 p-4;
+  @apply flex items-center gap-4 px-2 py-4;
 }
 
 /* ===== Content ===== */

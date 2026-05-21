@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+.signal-icon {
+  @apply inline-flex items-center justify-center;
+}

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './assets/fonts/poppins/poppins.css';
 @import './assets/fonts/telkomsel-batik-sans/telkomsel-batik.css';
+@import './assets/fonts/TelkomselIconFamily/stylesheet.css';
 
 :root {
   --default-font-family: Poppins, serif;

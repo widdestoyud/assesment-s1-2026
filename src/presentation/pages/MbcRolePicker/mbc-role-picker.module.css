@@ -64,7 +64,7 @@
 }
 
 .mbc-role-picker__secondary-title {
-  @apply text-sm font-semibold text-gray-700;
+  @apply text-sm font-semibold text-gray-700 pl-2;
 }
 
 .mbc-role-picker__secondary-list {

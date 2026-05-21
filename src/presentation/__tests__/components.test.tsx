@@ -91,7 +91,7 @@ describe('PageHeader', () => {
 
   it('renders menu button by default', () => {
     render(<PageHeader title="Title" />);
-    expect(screen.getByLabelText('Menu')).toBeInTheDocument();
+    expect(screen.getByLabelText('Home')).toBeInTheDocument();
   });
 
   it('hides menu button when showMenu is false', () => {
