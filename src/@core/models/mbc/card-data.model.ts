@@ -4,13 +4,9 @@ export type TransactionType = 'tu' | 'ci' | 'co';
 
 /** Single transaction history entry stored on card */
 export interface TransactionEntry {
-  /** Timestamp (compact: epoch seconds to save bytes) */
   ts: number;
-  /** Amount change (positive = credit, negative = debit) */
   a: number;
-  /** Transaction type */
   tp: TransactionType;
-  /** Simulation flag: 1 = simulation transaction */
   sim?: 1;
 }
 
