@@ -16,13 +16,9 @@ MBC adalah program pemerintah yang menjadikan kartu NFC sebagai identitas anggot
 ### Fitur Utama
 
 - **Offline-First** — Semua operasi berjalan tanpa internet setelah instalasi awal
-- **Extensible Benefit Types** — Tidak hanya parkir, tapi juga sewa sepeda, gym, restoran, VIP, dll
-- **Configurable Pricing** — Per-jam, per-kunjungan, atau flat-fee dengan rounding strategy
+- **Pricing Calculation** — Rp 2.000 Per-jam dengan pertihungan rounding ceiling
 - **Atomic Transactions** — Tidak ada double deduction atau partial write
-- **Device Binding** — Check-out hanya bisa di device yang sama dengan check-in
 - **Silent Shield** — Data sensitif terenkripsi (AES-256-GCM)
-- **ChipTransfer Capability Detection** — Auto-detect browser support dengan graceful degradation
-- **Manual Fallback** — Kalkulasi manual jika NFC gagal saat check-out
 - **i18n** — Dukungan bahasa Indonesia dan English via i18next
 - **Signal Design System** — Komponen UI reusable (SignalButton, SignalCard, SignalTab, dll)
 
@@ -202,28 +198,6 @@ src/
 ### 🎫 Issues
 
 [View All Issues](https://github.com/widdestoyud/assesment-s1-2026/issues)
-
-## Test Coverage
-
-```
-Services:
-  ✅ card-data.service.test.ts
-  ✅ nfc.service.test.ts
-  ✅ pricing.service.test.ts
-  ✅ silent-shield.service.test.ts
-
-Use Cases:
-  ✅ CheckIn.test.ts
-  ✅ CheckOut.test.ts
-  ✅ ReadCard.test.ts
-  ✅ TopUpBalance.test.ts
-
-Controllers:
-  ✅ gate.controller.test.ts
-  ✅ role-picker.controller.test.ts
-  ✅ scout.controller.test.ts
-  ✅ terminal.controller.test.ts
-```
 
 ## Environment Variables
 
