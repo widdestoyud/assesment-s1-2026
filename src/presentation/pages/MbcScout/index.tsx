@@ -13,6 +13,7 @@ const MbcScout: FC = () => {
   const {
     t,
     pageTitle,
+    pageSubtitle,
     onBack,
     chipTransferCapability,
     onNfcNoticeClose,
@@ -65,8 +66,8 @@ const MbcScout: FC = () => {
             </p>
           ) : (
             <div className={styles['mbc-scout__history-list']}>
-              {formattedTransactions.map((tx, idx) => (
-                <div key={idx} className={styles['mbc-scout__history-item']}>
+              {formattedTransactions.map((tx) => (
+                <div key={tx.id} className={styles['mbc-scout__history-item']}>
                   <div className={styles['mbc-scout__history-left']}>
                     <span className={styles['mbc-scout__history-type']}>
                       {tx.label}
@@ -93,7 +94,7 @@ const MbcScout: FC = () => {
 
   return (
     <div className={styles['mbc-scout']}>
-      <PageHeader title={pageTitle} onBack={onBack} />
+      <PageHeader title={pageTitle} subtitle={pageSubtitle} onBack={onBack} />
       <main className={styles['mbc-scout__main']}>
         <NfcCapabilityNotice status={chipTransferCapability} onClose={onNfcNoticeClose} imageSrc={chipTransferFailedImage} t={t} />
 

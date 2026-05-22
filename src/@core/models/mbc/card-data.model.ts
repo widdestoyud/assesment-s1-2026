@@ -10,6 +10,8 @@ export interface TransactionEntry {
   a: number;
   /** Transaction type */
   tp: TransactionType;
+  /** Simulation flag: 1 = simulation transaction */
+  sim?: 1;
 }
 
 export interface CardData {

@@ -72,6 +72,7 @@ export const CardDataService = (
       ts: Math.floor(new Date(timestamp).getTime() / 1000),
       a: 0,
       tp: 'ci',
+      ...(isSimulation ? { sim: 1 as const } : {}),
     });
   };
 
@@ -87,12 +88,18 @@ export const CardDataService = (
     });
   };
 
-  /** Simulation check-out: clear check-in status without deducting balance or recording transaction */
+  /** Simulation check-out: clear check-in status without deducting balance, but record in history */
   const applySimulationCheckOut = (card: CardData): CardData => {
     if (card.s !== 1) {
       throw new Error('mbc_error_not_checked_in');
     }
-    return { ...card, s: 0, t: null, m: undefined };
+    const updated: CardData = { ...card, s: 0, t: null, m: undefined };
+    return addHistory(updated, {
+      ts: Math.floor(Date.now() / 1000),
+      a: 0,
+      tp: 'co',
+      sim: 1,
+    });
   };
 
   return {

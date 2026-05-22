@@ -9,7 +9,7 @@ import type {
 } from '@src/@core/models/mbc';
 import { ChipTransferServiceError } from '@core/services/mbc/nfc.service';
 import { InsufficientBalanceError } from '@core/use_case/mbc/CheckOut';
-import { formatIDR } from '@utils/helpers/mbc.helper';
+import { formatDateTime, formatIDR } from '@utils/helpers/mbc.helper';
 import { useChipTransferCapability, useChipTransferOperation } from './hooks';
 import { getErrorTitleKey } from './shared.types';
 import type { ResultModalProps } from './shared.types';
@@ -51,6 +51,7 @@ export interface TerminalControllerInterface {
 
   // Page metadata
   pageTitle: string;
+  pageSubtitle: string;
   onBack: () => void;
 
   // Chip transfer capability
@@ -164,6 +165,7 @@ const TerminalController = (
 
   // Computed values
   const pageTitle = String(t('mbc_terminal_title'));
+  const pageSubtitle = String(t('mbc_terminal_subtitle'));
 
   // Result modal props — pre-mapped, ready to spread
   const getResultProps = (): ResultModalProps | null => {
@@ -207,7 +209,7 @@ const TerminalController = (
       const isTranslationKey = chipOp.error.startsWith('mbc_');
       return {
         variant: 'error',
-        title: t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title'),
+        title: t(getErrorTitleKey(chipOp.error)),
         subtitle: isTranslationKey ? String(t(chipOp.error as 'mbc_nfc_error_hardware_unavailable')) : chipOp.error,
         buttonLabel: t('mbc_common_done_button'),
         imageSrc: images.nfcLoadDataFailed,
@@ -222,8 +224,8 @@ const TerminalController = (
   const getCheckOutSuccessDisplay = (): CheckOutSuccessDisplay | null => {
     if (resultType !== 'checkout_success' || !lastResult) return null;
     return {
-      checkInTimeFormatted: new Date(lastResult.checkInTime).toLocaleString('id-ID'),
-      checkOutTimeFormatted: new Date(lastResult.checkOutTime).toLocaleString('id-ID'),
+      checkInTimeFormatted: formatDateTime(lastResult.checkInTime),
+      checkOutTimeFormatted: formatDateTime(lastResult.checkOutTime),
       duration: lastResult.duration,
       rateFormatted: formatIDR(lastResult.feeBreakdown.ratePerUnit),
       unitLabel: lastResult.feeBreakdown.unitLabel,
@@ -237,8 +239,8 @@ const TerminalController = (
   const getInsufficientBalanceDisplay = (): InsufficientBalanceDisplay | null => {
     if (resultType !== 'insufficient_balance' || !insufficientBalanceData) return null;
     return {
-      checkInTimeFormatted: new Date(insufficientBalanceData.checkInTime).toLocaleString('id-ID'),
-      checkOutTimeFormatted: new Date(insufficientBalanceData.checkOutTime).toLocaleString('id-ID'),
+      checkInTimeFormatted: formatDateTime(insufficientBalanceData.checkInTime),
+      checkOutTimeFormatted: formatDateTime(insufficientBalanceData.checkOutTime),
       duration: insufficientBalanceData.duration,
       totalFormatted: formatIDR(insufficientBalanceData.feeBreakdown.fee),
       balanceFormatted: formatIDR(insufficientBalanceData.balance),
@@ -254,6 +256,7 @@ const TerminalController = (
 
     // Page metadata
     pageTitle,
+    pageSubtitle,
     onBack,
 
     // Chip transfer capability

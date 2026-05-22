@@ -70,3 +70,25 @@
 .mbc-terminal__time-value--bold {
   @apply text-sm font-bold text-gray-900;
 }
+
+/* Guide Section */
+.mbc-terminal__guide {
+  @apply flex flex-col gap-2 px-1;
+}
+
+.mbc-terminal__guide-steps {
+  @apply whitespace-pre-line text-sm text-gray-600 leading-relaxed;
+}
+
+.mbc-terminal__guide-help {
+  @apply mt-2;
+}
+
+.mbc-terminal__guide-help-label {
+  @apply text-sm text-gray-400;
+}
+
+.mbc-terminal__guide-help-action {
+  @apply text-sm font-bold;
+  color: var(--signal-color-primary-5);
+}

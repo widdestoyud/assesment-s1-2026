@@ -24,9 +24,11 @@ const SignalGateButton: FC<SignalGateButtonProps> = ({
     className ?? '',
   ].filter(Boolean).join(' ');
 
+  const labelSizeModifier = styles[`signal-gate-button__label--${size}`];
+
   return (
     <button type="button" className={classes} {...props}>
-      <span className={`${styles['signal-gate-button__label']} ${styles[`signal-gate-button__label--${size}`]}`}>
+      <span className={`${styles['signal-gate-button__label']} ${labelSizeModifier}`}>
         {children}
       </span>
     </button>

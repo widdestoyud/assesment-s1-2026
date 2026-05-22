@@ -7,7 +7,7 @@ import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.servic
 import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
 import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
 
-import { formatIDR, formatDuration } from '@utils/helpers/mbc.helper';
+import { formatIDR, formatDuration, formatDateTime } from '@utils/helpers/mbc.helper';
 
 import ScoutController from '../../mbc/scout.controller';
 
@@ -53,7 +53,7 @@ function createController(mocks = createMocks()) {
     ScoutController({
       useTranslation,
       useNavigate: () => vi.fn(),
-      helpers: { formatIDR, formatDuration },
+      helpers: { formatIDR, formatDuration, formatDateTime },
       images: {
         success: '/mock/success.svg',
         nfcLoadDataFailed: '/mock/nfc-load-data-failed.svg',
@@ -178,7 +178,7 @@ describe('ScoutController', () => {
       ScoutController({
         useTranslation,
         useNavigate: () => mockNav,
-        helpers: { formatIDR, formatDuration },
+        helpers: { formatIDR, formatDuration, formatDateTime },
         images: {
           success: '/mock/success.svg',
           nfcLoadDataFailed: '/mock/nfc-load-data-failed.svg',

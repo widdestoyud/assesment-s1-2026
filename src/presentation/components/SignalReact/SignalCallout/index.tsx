@@ -34,6 +34,9 @@ const SignalCallout: FC<SignalCalloutProps> = ({
   onDismiss,
   'data-testid': testId,
 }) => {
+  const variantModifier = styles[`signal-callout--${variant}`];
+  const iconVariantModifier = styles[`signal-callout__icon--${variant}`];
+
   const renderIcon = (): ReactNode | null => {
     if (!icon) {
       return null;
@@ -55,13 +58,13 @@ const SignalCallout: FC<SignalCalloutProps> = ({
 
   return (
     <section
-      className={`${styles['signal-callout']} ${styles[`signal-callout--${variant}`]}`}
+      className={`${styles['signal-callout']} ${variantModifier}`}
       role="status"
       aria-label={title ?? message}
       data-testid={testId}
     >
       {icon && (
-        <span className={`${styles['signal-callout__icon']} ${styles[`signal-callout__icon--${variant}`]}`} aria-hidden="true">
+        <span className={`${styles['signal-callout__icon']} ${iconVariantModifier}`} aria-hidden="true">
           {renderIcon()}
         </span>
       )}

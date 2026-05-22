@@ -26,11 +26,12 @@ const SignalSnackBar: FC<SignalSnackBarProps> = ({
 }) => {
   if (!visible) return null;
 
+  const variantModifier = styles[`signal-snack-bar--${variant}`];
   const positionClass = position ? styles[`signal-snack-bar--${position}`] : '';
 
   return (
     <div
-      className={`${styles['signal-snack-bar']} ${styles[`signal-snack-bar--${variant}`]} ${positionClass}`}
+      className={`${styles['signal-snack-bar']} ${variantModifier} ${positionClass}`}
       role="status"
       aria-live="polite"
       data-testid={testId}

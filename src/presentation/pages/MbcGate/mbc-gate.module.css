@@ -70,3 +70,25 @@
 .mbc-gate__error-alert {
   @apply rounded-lg bg-red-50 p-3 text-sm text-red-700;
 }
+
+/* Guide Section */
+.mbc-gate__guide {
+  @apply flex flex-col gap-2 px-1;
+}
+
+.mbc-gate__guide-steps {
+  @apply whitespace-pre-line text-sm text-gray-600 leading-relaxed;
+}
+
+.mbc-gate__guide-help {
+  @apply mt-2;
+}
+
+.mbc-gate__guide-help-label {
+  @apply text-sm text-gray-400;
+}
+
+.mbc-gate__guide-help-action {
+  @apply text-sm font-bold;
+  color: var(--signal-color-primary-5);
+}

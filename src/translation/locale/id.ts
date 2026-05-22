@@ -58,24 +58,35 @@ export default {
 
   /* MBC - Gate */
   mbc_gate_title: 'The Gate',
+  mbc_gate_subtitle: 'Akses Masuk',
   mbc_gate_checkin_success: 'Check-in berhasil',
   mbc_gate_already_checked_in_title: 'Anda Sudah Check-in',
   mbc_gate_checkin_simulation_success: 'Check-in berhasil (SIMULASI)',
   mbc_gate_tab_normal: 'Normal',
   mbc_gate_tab_simulation: 'Simulasi',
-  mbc_gate_tap_card_label: 'Tekan\nCheck-In',
+  mbc_gate_tap_card_label: 'Tekan untuk\nCheck-In',
   mbc_gate_simulation_pick_time: 'Pilih Waktu Masuk',
   mbc_gate_simulation_date_label: 'Tanggal simulasi',
   mbc_gate_simulation_time_label: 'Jam simulasi',
   mbc_gate_simulation_use_time: 'Gunakan Waktu Ini',
+  mbc_gate_normal_info: '1. Tekan tombol untuk memulai pemindaian kartu\n2. Tap kartu ke perangkat\n3. Tunggu sampai sukses',
+  mbc_gate_simulation_info: 'Simulasi untuk perhitungan estimasi tarif parkir. Bukan untuk transaksi nyata.',
+  mbc_gate_help_label: 'Butuh bantuan?',
+  mbc_gate_help_action: 'Hubungi petugas',
+  mbc_gate_guide_title: 'Petunjuk',
 
   /* MBC - Terminal */
   mbc_terminal_title: 'The Terminal',
+  mbc_terminal_subtitle: 'Akses Keluar',
   mbc_terminal_checkout_success: 'Check-out berhasil',
   mbc_terminal_insufficient_balance_title: 'Saldo Tidak Cukup',
   mbc_terminal_insufficient_balance_button: 'Isi Ke Station Terdekat',
   mbc_terminal_not_checked_in_title: 'Kartu Belum Check-In',
-  mbc_terminal_tap_card_label: 'Tekan\nCheck-Out',
+  mbc_terminal_tap_card_label: 'Tekan untuk\nCheck-Out',
+  mbc_terminal_info: '1. Tekan tombol untuk memulai pemindaian kartu\n2. Tap kartu ke perangkat\n3. Sistem akan menghitung durasi dan tarif\n4. Tunggu sampai proses hingga sukses',
+  mbc_terminal_help_label: 'Butuh bantuan?',
+  mbc_terminal_help_action: 'Hubungi petugas',
+  mbc_terminal_guide_title: 'Petunjuk',
   mbc_terminal_simulation_notice: 'SIMULASI — Saldo tidak dipotong',
   mbc_terminal_entry_time_label: 'Waktu Masuk',
   mbc_terminal_exit_time_label: 'Waktu Keluar',
@@ -85,7 +96,8 @@ export default {
 
   /* MBC - Scout */
   mbc_scout_title: 'The Scout',
-  mbc_scout_read_button: 'Tekan\nBaca Kartu',
+  mbc_scout_subtitle: 'Riwayat dan Saldo',
+  mbc_scout_read_button: 'Tekan untuk\nRiwayat & Saldo',
   mbc_scout_read_success_title: 'Kartu Berhasil Dibaca',
   mbc_scout_read_success_subtitle: 'Berikut informasi kartu member.',
   mbc_scout_checkin_status_label: 'Status Check-In',
@@ -97,9 +109,12 @@ export default {
   mbc_scout_history_topup: 'Top-Up',
   mbc_scout_history_checkin: 'Check-In',
   mbc_scout_history_checkout: 'Check-Out',
+  mbc_scout_history_checkin_sim: 'Check-In (Simulasi)',
+  mbc_scout_history_checkout_sim: 'Check-Out (Simulasi)',
 
   /* MBC - Station */
   mbc_station_title: 'The Station',
+  mbc_station_subtitle: 'Registrasi dan Top-up',
   mbc_station_home_info: 'Halaman ini digunakan oleh admin untuk registrasi kartu NFC member baru dan top-up saldo kartu member yang sudah terdaftar.',
   mbc_station_register_card_title: 'Registrasi Kartu',
   mbc_station_register_card_description: 'Daftarkan kartu NFC baru untuk member.',
@@ -130,6 +145,7 @@ export default {
   mbc_nfc_scan_modal_subtitle: 'Dekatkan kartu ke bagian belakang perangkat sekarang',
   mbc_nfc_scan_modal_waiting: 'Menunggu Kartu...',
   mbc_nfc_scan_modal_close: 'Tutup',
+  mbc_nfc_scan_modal_cancel: 'Batalkan',
   mbc_nfc_scan_modal_retry: 'Coba Lagi',
 
   /* MBC - NFC Status */

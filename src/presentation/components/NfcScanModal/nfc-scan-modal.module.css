@@ -87,7 +87,7 @@
 
 /* Label inside circle */
 .nfc-scan-modal__label {
-  @apply mt-2 text-xs font-bold uppercase tracking-wider;
+  @apply mt-2 text-xs font-bold uppercase tracking-wider mb-4;
 }
 
 .nfc-scan-modal__label--success {

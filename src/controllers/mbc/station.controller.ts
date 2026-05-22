@@ -32,6 +32,7 @@ export interface StationControllerInterface {
 
   // Page metadata
   pageTitle: string;
+  pageSubtitle: string;
   onBack: () => void;
 
   // Chip transfer capability
@@ -266,6 +267,7 @@ const StationController = (
   // --- Computed values ---
 
   const pageTitle = String(t('mbc_station_title'));
+  const pageSubtitle = String(t('mbc_station_subtitle'));
   const formattedTopUpAmount = formatThousands(watchedAmount);
   const formattedBalance = cardData ? formatIDR(cardData.b) : '';
 
@@ -328,7 +330,7 @@ const StationController = (
       case 'nfc_error':
         return {
           variant: 'error',
-          title: t(getErrorTitleKey(chipOp.error) as 'mbc_nfc_error_title'),
+          title: t(getErrorTitleKey(chipOp.error)),
           subtitle: t(chipOp.error as 'mbc_nfc_error_hardware_unavailable') ?? t('mbc_nfc_error_hardware_unavailable'),
           buttonLabel: t('mbc_station_topup_result_done_button'),
           imageSrc: images.nfcLoadDataFailed,
@@ -346,6 +348,7 @@ const StationController = (
 
     // Page metadata
     pageTitle,
+    pageSubtitle,
     onBack,
 
     // Chip transfer capability
