@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { CardData } from '@core/models/mbc';
 import type { ChipTransferServiceInterface } from '@core/services/mbc/nfc.service';
-import type { SilentShieldServiceInterface } from '@core/services/mbc/silent-shield.service';
-import type { CardDataServiceInterface } from '@core/services/mbc/card-data.service';
+import type { ReadCardUseCaseInterface } from '@core/use_case/mbc/ReadCard';
 
 import { formatIDR, formatDuration, formatDateTime } from '@utils/helpers/mbc.helper';
 
@@ -20,32 +19,18 @@ const CARD_DATA: CardData = {
 };
 
 function createMocks() {
-  const rawEncrypted = new Uint8Array([1, 2, 3, 4, 5]);
-  const rawDecrypted = new TextEncoder().encode(JSON.stringify(CARD_DATA));
-
   const chipTransferService: ChipTransferServiceInterface = {
     isAvailable: vi.fn().mockReturnValue(true),
     queryPermission: vi.fn().mockResolvedValue('supported'),
-    readCard: vi.fn().mockResolvedValue(rawEncrypted),
+    readCard: vi.fn().mockResolvedValue(new Uint8Array([1])),
     readThenWrite: vi.fn(),
   };
 
-  const silentShieldService: SilentShieldServiceInterface = {
-    encrypt: vi.fn().mockResolvedValue(new Uint8Array([99])),
-    decrypt: vi.fn().mockResolvedValue(rawDecrypted),
+  const readCardUseCase: ReadCardUseCaseInterface = {
+    execute: vi.fn().mockResolvedValue(CARD_DATA),
   };
 
-  const cardDataService: CardDataServiceInterface = {
-    serialize: vi.fn().mockReturnValue(new Uint8Array([10])),
-    deserialize: vi.fn().mockReturnValue(CARD_DATA),
-    createBlank: vi.fn().mockReturnValue({ v: 2, b: 0, s: 0, t: null, h: [] }),
-    applyTopUp: vi.fn(),
-    applyCheckIn: vi.fn(),
-    applyCheckOut: vi.fn(),
-  };
-
-  // readCardUseCase removed — controller reads directly via services
-  return { chipTransferService, silentShieldService, cardDataService };
+  return { chipTransferService, readCardUseCase };
 }
 
 function createController(mocks = createMocks()) {
@@ -53,6 +38,8 @@ function createController(mocks = createMocks()) {
     ScoutController({
       useTranslation,
       useNavigate: () => vi.fn(),
+      readCardUseCase: mocks.readCardUseCase,
+      chipTransferService: mocks.chipTransferService,
       helpers: { formatIDR, formatDuration, formatDateTime },
       images: {
         success: '/mock/success.svg',
@@ -60,7 +47,6 @@ function createController(mocks = createMocks()) {
         tapNfc: '/mock/tap-nfc.svg',
         nfcFailed: '/mock/nfc-failed.svg',
       },
-      ...mocks,
     }),
   );
 }
@@ -101,7 +87,7 @@ describe('ScoutController', () => {
 
   it('handles read error', async () => {
     const mocks = createMocks();
-    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.readCardUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('NFC read failed'),
     );
     const { result } = createController(mocks);
@@ -125,7 +111,7 @@ describe('ScoutController', () => {
   it('handles ChipTransferServiceError during read', async () => {
     const { ChipTransferServiceError } = await import('@core/services/mbc/nfc.service');
     const mocks = createMocks();
-    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mocks.readCardUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
       new ChipTransferServiceError({
         type: 'hardware_unavailable',
         message: 'NFC unavailable',
@@ -207,9 +193,7 @@ describe('ScoutController', () => {
       ],
     };
     const mocks = createMocks();
-    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockResolvedValue(new Uint8Array([1]));
-    (mocks.silentShieldService.decrypt as ReturnType<typeof vi.fn>).mockResolvedValue(new Uint8Array([1]));
-    (mocks.cardDataService.deserialize as ReturnType<typeof vi.fn>).mockReturnValue(cardWithHistory);
+    (mocks.readCardUseCase.execute as ReturnType<typeof vi.fn>).mockResolvedValue(cardWithHistory);
 
     const { result } = createController(mocks);
 
@@ -227,8 +211,8 @@ describe('ScoutController', () => {
 
   it('does not start new read when already processing', async () => {
     const mocks = createMocks();
-    // Make readCard hang
-    (mocks.chipTransferService.readCard as ReturnType<typeof vi.fn>).mockImplementation(
+    // Make readCardUseCase hang
+    (mocks.readCardUseCase.execute as ReturnType<typeof vi.fn>).mockImplementation(
       () => new Promise(() => {}),
     );
     const { result } = createController(mocks);
@@ -243,7 +227,7 @@ describe('ScoutController', () => {
       result.current.onReadCard();
     });
 
-    // readCard should only be called once
-    expect(mocks.chipTransferService.readCard).toHaveBeenCalledTimes(1);
+    // readCardUseCase should only be called once
+    expect(mocks.readCardUseCase.execute).toHaveBeenCalledTimes(1);
   });
 });

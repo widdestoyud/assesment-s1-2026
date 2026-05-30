@@ -67,9 +67,8 @@ const ScoutController = (
     AwilixRegistry,
     | 'useTranslation'
     | 'useNavigate'
+    | 'readCardUseCase'
     | 'chipTransferService'
-    | 'silentShieldService'
-    | 'cardDataService'
     | 'images'
     | 'helpers'
   >,
@@ -77,9 +76,8 @@ const ScoutController = (
   const {
     useTranslation,
     useNavigate,
+    readCardUseCase,
     chipTransferService,
-    silentShieldService,
-    cardDataService,
     images,
     helpers,
   } = deps;
@@ -101,14 +99,7 @@ const ScoutController = (
 
     await chipOp.execute(async () => {
       try {
-        // Step 1: Read raw bytes from card
-        const rawEncrypted = await chipTransferService.readCard();
-
-        // Step 2: Try to decrypt
-        const decrypted = await silentShieldService.decrypt(rawEncrypted);
-
-        // Step 3: Try to deserialize
-        const card = cardDataService.deserialize(decrypted);
+        const card = await readCardUseCase.execute();
 
         chipOp.setChipTransferStatus('success');
         setCardData(card);
